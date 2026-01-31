@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
     title: "Health Care Client ",
-    description: "",
+    description: "Health Care Client Application",
 };
 
 export default function RootLayout({

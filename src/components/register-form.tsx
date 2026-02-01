@@ -1,3 +1,4 @@
+"use client";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,11 +16,17 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
+import { useActionState } from "react";
+import { registerPatient } from "@/services/auth/registerPatient";
 
 export function RegisterForm({
     className,
     ...props
 }: React.ComponentProps<"div">) {
+    const [state, formAction, isPending] = useActionState(
+        registerPatient,
+        null,
+    );
     return (
         <div className={cn("flex flex-col gap-6", className)} {...props}>
             <Card>
@@ -32,7 +39,7 @@ export function RegisterForm({
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <form>
+                    <form action={formAction}>
                         <FieldGroup>
                             <Field>
                                 <FieldLabel htmlFor="name">
@@ -40,6 +47,7 @@ export function RegisterForm({
                                 </FieldLabel>
                                 <Input
                                     id="name"
+                                    name="name"
                                     type="text"
                                     placeholder="John Doe"
                                     required
@@ -49,6 +57,7 @@ export function RegisterForm({
                                 <FieldLabel htmlFor="email">Email</FieldLabel>
                                 <Input
                                     id="email"
+                                    name="email"
                                     type="email"
                                     placeholder="m@example.com"
                                     required
@@ -62,6 +71,7 @@ export function RegisterForm({
                                         </FieldLabel>
                                         <Input
                                             id="password"
+                                            name="password"
                                             type="password"
                                             required
                                         />
@@ -72,6 +82,7 @@ export function RegisterForm({
                                         </FieldLabel>
                                         <Input
                                             id="confirm-password"
+                                            name="confirm-password"
                                             type="password"
                                             required
                                         />
@@ -85,8 +96,11 @@ export function RegisterForm({
                                 <Button
                                     type="submit"
                                     className="bg-indigo-600 hover:bg-indigo-500"
+                                    disabled={isPending}
                                 >
-                                    Create Account
+                                    {isPending
+                                        ? "Creating..."
+                                        : "Create Account"}
                                 </Button>
                                 <FieldDescription className="text-center">
                                     Already have an account?{" "}

@@ -111,7 +111,7 @@ export default function PublicNavbar() {
                                     </ul>
                                 </nav>
 
-                                <Link href="/auth/login">
+                                <Link href="/login">
                                     <Button className="bg-indigo-600 hover:bg-indigo-500 cursor-pointer w-full text-center">
                                         Login
                                     </Button>

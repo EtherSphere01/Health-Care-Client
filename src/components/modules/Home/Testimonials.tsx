@@ -38,7 +38,7 @@ export default function Testimonials() {
                     </h3>
                 </div>
 
-                <div className="grid md:grid-cols-3 gap-8">
+                <div className="grid lg:grid-cols-3 gap-8">
                     {testimonials.map((t, i) => (
                         <div
                             key={i}

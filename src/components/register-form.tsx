@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { cn } from "@/lib/utils";
@@ -17,8 +18,9 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
 import { registerPatient } from "@/services/auth/registerPatient";
+import { toast } from "sonner";
 
 export function RegisterForm({
     className,
@@ -36,6 +38,49 @@ export function RegisterForm({
         const error = errors.find((err: any) => err.field === fieldName);
         return error ? error.message : null;
     };
+
+    const formatMessage = (value: unknown) => {
+        if (!value) return "Something went wrong";
+        if (typeof value === "string") return value;
+        try {
+            return JSON.stringify(value);
+        } catch (_err) {
+            return "Unexpected error";
+        }
+    };
+
+    useEffect(() => {
+        if (!state || isPending) return;
+
+        if (state.success) {
+            toast.success(
+                formatMessage(state.message ?? "Account created successfully"),
+                {
+                    position: "top-right",
+                },
+            );
+            return;
+        }
+
+        if (state.errors?.length) {
+            toast.error(
+                formatMessage(
+                    state.errors[0].message ?? "Please fix the errors",
+                ),
+                {
+                    position: "top-right",
+                },
+            );
+            return;
+        }
+
+        if (state.error) {
+            toast.error(formatMessage(state.error), {
+                position: "top-right",
+            });
+        }
+    }, [state, isPending]);
+
     return (
         <div className={cn("flex flex-col gap-6", className)} {...props}>
             <Card>
@@ -85,7 +130,7 @@ export function RegisterForm({
                                 )}
                             </Field>
                             <Field>
-                                <Field className="grid grid-cols-2 gap-4">
+                                <Field className="grid grid-cols-1 gap-4">
                                     <Field>
                                         <FieldLabel htmlFor="password">
                                             Password

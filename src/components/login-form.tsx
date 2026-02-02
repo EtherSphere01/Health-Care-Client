@@ -18,8 +18,9 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
 import { loginUser } from "@/services/auth/loginUser";
+import { toast } from "sonner";
 
 export function LoginForm({
     className,
@@ -33,6 +34,23 @@ export function LoginForm({
         const error = errors.find((err: any) => err.field === fieldName);
         return error ? error.message : null;
     };
+
+    useEffect(() => {
+        if (!state || isPending) return;
+
+        if (state.success) {
+            toast.success(state.message ?? "Login successfully", {
+                position: "top-right",
+            });
+            return;
+        }
+
+        if (state.success == false) {
+            toast.warning(state.message ?? "Password or email incorrect", {
+                position: "top-right",
+            });
+        }
+    }, [state, isPending]);
 
     return (
         <div className={cn("flex flex-col gap-6", className)} {...props}>

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -27,6 +28,14 @@ export function RegisterForm({
         registerPatient,
         null,
     );
+
+    const getFieldError = (fieldName: string) => {
+        const errors = state?.errors;
+        if (!errors) return null;
+
+        const error = errors.find((err: any) => err.field === fieldName);
+        return error ? error.message : null;
+    };
     return (
         <div className={cn("flex flex-col gap-6", className)} {...props}>
             <Card>
@@ -50,8 +59,14 @@ export function RegisterForm({
                                     name="name"
                                     type="text"
                                     placeholder="John Doe"
+                                    defaultValue={state?.values?.name}
                                     required
                                 />
+                                {getFieldError("name") && (
+                                    <FieldDescription className="text-red-600">
+                                        {getFieldError("name")}
+                                    </FieldDescription>
+                                )}
                             </Field>
                             <Field>
                                 <FieldLabel htmlFor="email">Email</FieldLabel>
@@ -60,8 +75,14 @@ export function RegisterForm({
                                     name="email"
                                     type="email"
                                     placeholder="m@example.com"
+                                    defaultValue={state?.values?.email}
                                     required
                                 />
+                                {getFieldError("email") && (
+                                    <FieldDescription className="text-red-600">
+                                        {getFieldError("email")}
+                                    </FieldDescription>
+                                )}
                             </Field>
                             <Field>
                                 <Field className="grid grid-cols-2 gap-4">
@@ -73,19 +94,37 @@ export function RegisterForm({
                                             id="password"
                                             name="password"
                                             type="password"
+                                            defaultValue={
+                                                state?.values?.password
+                                            }
                                             required
                                         />
+                                        {getFieldError("password") && (
+                                            <FieldDescription className="text-red-600">
+                                                {getFieldError("password")}
+                                            </FieldDescription>
+                                        )}
                                     </Field>
                                     <Field>
-                                        <FieldLabel htmlFor="confirm-password">
+                                        <FieldLabel htmlFor="confirmPassword">
                                             Confirm Password
                                         </FieldLabel>
                                         <Input
-                                            id="confirm-password"
-                                            name="confirm-password"
+                                            id="confirmPassword"
+                                            name="confirmPassword"
                                             type="password"
+                                            defaultValue={
+                                                state?.values?.confirmPassword
+                                            }
                                             required
                                         />
+                                        {getFieldError("confirmPassword") && (
+                                            <FieldDescription className="text-red-600">
+                                                {getFieldError(
+                                                    "confirmPassword",
+                                                )}
+                                            </FieldDescription>
+                                        )}
                                     </Field>
                                 </Field>
                                 <FieldDescription>

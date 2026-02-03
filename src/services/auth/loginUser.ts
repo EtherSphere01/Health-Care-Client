@@ -2,10 +2,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use server";
 
+import { cookies } from "next/headers";
+import { parse } from "cookie";
 import z from "zod";
+import jwt, { JwtPayload } from "jsonwebtoken";
 
 const loginValidationSchema = z.object({
-    email: z.email({ message: "Invalid email address" }),
+    email: z.string().email({ message: "Invalid email address" }),
     password: z.string().nonempty({ message: "Password is required" }),
 });
 
@@ -14,6 +17,9 @@ export const loginUser = async (
     formData: any,
 ): Promise<any> => {
     try {
+        let accessTokenObject: null | any = null;
+        let refreshTokenObject: null | any = null;
+
         const loginData = {
             email: String(formData.get("email") ?? ""),
             password: String(formData.get("password") ?? ""),
@@ -40,8 +46,81 @@ export const loginUser = async (
                 },
                 body: JSON.stringify(loginData),
             },
-        ).then((res) => res.json());
-        return res;
+        );
+
+        const data = await res.json();
+        if (!res.ok) {
+            return {
+                success: false,
+                message: data.message ?? "Password or email incorrect",
+                values: loginData,
+            };
+        }
+
+        const setCookieHeaders = res.headers.getSetCookie();
+
+        if (setCookieHeaders && setCookieHeaders.length > 0) {
+            setCookieHeaders.forEach((cookie) => {
+                const parsedCookie = parse(cookie);
+                if (parsedCookie["accessToken"]) {
+                    accessTokenObject = parsedCookie;
+                }
+                if (parsedCookie["refreshToken"]) {
+                    refreshTokenObject = parsedCookie;
+                }
+            });
+        } else {
+            throw new Error("No Set-Cookie headers found");
+        }
+
+        if (!accessTokenObject || !refreshTokenObject) {
+            throw new Error("Tokens not found in Cookies");
+        }
+
+        // Normalize to root path so cookies are sent on all routes.
+        const cookieStore = await cookies();
+        const isProd = process.env.NODE_ENV === "production";
+        const accessSameSite =
+            isProd && accessTokenObject["SameSite"]
+                ? accessTokenObject["SameSite"]
+                : "lax";
+        const refreshSameSite =
+            isProd && refreshTokenObject["SameSite"]
+                ? refreshTokenObject["SameSite"]
+                : "lax";
+
+        cookieStore.set("accessToken", accessTokenObject.accessToken, {
+            secure: isProd,
+            httpOnly: true,
+            maxAge: parseInt(accessTokenObject["Max-Age"]) || 86400,
+            path: "/",
+            sameSite: accessSameSite as any,
+        });
+
+        cookieStore.set("refreshToken", refreshTokenObject.refreshToken, {
+            secure: isProd,
+            httpOnly: true,
+            maxAge: parseInt(refreshTokenObject["Max-Age"]) || 2592000,
+            path: "/",
+            sameSite: refreshSameSite as any,
+        });
+
+        // const verifiedToken: JwtPayload | string = jwt.verify(
+        //     accessTokenObject.accessToken,
+        //     process.env.JWT_SECRET || "default_secret",
+        // );
+        // if (typeof verifiedToken === "string") {
+        //     console.log(
+        //         "Token verification returned a string, expected JwtPayload",
+        //     );
+        // }
+
+        // Login successful
+        return {
+            success: true,
+            message: data.message ?? "Login successful",
+            user: data.user ?? null,
+        };
     } catch (error) {
         return {
             success: false,

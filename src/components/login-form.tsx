@@ -49,6 +49,10 @@ export function LoginForm({
             toast.warning(state.message ?? "Password or email incorrect", {
                 position: "top-right",
             });
+        } else {
+            toast.error("Something went wrong", {
+                position: "top-right",
+            });
         }
     }, [state, isPending]);
 

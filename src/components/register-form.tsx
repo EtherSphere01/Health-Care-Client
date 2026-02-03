@@ -21,6 +21,7 @@ import Link from "next/link";
 import { useActionState, useEffect } from "react";
 import { registerPatient } from "@/services/auth/registerPatient";
 import { toast } from "sonner";
+import { redirect } from "next/navigation";
 
 export function RegisterForm({
     className,
@@ -78,6 +79,13 @@ export function RegisterForm({
             toast.error(formatMessage(state.error), {
                 position: "top-right",
             });
+        }
+    }, [state, isPending]);
+
+    useEffect(() => {
+        if (!state) return;
+        if (state.success && !isPending) {
+            redirect("/login");
         }
     }, [state, isPending]);
 

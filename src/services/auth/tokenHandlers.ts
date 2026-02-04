@@ -18,5 +18,5 @@ export const deleteCookie = async (key: string) => {
 export const getCookie = async (key: string): Promise<string | null> => {
     const cookieStore = await cookies();
     const cookie = cookieStore.get(key);
-    return cookie ? cookie.value : null;
+    return cookie ? cookie.value : null; 
 };

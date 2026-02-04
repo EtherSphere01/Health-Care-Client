@@ -40,45 +40,16 @@ export function RegisterForm({
         return error ? error.message : null;
     };
 
-    const formatMessage = (value: unknown) => {
-        if (!value) return "Something went wrong";
-        if (typeof value === "string") return value;
-        try {
-            return JSON.stringify(value);
-        } catch (_err) {
-            return "Unexpected error";
-        }
-    };
-
     useEffect(() => {
         if (!state || isPending) return;
 
         if (state.success) {
-            toast.success(
-                formatMessage(state.message ?? "Account created successfully"),
-                {
-                    position: "top-right",
-                },
-            );
-            return;
-        }
-
-        if (state.errors?.length) {
-            toast.error(
-                formatMessage(
-                    state.errors[0].message ?? "Please fix the errors",
-                ),
-                {
-                    position: "top-right",
-                },
-            );
+            toast.success(state.message ?? "Account created successfully");
             return;
         }
 
         if (state.error) {
-            toast.error(formatMessage(state.error), {
-                position: "top-right",
-            });
+            toast.error(state.message ?? "Something went wrong");
         }
     }, [state, isPending]);
 
@@ -97,7 +68,7 @@ export function RegisterForm({
                         Create your account
                     </CardTitle>
                     <CardDescription>
-                        Enter your email below to create your account
+                        Enter your details below to create your account
                     </CardDescription>
                 </CardHeader>
                 <CardContent>

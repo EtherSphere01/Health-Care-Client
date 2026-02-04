@@ -65,7 +65,7 @@ export async function changePassword(
 ): Promise<{ success: boolean; message: string }> {
     try {
         const response = await post<null>("/auth/change-password", data);
-        revalidateTag("user");
+        revalidateTag("user", "max");
         return { success: true, message: response.message };
     } catch (error) {
         const errorMessage =
@@ -133,7 +133,7 @@ export async function getMe(): Promise<IUser | null> {
 export async function logout(): Promise<void> {
     await deleteCookie("accessToken");
     await deleteCookie("refreshToken");
-    revalidateTag("user");
+    revalidateTag("user", "max");
 }
 
 /**

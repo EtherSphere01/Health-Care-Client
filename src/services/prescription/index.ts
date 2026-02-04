@@ -55,8 +55,8 @@ export async function createPrescription(
     data: ICreatePrescriptionRequest,
 ): Promise<IApiResponse<IPrescription>> {
     const response = await post<IPrescription>("/prescription", data);
-    revalidateTag(PRESCRIPTIONS_TAG);
-    revalidateTag("my-prescriptions");
-    revalidateTag("appointments");
+    revalidateTag(PRESCRIPTIONS_TAG, "max");
+    revalidateTag("my-prescriptions", "max");
+    revalidateTag("appointments", "max");
     return response;
 }

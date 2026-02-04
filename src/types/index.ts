@@ -164,6 +164,7 @@ export interface ISchedule {
 }
 
 export interface IDoctorSchedule {
+    id?: string; // Optional for DataTable compatibility
     doctorId: string;
     scheduleId: string;
     isBooked: boolean;

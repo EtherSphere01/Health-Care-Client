@@ -19,13 +19,27 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
-import { IDoctorMeta } from "@/types";
+import { IDoctorDashboardMeta, IDashboardMeta } from "@/types";
 
 interface DoctorDashboardContentProps {
-    stats: IDoctorMeta | null;
+    stats: IDashboardMeta | null;
+}
+
+// Type guard for doctor dashboard meta
+function isDoctorMeta(
+    meta: IDashboardMeta | null,
+): meta is IDoctorDashboardMeta {
+    return (
+        meta !== null &&
+        "totalPrescriptions" in meta &&
+        "totalRevenue" in meta &&
+        !("totalDoctors" in meta)
+    );
 }
 
 export function DoctorDashboardContent({ stats }: DoctorDashboardContentProps) {
+    const doctorStats = isDoctorMeta(stats) ? stats : null;
+
     return (
         <div className="space-y-6">
             <DashboardHeader
@@ -37,26 +51,26 @@ export function DoctorDashboardContent({ stats }: DoctorDashboardContentProps) {
             <StatsGrid columns={4}>
                 <StatCard
                     title="Total Appointments"
-                    value={stats?.appointmentCount || 0}
+                    value={doctorStats?.totalAppointments || 0}
                     icon={Calendar}
                     description="All-time appointments"
                 />
                 <StatCard
                     title="Total Patients"
-                    value={stats?.patientCount || 0}
+                    value={doctorStats?.totalPatients || 0}
                     icon={Users}
                     trend={{ value: 12, isPositive: true }}
                     description="Unique patients"
                 />
                 <StatCard
-                    title="Pending Reviews"
-                    value={stats?.reviewCount || 0}
+                    title="Prescriptions"
+                    value={doctorStats?.totalPrescriptions || 0}
                     icon={Star}
-                    description="Patient reviews"
+                    description="Total prescriptions"
                 />
                 <StatCard
                     title="Total Earnings"
-                    value={`$${(stats?.revenue || 0).toLocaleString()}`}
+                    value={`$${(doctorStats?.totalRevenue || 0).toLocaleString()}`}
                     icon={DollarSign}
                     description="Lifetime revenue"
                 />
@@ -74,9 +88,7 @@ export function DoctorDashboardContent({ stats }: DoctorDashboardContentProps) {
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">
-                            {stats?.appointmentStatusDistribution?.find(
-                                (s) => s.status === "SCHEDULED",
-                            )?.count || 0}
+                            {doctorStats?.appointmentByStatus?.scheduled || 0}
                         </div>
                         <p className="text-xs text-muted-foreground">
                             appointments scheduled for today
@@ -94,9 +106,7 @@ export function DoctorDashboardContent({ stats }: DoctorDashboardContentProps) {
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">
-                            {stats?.appointmentStatusDistribution?.find(
-                                (s) => s.status === "COMPLETED",
-                            )?.count || 0}
+                            {doctorStats?.appointmentByStatus?.completed || 0}
                         </div>
                         <p className="text-xs text-muted-foreground">
                             appointments completed
@@ -114,9 +124,7 @@ export function DoctorDashboardContent({ stats }: DoctorDashboardContentProps) {
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">
-                            {stats?.appointmentStatusDistribution?.find(
-                                (s) => s.status === "INPROGRESS",
-                            )?.count || 0}
+                            {doctorStats?.appointmentByStatus?.inProgress || 0}
                         </div>
                         <p className="text-xs text-muted-foreground">
                             currently active
@@ -135,21 +143,54 @@ export function DoctorDashboardContent({ stats }: DoctorDashboardContentProps) {
                 </CardHeader>
                 <CardContent>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        {stats?.appointmentStatusDistribution?.map((status) => (
-                            <div
-                                key={status.status}
-                                className="p-4 rounded-lg bg-muted/50"
-                            >
-                                <p className="text-sm text-muted-foreground capitalize">
-                                    {status.status
-                                        .toLowerCase()
-                                        .replace("_", " ")}
-                                </p>
-                                <p className="text-2xl font-bold mt-1">
-                                    {status.count}
-                                </p>
-                            </div>
-                        )) || (
+                        {doctorStats?.appointmentByStatus ? (
+                            <>
+                                <div className="p-4 rounded-lg bg-muted/50">
+                                    <p className="text-sm text-muted-foreground">
+                                        Scheduled
+                                    </p>
+                                    <p className="text-2xl font-bold mt-1">
+                                        {
+                                            doctorStats.appointmentByStatus
+                                                .scheduled
+                                        }
+                                    </p>
+                                </div>
+                                <div className="p-4 rounded-lg bg-muted/50">
+                                    <p className="text-sm text-muted-foreground">
+                                        In Progress
+                                    </p>
+                                    <p className="text-2xl font-bold mt-1">
+                                        {
+                                            doctorStats.appointmentByStatus
+                                                .inProgress
+                                        }
+                                    </p>
+                                </div>
+                                <div className="p-4 rounded-lg bg-muted/50">
+                                    <p className="text-sm text-muted-foreground">
+                                        Completed
+                                    </p>
+                                    <p className="text-2xl font-bold mt-1">
+                                        {
+                                            doctorStats.appointmentByStatus
+                                                .completed
+                                        }
+                                    </p>
+                                </div>
+                                <div className="p-4 rounded-lg bg-muted/50">
+                                    <p className="text-sm text-muted-foreground">
+                                        Canceled
+                                    </p>
+                                    <p className="text-2xl font-bold mt-1">
+                                        {
+                                            doctorStats.appointmentByStatus
+                                                .canceled
+                                        }
+                                    </p>
+                                </div>
+                            </>
+                        ) : (
                             <p className="text-sm text-muted-foreground col-span-full">
                                 No appointment data available
                             </p>

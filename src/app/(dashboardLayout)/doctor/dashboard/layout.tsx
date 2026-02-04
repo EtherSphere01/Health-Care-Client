@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/services/auth";
-import { DashboardLayoutWrapper } from "@/components/shared/DashboardLayout";
+import { DashboardLayout } from "@/components/shared/DashboardNavigation";
 
 interface DoctorDashboardLayoutProps {
     children: React.ReactNode;
@@ -24,9 +24,5 @@ export default async function DoctorDashboardLayout({
         }
     }
 
-    return (
-        <DashboardLayoutWrapper role="DOCTOR">
-            {children}
-        </DashboardLayoutWrapper>
-    );
+    return <DashboardLayout role="DOCTOR">{children}</DashboardLayout>;
 }

@@ -103,13 +103,10 @@ export function DoctorProfileContent({
     const handleSave = async () => {
         setIsSubmitting(true);
         try {
-            const formDataToSend = new FormData();
-            formDataToSend.append("data", JSON.stringify(formData));
-            if (profileImage) {
-                formDataToSend.append("file", profileImage);
-            }
-
-            const response = await updateMyProfile(formDataToSend);
+            const response = await updateMyProfile(
+                formData,
+                profileImage || undefined,
+            );
             if (response.success) {
                 toast.success("Profile updated successfully");
                 setIsEditing(false);
@@ -117,8 +114,12 @@ export function DoctorProfileContent({
             } else {
                 toast.error(response.message || "Failed to update profile");
             }
-        } catch (error: any) {
-            toast.error(error.message || "Failed to update profile");
+        } catch (error: unknown) {
+            const message =
+                error instanceof Error
+                    ? error.message
+                    : "Failed to update profile";
+            toast.error(message);
         } finally {
             setIsSubmitting(false);
         }

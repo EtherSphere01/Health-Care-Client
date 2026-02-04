@@ -32,8 +32,8 @@ export async function createReview(
     data: ICreateReviewRequest,
 ): Promise<IApiResponse<IReview>> {
     const response = await post<IReview>("/review", data);
-    revalidateTag(REVIEWS_TAG);
-    revalidateTag("doctors");
-    revalidateTag("appointments");
+    revalidateTag(REVIEWS_TAG, "max");
+    revalidateTag("doctors", "max");
+    revalidateTag("appointments", "max");
     return response;
 }

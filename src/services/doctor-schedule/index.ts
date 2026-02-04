@@ -54,8 +54,8 @@ export async function createDoctorSchedule(
     data: ICreateDoctorScheduleRequest,
 ): Promise<IApiResponse<IDoctorSchedule[]>> {
     const response = await post<IDoctorSchedule[]>("/doctor-schedule", data);
-    revalidateTag(DOCTOR_SCHEDULES_TAG);
-    revalidateTag("my-schedule");
+    revalidateTag(DOCTOR_SCHEDULES_TAG, "max");
+    revalidateTag("my-schedule", "max");
     return response;
 }
 
@@ -68,7 +68,7 @@ export async function deleteDoctorSchedule(
     const response = await del<IDoctorSchedule>(
         `/doctor-schedule/${scheduleId}`,
     );
-    revalidateTag(DOCTOR_SCHEDULES_TAG);
-    revalidateTag("my-schedule");
+    revalidateTag(DOCTOR_SCHEDULES_TAG, "max");
+    revalidateTag("my-schedule", "max");
     return response;
 }

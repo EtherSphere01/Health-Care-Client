@@ -52,9 +52,9 @@ export async function createAppointment(
     data: ICreateAppointmentRequest,
 ): Promise<IApiResponse<IAppointment>> {
     const response = await post<IAppointment>("/appointment", data);
-    revalidateTag(APPOINTMENTS_TAG);
-    revalidateTag("my-appointments");
-    revalidateTag("doctor-schedules");
+    revalidateTag(APPOINTMENTS_TAG, "max");
+    revalidateTag("my-appointments", "max");
+    revalidateTag("doctor-schedules", "max");
     return response;
 }
 
@@ -69,7 +69,7 @@ export async function updateAppointmentStatus(
         `/appointment/status/${appointmentId}`,
         data,
     );
-    revalidateTag(APPOINTMENTS_TAG);
-    revalidateTag("my-appointments");
+    revalidateTag(APPOINTMENTS_TAG, "max");
+    revalidateTag("my-appointments", "max");
     return response;
 }

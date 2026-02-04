@@ -133,7 +133,9 @@ export function DoctorPrescriptionsContent({
                 <EmptyState
                     title="No prescriptions found"
                     description="You haven't written any prescriptions yet."
-                    icon={FileText}
+                    icon={
+                        <FileText className="h-8 w-8 text-muted-foreground" />
+                    }
                 />
             ) : (
                 <>

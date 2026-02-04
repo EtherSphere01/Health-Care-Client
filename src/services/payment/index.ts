@@ -17,8 +17,8 @@ export async function initializePayment(
     const response = await post<IInitPaymentResponse>(
         `/payment/init-payment/${appointmentId}`,
     );
-    revalidateTag("appointments");
-    revalidateTag("my-appointments");
+    revalidateTag("appointments", "max");
+    revalidateTag("my-appointments", "max");
     return response;
 }
 
@@ -34,8 +34,8 @@ export async function initPayment(
             amount: data.amount,
         },
     );
-    revalidateTag("appointments");
-    revalidateTag("my-appointments");
+    revalidateTag("appointments", "max");
+    revalidateTag("my-appointments", "max");
     return response;
 }
 

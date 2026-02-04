@@ -90,10 +90,7 @@ export function MySchedulesContent({
 
         setIsDeleting(true);
         try {
-            await deleteDoctorSchedule(
-                scheduleToDelete.doctorId,
-                scheduleToDelete.scheduleId,
-            );
+            await deleteDoctorSchedule(scheduleToDelete.scheduleId);
             toast.success("Schedule removed successfully");
             router.refresh();
         } catch (error) {

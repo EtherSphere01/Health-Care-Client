@@ -37,14 +37,26 @@ export const getDoctorSchedules = getAllDoctorSchedules;
 export async function getMyDoctorSchedule(
     params?: Omit<IDoctorScheduleQueryParams, "doctorId">,
 ): Promise<IApiResponse<IDoctorSchedule[]> & { meta?: IMeta }> {
-    return get<IDoctorSchedule[]>(
-        "/doctor-schedule/my-schedule",
-        params as Record<string, unknown>,
-        {
-            tags: [DOCTOR_SCHEDULES_TAG, "my-schedule"],
-            revalidate: 30,
-        },
-    );
+    const response = await get<
+        IDoctorSchedule[] | { data: IDoctorSchedule[]; meta?: IMeta }
+    >("/doctor-schedule/my-schedule", params as Record<string, unknown>, {
+        tags: [DOCTOR_SCHEDULES_TAG, "my-schedule"],
+        revalidate: 30,
+    });
+
+    const normalizedData = Array.isArray(response.data)
+        ? response.data
+        : response.data?.data || [];
+
+    const normalizedMeta = Array.isArray(response.data)
+        ? response.meta
+        : response.data?.meta;
+
+    return {
+        ...response,
+        data: normalizedData,
+        meta: normalizedMeta,
+    } as IApiResponse<IDoctorSchedule[]> & { meta?: IMeta };
 }
 
 /**

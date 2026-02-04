@@ -1,6 +1,5 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { doctors } from "@/lib/data";
 import {
     ArrowRight,
     CheckCircle2,
@@ -8,24 +7,45 @@ import {
     Clock,
     GraduationCap,
     MapPin,
-    MessageSquare,
     Star,
 } from "lucide-react";
 import Image from "next/image";
 import React, { useState } from "react";
+import Link from "next/link";
+import { IDoctor } from "@/types";
 
-export default function DoctorsList() {
+interface DoctorsListProps {
+    doctors: IDoctor[];
+}
+
+export default function DoctorsList({ doctors }: DoctorsListProps) {
     const [showAllDoctors, setShowAllDoctors] = useState(false);
-    const [openFaq, setOpenFaq] = useState<number | null>(null);
 
-    // Enhanced mock data for display
-    const enhancedDoctors = doctors.map((d) => ({
-        ...d,
-        degree: "MBBS, MD", // Mock degree
-        experience: "10+ Years",
-        nextAvailable: "Today, 2:00 PM",
-        location: "Central Hospital, NY",
-    }));
+    const enhancedDoctors = doctors.map((doctor) => {
+        const specialtyTitle =
+            doctor.doctorSpecialties?.[0]?.specialty?.title ||
+            doctor.doctorSpecialties?.[0]?.specialities?.title ||
+            "General";
+
+        const nextSchedule = doctor.doctorSchedules?.[0]?.schedule;
+
+        return {
+            ...doctor,
+            specialtyTitle,
+            degree: doctor.qualification || "MBBS",
+            experience: `${doctor.experience || 0}+ Years`,
+            nextAvailable: nextSchedule
+                ? new Date(nextSchedule.startDateTime).toLocaleString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                      hour: "numeric",
+                      minute: "2-digit",
+                  })
+                : "View Schedule",
+            location: doctor.currentWorkingPlace || "Not specified",
+        };
+    });
+
     const displayedDoctors = showAllDoctors
         ? enhancedDoctors
         : enhancedDoctors.slice(0, 3);
@@ -82,9 +102,9 @@ export default function DoctorsList() {
                                 {/* Rating Badge */}
                                 <div className="absolute top-4 right-4 z-20 bg-white/90 backdrop-blur px-3 py-1.5 rounded-md text-xs font-bold text-slate-900 flex items-center shadow-lg">
                                     <Star className="h-3.5 w-3.5 text-amber-400 mr-1.5 fill-current" />{" "}
-                                    {doctor.rating}{" "}
+                                    {(doctor.averageRating || 0).toFixed(1)}{" "}
                                     <span className="text-slate-400 font-normal ml-1">
-                                        (120+)
+                                        (Reviews)
                                     </span>
                                 </div>
 
@@ -94,13 +114,9 @@ export default function DoctorsList() {
                                     Available Today
                                 </div>
 
-                                {doctor.avatarUrl ? (
+                                {doctor.profilePhoto ? (
                                     <Image
-                                        src={
-                                            doctor.avatarUrl
-                                                ? doctor.avatarUrl
-                                                : ""
-                                        }
+                                        src={doctor.profilePhoto}
                                         width={100}
                                         height={100}
                                         alt={doctor.name}
@@ -114,7 +130,7 @@ export default function DoctorsList() {
                                         {doctor.name}
                                     </h3>
                                     <p className="text-slate-200 font-medium opacity-90">
-                                        {doctor.specialty}
+                                        {doctor.specialtyTitle}
                                     </p>
                                 </div>
                             </div>
@@ -174,11 +190,12 @@ export default function DoctorsList() {
                                     </span>
                                 </div>
 
-                                <Button
-                                    className="w-full bg-slate-900 hover:bg-slate-800 text-white shadow-none rounded-lg h-12"
-                                    // onClick={onRegister}
-                                >
-                                    Book Appointment
+                                <Button asChild className="w-full h-12">
+                                    <Link
+                                        href={`/consultation?doctor=${doctor.id}`}
+                                    >
+                                        Book Appointment
+                                    </Link>
                                 </Button>
                             </div>
                         </div>

@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { getMyPrescriptions } from "@/services/prescription";
+import { getMyAppointments } from "@/services/appointment";
 import { DoctorPrescriptionsContent } from "./DoctorPrescriptionsContent";
 import { Spinner } from "@/components/ui/loading";
 import { ErrorState } from "@/components/ui/empty-state";
@@ -34,11 +34,20 @@ async function PrescriptionsFetcher({
     const limit = parseInt(searchParams.limit || "10", 10);
 
     try {
-        const response = await getMyPrescriptions({ page, limit });
+        const response = await getMyAppointments({ page, limit });
+
+        const prescriptions = (response.data ?? [])
+            .map((appointment) => appointment.prescription)
+            .filter(
+                (
+                    prescription,
+                ): prescription is NonNullable<typeof prescription> =>
+                    Boolean(prescription),
+            );
 
         return (
             <DoctorPrescriptionsContent
-                prescriptions={response.data ?? []}
+                prescriptions={prescriptions}
                 meta={response.meta ?? null}
                 currentFilters={{ page, limit }}
             />

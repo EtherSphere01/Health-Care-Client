@@ -140,11 +140,7 @@ export function LoginForm({ redirect }: { redirect?: string }) {
                                 </FieldDescription>
                             </Field>
                             <Field>
-                                <Button
-                                    type="submit"
-                                    className="bg-indigo-600 hover:bg-indigo-500"
-                                    disabled={isPending}
-                                >
+                                <Button type="submit" disabled={isPending}>
                                     {isPending ? "Logging in..." : "Login"}
                                 </Button>
                                 <FieldDescription className="text-center">

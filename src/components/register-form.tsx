@@ -31,7 +31,7 @@ export function RegisterForm({
     const hasRedirected = useRef(false);
     const [state, formAction, isPending] = useActionState(
         registerPatient,
-        null
+        null,
     );
 
     const getFieldError = (fieldName: string) => {
@@ -144,7 +144,7 @@ export function RegisterForm({
                                         {getFieldError("confirmPassword") && (
                                             <FieldDescription className="text-red-600">
                                                 {getFieldError(
-                                                    "confirmPassword"
+                                                    "confirmPassword",
                                                 )}
                                             </FieldDescription>
                                         )}
@@ -155,11 +155,7 @@ export function RegisterForm({
                                 </FieldDescription>
                             </Field>
                             <Field>
-                                <Button
-                                    type="submit"
-                                    className="bg-indigo-600 hover:bg-indigo-500"
-                                    disabled={isPending}
-                                >
+                                <Button type="submit" disabled={isPending}>
                                     {isPending
                                         ? "Creating..."
                                         : "Create Account"}

@@ -31,6 +31,8 @@ export function CreateDoctorModal({
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [profileImage, setProfileImage] = useState<File | null>(null);
+    const [imagePreview, setImagePreview] = useState<string | null>(null);
 
     const [formData, setFormData] = useState({
         email: "",
@@ -69,6 +71,33 @@ export function CreateDoctorModal({
         }));
     };
 
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+        const maxSize = 2 * 1024 * 1024; // 2MB
+
+        if (!allowedTypes.includes(file.type)) {
+            toast.error("Only JPG, PNG, or WEBP images are allowed.");
+            e.target.value = "";
+            return;
+        }
+
+        if (file.size > maxSize) {
+            toast.error("Image size must be under 2MB.");
+            e.target.value = "";
+            return;
+        }
+
+        setProfileImage(file);
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            setImagePreview(reader.result as string);
+        };
+        reader.readAsDataURL(file);
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSubmitting(true);
@@ -91,7 +120,10 @@ export function CreateDoctorModal({
                 },
             };
 
-            const response = await createDoctor(doctorData);
+            const response = await createDoctor(
+                doctorData,
+                profileImage || undefined,
+            );
 
             if (response.success) {
                 toast.success("Doctor created successfully");
@@ -128,6 +160,8 @@ export function CreateDoctorModal({
             designation: "",
             specialties: [],
         });
+        setProfileImage(null);
+        setImagePreview(null);
     };
 
     return (
@@ -228,6 +262,25 @@ export function CreateDoctorModal({
                                     onChange={handleChange}
                                     placeholder="123 Medical Center Dr"
                                 />
+                            </div>
+                            <div className="space-y-2 col-span-2">
+                                <Label htmlFor="profilePhoto">
+                                    Profile Photo (optional)
+                                </Label>
+                                <Input
+                                    id="profilePhoto"
+                                    name="profilePhoto"
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleImageChange}
+                                />
+                                {imagePreview && (
+                                    <img
+                                        src={imagePreview}
+                                        alt="Doctor profile preview"
+                                        className="mt-2 h-20 w-20 rounded-full object-cover border"
+                                    />
+                                )}
                             </div>
                         </div>
                     </div>

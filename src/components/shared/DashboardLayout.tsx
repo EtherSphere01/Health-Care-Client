@@ -105,7 +105,7 @@ export function DashboardHeader({
     className,
 }: DashboardHeaderProps) {
     return (
-        <div className={cn("mb-8", className)}>
+        <div className={cn("mb-10", className)}>
             {breadcrumbs && breadcrumbs.length > 0 && (
                 <nav className="mb-4" aria-label="Breadcrumb">
                     <ol className="flex items-center gap-2 text-sm text-muted-foreground">

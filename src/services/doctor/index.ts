@@ -1,6 +1,6 @@
 "use server";
 
-import { get, patch, del } from "@/lib/api";
+import { get, patch, del, post } from "@/lib/api";
 import {
     IDoctor,
     IDoctorQueryParams,
@@ -43,7 +43,7 @@ export async function getDoctorById(
 export async function getAiDoctorSuggestion(
     symptoms: string,
 ): Promise<IApiResponse<IAiSuggestion>> {
-    return get<IAiSuggestion>(
+    return post<IAiSuggestion>(
         "/doctor/suggestion",
         { symptoms },
         {

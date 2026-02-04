@@ -136,7 +136,7 @@ export function DashboardSidebar({
             {/* Sidebar */}
             <aside
                 className={cn(
-                    "fixed inset-y-0 left-0 z-50 w-64 bg-card border-r transform transition-transform duration-200 ease-in-out lg:translate-x-0 lg:static lg:z-auto",
+                    "fixed inset-y-0 left-0 z-50 w-64 bg-card/95 backdrop-blur border-r transform transition-transform duration-200 ease-in-out lg:translate-x-0 lg:static lg:z-auto",
                     isOpen ? "translate-x-0" : "-translate-x-full",
                 )}
             >
@@ -173,7 +173,7 @@ export function DashboardSidebar({
                                         className={cn(
                                             "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
                                             isActive
-                                                ? "bg-primary text-primary-foreground"
+                                                ? "bg-primary/10 text-primary"
                                                 : "text-muted-foreground hover:bg-muted hover:text-foreground",
                                         )}
                                     >
@@ -212,7 +212,7 @@ export function DashboardTopbar({ onMenuClick, title }: DashboardTopbarProps) {
     const { user } = useAuth();
 
     return (
-        <header className="sticky top-0 z-30 h-16 border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
+        <header className="sticky top-0 z-30 h-16 border-b bg-background/85 backdrop-blur supports-[backdrop-filter]:bg-background/60">
             <div className="flex h-full items-center justify-between px-4 md:px-6">
                 <div className="flex items-center gap-4">
                     <button
@@ -273,7 +273,11 @@ export function DashboardLayoutWrapper({
             />
             <div className="lg:pl-64">
                 <DashboardTopbar onMenuClick={() => setSidebarOpen(true)} />
-                <main className="p-4 md:p-6 lg:p-8">{children}</main>
+                <main className="p-4 md:p-6 lg:p-8">
+                    <div className="mx-auto w-full max-w-6xl space-y-8">
+                        {children}
+                    </div>
+                </main>
             </div>
         </div>
     );
@@ -285,10 +289,7 @@ interface DashboardLayoutProps {
     sidebar?: React.ReactNode; // Optional custom sidebar, not used currently
 }
 
-export function DashboardLayout({
-    children,
-    role,
-}: DashboardLayoutProps) {
+export function DashboardLayout({ children, role }: DashboardLayoutProps) {
     const navItems =
         role === "ADMIN"
             ? adminNavItems

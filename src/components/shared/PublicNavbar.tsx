@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { Button } from "../ui/button";
 import {
@@ -10,9 +12,12 @@ import {
 } from "@/components/ui/sheet";
 import { Menu } from "lucide-react";
 import { usePathname } from "next/navigation";
+import { useAuth } from "@/hooks/useAuth";
+import { UserRole } from "@/types";
 
 export default function PublicNavbar() {
     const pathname = usePathname();
+    const { isAuthenticated, isLoading, role, logout } = useAuth();
 
     const navItems = [
         { name: "Home", href: "/" },
@@ -24,6 +29,20 @@ export default function PublicNavbar() {
 
     const isActive = (href: string) =>
         pathname === href || pathname.startsWith(href + "/");
+
+    const dashboardHref =
+        role === UserRole.ADMIN || role === UserRole.SUPER_ADMIN
+            ? "/admin/dashboard"
+            : role === UserRole.DOCTOR
+              ? "/doctor/dashboard"
+              : "/dashboard";
+
+    const profileHref =
+        role === UserRole.ADMIN || role === UserRole.SUPER_ADMIN
+            ? "/admin/dashboard/my-profile"
+            : role === UserRole.DOCTOR
+              ? "/doctor/dashboard/my-profile"
+              : "/dashboard/my-profile";
 
     return (
         <>
@@ -60,11 +79,32 @@ export default function PublicNavbar() {
                     </ul>
                 </nav>
 
-                <Link href="/login">
-                    <Button className="bg-indigo-600 hover:bg-indigo-500 cursor-pointer">
-                        Login
-                    </Button>
-                </Link>
+                {!isLoading && (
+                    <div className="flex items-center gap-3">
+                        {isAuthenticated ? (
+                            <>
+                                <Link href={dashboardHref}>
+                                    <Button>Dashboard</Button>
+                                </Link>
+                                <Link href={profileHref}>
+                                    <Button variant="outline">Profile</Button>
+                                </Link>
+                                <Button variant="ghost" onClick={logout}>
+                                    Logout
+                                </Button>
+                            </>
+                        ) : (
+                            <>
+                                <Link href="/login">
+                                    <Button>Login</Button>
+                                </Link>
+                                <Link href="/register">
+                                    <Button variant="outline">Register</Button>
+                                </Link>
+                            </>
+                        )}
+                    </div>
+                )}
             </header>
 
             {/* Mobile */}
@@ -111,11 +151,50 @@ export default function PublicNavbar() {
                                     </ul>
                                 </nav>
 
-                                <Link href="/login">
-                                    <Button className="bg-indigo-600 hover:bg-indigo-500 cursor-pointer w-full text-center">
-                                        Login
-                                    </Button>
-                                </Link>
+                                {!isLoading && (
+                                    <div className="mt-4 space-y-2">
+                                        {isAuthenticated ? (
+                                            <>
+                                                <Link href={dashboardHref}>
+                                                    <Button className="w-full">
+                                                        Dashboard
+                                                    </Button>
+                                                </Link>
+                                                <Link href={profileHref}>
+                                                    <Button
+                                                        variant="outline"
+                                                        className="w-full"
+                                                    >
+                                                        Profile
+                                                    </Button>
+                                                </Link>
+                                                <Button
+                                                    variant="ghost"
+                                                    className="w-full"
+                                                    onClick={logout}
+                                                >
+                                                    Logout
+                                                </Button>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Link href="/login">
+                                                    <Button className="w-full">
+                                                        Login
+                                                    </Button>
+                                                </Link>
+                                                <Link href="/register">
+                                                    <Button
+                                                        variant="outline"
+                                                        className="w-full"
+                                                    >
+                                                        Register
+                                                    </Button>
+                                                </Link>
+                                            </>
+                                        )}
+                                    </div>
+                                )}
                             </SheetDescription>
                         </SheetHeader>
                     </SheetContent>

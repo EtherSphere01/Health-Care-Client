@@ -20,7 +20,7 @@ export default async function DoctorDashboardLayout({
         if (user.role === "ADMIN" || user.role === "SUPER_ADMIN") {
             redirect("/admin/dashboard");
         } else if (user.role === "PATIENT") {
-            redirect("/patient/dashboard");
+            redirect("/dashboard");
         }
     }
 

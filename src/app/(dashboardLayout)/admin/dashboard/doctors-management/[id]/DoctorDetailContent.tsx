@@ -44,6 +44,15 @@ export function DoctorDetailContent({
     const [isEditing, setIsEditing] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
+    const initialSpecialtyIds =
+        doctor.doctorSpecialties?.map(
+            (ds) =>
+                ds.specialtyId || ds.specialities?.id || ds.specialty?.id || "",
+        ) || [];
+    const [selectedSpecialties, setSelectedSpecialties] = useState(
+        initialSpecialtyIds.filter(Boolean),
+    );
+
     const [formData, setFormData] = useState({
         name: doctor.name,
         contactNumber: doctor.contactNumber,
@@ -69,7 +78,21 @@ export function DoctorDetailContent({
     const handleSave = async () => {
         setIsSubmitting(true);
         try {
-            const response = await updateDoctor(doctor.id, formData);
+            const currentIds = new Set(initialSpecialtyIds.filter(Boolean));
+            const nextIds = new Set(selectedSpecialties);
+
+            const specialtiesToAdd = Array.from(nextIds).filter(
+                (id) => !currentIds.has(id),
+            );
+            const specialtiesToRemove = Array.from(currentIds).filter(
+                (id) => !nextIds.has(id),
+            );
+
+            const response = await updateDoctor(doctor.id, {
+                ...formData,
+                specialties: specialtiesToAdd,
+                removeSpecialties: specialtiesToRemove,
+            });
             if (response.success) {
                 toast.success("Doctor updated successfully");
                 setIsEditing(false);
@@ -100,6 +123,7 @@ export function DoctorDetailContent({
             currentWorkingPlace: doctor.currentWorkingPlace,
             designation: doctor.designation,
         });
+        setSelectedSpecialties(initialSpecialtyIds.filter(Boolean));
         setIsEditing(false);
     };
 
@@ -219,16 +243,65 @@ export function DoctorDetailContent({
                                 <h3 className="text-sm font-medium text-muted-foreground mb-2">
                                     Specialties
                                 </h3>
-                                <div className="flex flex-wrap gap-2">
-                                    {doctor.doctorSpecialties?.map((ds) => (
-                                        <Badge
-                                            key={ds.specialtyId}
-                                            variant="secondary"
-                                        >
-                                            {ds.specialty?.title}
-                                        </Badge>
-                                    ))}
-                                </div>
+                                {!isEditing ? (
+                                    <div className="flex flex-wrap gap-2">
+                                        {doctor.doctorSpecialties?.map((ds) => (
+                                            <Badge
+                                                key={ds.specialtyId}
+                                                variant="secondary"
+                                            >
+                                                {ds.specialty?.title ||
+                                                    ds.specialities?.title}
+                                            </Badge>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="grid grid-cols-2 gap-2">
+                                        {specialties.map((specialty) => {
+                                            const isSelected =
+                                                selectedSpecialties.includes(
+                                                    specialty.id,
+                                                );
+                                            return (
+                                                <button
+                                                    key={specialty.id}
+                                                    type="button"
+                                                    onClick={() =>
+                                                        setSelectedSpecialties(
+                                                            (prev) =>
+                                                                prev.includes(
+                                                                    specialty.id,
+                                                                )
+                                                                    ? prev.filter(
+                                                                          (
+                                                                              id,
+                                                                          ) =>
+                                                                              id !==
+                                                                              specialty.id,
+                                                                      )
+                                                                    : [
+                                                                          ...prev,
+                                                                          specialty.id,
+                                                                      ],
+                                                        )
+                                                    }
+                                                    className={`flex items-center justify-between rounded-md border px-3 py-2 text-sm ${
+                                                        isSelected
+                                                            ? "border-primary/40 bg-primary/10 text-primary"
+                                                            : "border-border bg-background"
+                                                    }`}
+                                                >
+                                                    {specialty.title}
+                                                    {isSelected && (
+                                                        <Badge variant="success">
+                                                            Selected
+                                                        </Badge>
+                                                    )}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </CardContent>

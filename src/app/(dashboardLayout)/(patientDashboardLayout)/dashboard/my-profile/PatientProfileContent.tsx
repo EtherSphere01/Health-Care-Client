@@ -29,7 +29,7 @@ import {
     CardTitle,
 } from "@/components/ui/card";
 import { RoleBadge, StatusBadge } from "@/components/ui/badge";
-import { updateMyProfile } from "@/services/user";
+import { updateMyProfileWithProgress } from "@/services/user/client";
 import { changePassword } from "@/services/auth";
 import { toast } from "sonner";
 
@@ -42,6 +42,8 @@ export function PatientProfileContent({ user }: PatientProfileContentProps) {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [isEditing, setIsEditing] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [uploadProgress, setUploadProgress] = useState(0);
+    const [uploadError, setUploadError] = useState<string | null>(null);
     const [showPasswordForm, setShowPasswordForm] = useState(false);
     const [isChangingPassword, setIsChangingPassword] = useState(false);
 
@@ -78,22 +80,40 @@ export function PatientProfileContent({ user }: PatientProfileContentProps) {
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
-        if (file) {
-            setProfileImage(file);
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setImagePreview(reader.result as string);
-            };
-            reader.readAsDataURL(file);
+        if (!file) return;
+
+        const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+        const maxSize = 2 * 1024 * 1024; // 2MB
+
+        if (!allowedTypes.includes(file.type)) {
+            toast.error("Only JPG, PNG, or WEBP images are allowed.");
+            e.target.value = "";
+            return;
         }
+
+        if (file.size > maxSize) {
+            toast.error("Image size must be under 2MB.");
+            e.target.value = "";
+            return;
+        }
+
+        setUploadError(null);
+        setProfileImage(file);
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            setImagePreview(reader.result as string);
+        };
+        reader.readAsDataURL(file);
     };
 
     const handleSave = async () => {
         setIsSubmitting(true);
+        setUploadProgress(0);
         try {
-            const response = await updateMyProfile(
+            const response = await updateMyProfileWithProgress(
                 formData,
                 profileImage || undefined,
+                setUploadProgress,
             );
             if (response.success) {
                 toast.success("Profile updated successfully");
@@ -107,6 +127,7 @@ export function PatientProfileContent({ user }: PatientProfileContentProps) {
                 error instanceof Error
                     ? error.message
                     : "Failed to update profile";
+            setUploadError(message);
             toast.error(message);
         } finally {
             setIsSubmitting(false);
@@ -121,6 +142,8 @@ export function PatientProfileContent({ user }: PatientProfileContentProps) {
         });
         setProfileImage(null);
         setImagePreview(patient?.profilePhoto || null);
+        setUploadProgress(0);
+        setUploadError(null);
         setIsEditing(false);
     };
 
@@ -243,6 +266,26 @@ export function PatientProfileContent({ user }: PatientProfileContentProps) {
                                     </>
                                 )}
                             </div>
+                            {isSubmitting && uploadProgress > 0 && (
+                                <div className="mt-3 w-full">
+                                    <div className="h-2 w-full rounded-full bg-muted">
+                                        <div
+                                            className="h-2 rounded-full bg-primary transition-all"
+                                            style={{
+                                                width: `${uploadProgress}%`,
+                                            }}
+                                        />
+                                    </div>
+                                    <p className="text-xs text-muted-foreground mt-1">
+                                        Uploading: {uploadProgress}%
+                                    </p>
+                                </div>
+                            )}
+                            {uploadError && (
+                                <p className="mt-3 text-xs text-destructive">
+                                    {uploadError}
+                                </p>
+                            )}
                             <h2 className="text-xl font-semibold mt-4">
                                 {patient?.name || "Patient"}
                             </h2>

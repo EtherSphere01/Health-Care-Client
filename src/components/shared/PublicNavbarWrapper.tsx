@@ -31,7 +31,7 @@ export default function PublicNavbarWrapper() {
                 fixed top-4  left-1/2 -translate-x-1/2
                 z-50 w-full max-w-7xl
                 lg:rounded-xl rounded-lg
-                bg-white/30 backdrop-blur-md
+                bg-background/70 backdrop-blur-md border border-border/60
                 transition-all duration-300 ease-in-out
                 ${showNav ? "translate-y-0 opacity-100" : "-translate-y-24 opacity-0"}
             `}

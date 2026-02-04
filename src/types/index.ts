@@ -93,6 +93,7 @@ export interface IDoctor {
     createdAt: string;
     updatedAt: string;
     doctorSpecialties?: IDoctorSpecialty[];
+    doctorSchedules?: IDoctorSchedule[];
 }
 
 export interface IPatient {
@@ -152,6 +153,7 @@ export interface IDoctorSpecialty {
     specialtyId: string;
     doctorId: string;
     specialty: ISpecialty;
+    specialities?: ISpecialty;
 }
 
 export interface ISchedule {

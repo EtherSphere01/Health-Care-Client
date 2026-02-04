@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 import { Activity, Bot, Calendar, Shield, Sparkles, Zap } from "lucide-react";
 
 export default function HeroSection() {
@@ -46,18 +47,24 @@ export default function HeroSection() {
                         <Button
                             size="lg"
                             className="h-14 px-8 rounded-lg text-base bg-indigo-600 hover:bg-indigo-700 shadow-xl shadow-indigo-600/25 border-none hover:scale-105 transition-all"
+                            asChild
                         >
-                            Try AI Health Check
+                            <Link href="/consultation#ai-suggestion">
+                                Try AI Health Check
+                            </Link>
                         </Button>
                         <Button
                             size="lg"
                             variant="outline"
                             className="h-14 px-8 rounded-lg text-base bg-white/60 backdrop-blur-sm border-slate-200 hover:bg-white hover:scale-105 transition-all"
+                            asChild
                         >
-                            <Calendar className="text-indigo-600" />
-                            <span className="text-indigo-600">
-                                Book an Appointment
-                            </span>
+                            <Link href="/consultation">
+                                <Calendar className="text-indigo-600" />
+                                <span className="text-indigo-600">
+                                    Book an Appointment
+                                </span>
+                            </Link>
                         </Button>
                     </div>
 

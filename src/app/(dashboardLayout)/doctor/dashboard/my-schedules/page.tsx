@@ -52,9 +52,25 @@ async function SchedulesFetcher({
             getAllSchedules({ page: 1, limit: 100 }), // Get available schedules
         ]);
 
+        const schedulesMap = new Map(
+            (allSchedulesResponse.data ?? []).map((schedule) => [
+                schedule.id,
+                schedule,
+            ]),
+        );
+
+        const normalizedMySchedules = (mySchedulesResponse.data ?? []).map(
+            (doctorSchedule) => ({
+                ...doctorSchedule,
+                schedule:
+                    doctorSchedule.schedule ||
+                    schedulesMap.get(doctorSchedule.scheduleId),
+            }),
+        );
+
         return (
             <MySchedulesContent
-                mySchedules={mySchedulesResponse.data ?? []}
+                mySchedules={normalizedMySchedules}
                 availableSchedules={allSchedulesResponse.data ?? []}
                 meta={mySchedulesResponse.meta ?? null}
                 currentFilters={{ page, limit, startDate, endDate }}

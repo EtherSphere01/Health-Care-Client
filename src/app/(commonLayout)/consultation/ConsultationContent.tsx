@@ -11,8 +11,16 @@ import {
     Check,
     ChevronRight,
     CreditCard,
+    Sparkles,
+    AlertTriangle,
 } from "lucide-react";
-import { IDoctor, ISpecialty, ISchedule, IDoctorSchedule } from "@/types";
+import {
+    IDoctor,
+    ISpecialty,
+    ISchedule,
+    IDoctorSchedule,
+    IAiSuggestion,
+} from "@/types";
 import {
     Card,
     CardContent,
@@ -22,11 +30,13 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Spinner } from "@/components/ui/loading";
 import { getDoctorSchedules } from "@/services/doctor-schedule";
 import { createAppointment } from "@/services/appointment";
 import { initPayment } from "@/services/payment";
+import { getAiDoctorSuggestionClient } from "@/services/doctor/client";
 import { toast } from "sonner";
 
 interface ConsultationContentProps {
@@ -55,6 +65,12 @@ export function ConsultationContent({
     const [schedules, setSchedules] = useState<IDoctorSchedule[]>([]);
     const [isLoadingSchedules, setIsLoadingSchedules] = useState(false);
     const [isBooking, setIsBooking] = useState(false);
+    const [symptoms, setSymptoms] = useState("");
+    const [aiSuggestion, setAiSuggestion] = useState<IAiSuggestion | null>(
+        null,
+    );
+    const [aiError, setAiError] = useState<string | null>(null);
+    const [isAiLoading, setIsAiLoading] = useState(false);
 
     // Filter doctors by specialty
     const filteredDoctors = selectedSpecialty
@@ -107,6 +123,30 @@ export function ConsultationContent({
     const handleSelectSchedule = (schedule: IDoctorSchedule) => {
         setSelectedSchedule(schedule);
         setStep("confirm");
+    };
+
+    const handleAiSuggestion = async () => {
+        const trimmed = symptoms.trim();
+        if (trimmed.length < 5) {
+            setAiError("Please describe symptoms in at least 5 characters.");
+            return;
+        }
+
+        setAiError(null);
+        setIsAiLoading(true);
+        try {
+            const response = await getAiDoctorSuggestionClient(trimmed);
+            setAiSuggestion(response.data);
+        } catch (error) {
+            const message =
+                error instanceof Error
+                    ? error.message
+                    : "Failed to get AI suggestion";
+            setAiError(message);
+            setAiSuggestion(null);
+        } finally {
+            setIsAiLoading(false);
+        }
     };
 
     const handleBookAppointment = async () => {
@@ -184,8 +224,96 @@ export function ConsultationContent({
     );
 
     return (
-        <div className="min-h-screen bg-gray-50 py-8">
+        <div className="min-h-screen bg-background py-8">
             <div className="container mx-auto px-4">
+                {/* AI Doctor Suggestion */}
+                <Card
+                    id="ai-suggestion"
+                    className="mb-8 border-primary/10 bg-gradient-to-br from-white to-indigo-50/40"
+                >
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <Sparkles className="h-5 w-5 text-primary" />
+                            AI Doctor Suggestion
+                        </CardTitle>
+                        <CardDescription>
+                            Describe your symptoms to get specialty guidance
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="symptoms">Symptoms</Label>
+                            <textarea
+                                id="symptoms"
+                                value={symptoms}
+                                onChange={(e) => setSymptoms(e.target.value)}
+                                placeholder="E.g., persistent headache, blurred vision, fatigue"
+                                className="min-h-[96px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                            />
+                            {aiError && (
+                                <p className="text-sm text-destructive flex items-center gap-2">
+                                    <AlertTriangle className="h-4 w-4" />
+                                    {aiError}
+                                </p>
+                            )}
+                        </div>
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                            <Button
+                                onClick={handleAiSuggestion}
+                                disabled={isAiLoading}
+                            >
+                                {isAiLoading
+                                    ? "Analyzing..."
+                                    : "Get AI Suggestion"}
+                            </Button>
+                            {aiSuggestion?.urgencyLevel && (
+                                <Badge
+                                    variant={
+                                        aiSuggestion.urgencyLevel === "high"
+                                            ? "destructive"
+                                            : aiSuggestion.urgencyLevel ===
+                                                "medium"
+                                              ? "warning"
+                                              : "success"
+                                    }
+                                >
+                                    Urgency: {aiSuggestion.urgencyLevel}
+                                </Badge>
+                            )}
+                        </div>
+
+                        {aiSuggestion && (
+                            <div className="rounded-lg border border-border bg-white p-4 space-y-3">
+                                <div>
+                                    <p className="text-sm font-semibold text-muted-foreground">
+                                        Suggested Specialties
+                                    </p>
+                                    <div className="mt-2 flex flex-wrap gap-2">
+                                        {aiSuggestion.suggestedSpecialties?.map(
+                                            (specialty) => (
+                                                <Badge
+                                                    key={specialty}
+                                                    variant="secondary"
+                                                >
+                                                    {specialty}
+                                                </Badge>
+                                            ),
+                                        )}
+                                    </div>
+                                </div>
+                                <div>
+                                    <p className="text-sm font-semibold text-muted-foreground">
+                                        Recommendations
+                                    </p>
+                                    <p className="text-sm text-foreground mt-1">
+                                        {aiSuggestion.recommendations}
+                                    </p>
+                                </div>
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
+
                 {/* Progress Steps */}
                 <div className="max-w-3xl mx-auto mb-8">
                     <div className="flex items-center justify-between">

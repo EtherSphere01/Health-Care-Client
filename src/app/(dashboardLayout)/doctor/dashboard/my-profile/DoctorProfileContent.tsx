@@ -29,7 +29,8 @@ import {
     CardTitle,
 } from "@/components/ui/card";
 import { Badge, RoleBadge, StatusBadge } from "@/components/ui/badge";
-import { updateMyProfile } from "@/services/user";
+import { updateMyProfileWithProgress } from "@/services/user/client";
+import { updateDoctor } from "@/services/doctor";
 import { changePassword } from "@/services/auth";
 import { toast } from "sonner";
 
@@ -46,6 +47,8 @@ export function DoctorProfileContent({
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [isEditing, setIsEditing] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [uploadProgress, setUploadProgress] = useState(0);
+    const [uploadError, setUploadError] = useState<string | null>(null);
     const [showPasswordForm, setShowPasswordForm] = useState(false);
     const [isChangingPassword, setIsChangingPassword] = useState(false);
 
@@ -73,6 +76,16 @@ export function DoctorProfileContent({
         doctor?.profilePhoto || null,
     );
 
+    const initialSpecialtyIds =
+        doctor?.doctorSpecialties?.map(
+            (ds) =>
+                ds.specialtyId || ds.specialities?.id || ds.specialty?.id || "",
+        ) || [];
+
+    const [selectedSpecialties, setSelectedSpecialties] = useState(
+        initialSpecialtyIds.filter(Boolean),
+    );
+
     const handleChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
     ) => {
@@ -90,23 +103,61 @@ export function DoctorProfileContent({
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
-        if (file) {
-            setProfileImage(file);
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setImagePreview(reader.result as string);
-            };
-            reader.readAsDataURL(file);
+        if (!file) return;
+
+        const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+        const maxSize = 2 * 1024 * 1024; // 2MB
+
+        if (!allowedTypes.includes(file.type)) {
+            toast.error("Only JPG, PNG, or WEBP images are allowed.");
+            e.target.value = "";
+            return;
         }
+
+        if (file.size > maxSize) {
+            toast.error("Image size must be under 2MB.");
+            e.target.value = "";
+            return;
+        }
+
+        setUploadError(null);
+        setProfileImage(file);
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            setImagePreview(reader.result as string);
+        };
+        reader.readAsDataURL(file);
     };
 
     const handleSave = async () => {
         setIsSubmitting(true);
+        setUploadProgress(0);
         try {
-            const response = await updateMyProfile(
+            const response = await updateMyProfileWithProgress(
                 formData,
                 profileImage || undefined,
+                setUploadProgress,
             );
+
+            if (doctor?.id) {
+                const currentIds = new Set(initialSpecialtyIds.filter(Boolean));
+                const nextIds = new Set(selectedSpecialties);
+
+                const specialtiesToAdd = Array.from(nextIds).filter(
+                    (id) => !currentIds.has(id),
+                );
+                const specialtiesToRemove = Array.from(currentIds).filter(
+                    (id) => !nextIds.has(id),
+                );
+
+                if (specialtiesToAdd.length || specialtiesToRemove.length) {
+                    await updateDoctor(doctor.id, {
+                        specialties: specialtiesToAdd,
+                        removeSpecialties: specialtiesToRemove,
+                    });
+                }
+            }
+
             if (response.success) {
                 toast.success("Profile updated successfully");
                 setIsEditing(false);
@@ -119,6 +170,7 @@ export function DoctorProfileContent({
                 error instanceof Error
                     ? error.message
                     : "Failed to update profile";
+            setUploadError(message);
             toast.error(message);
         } finally {
             setIsSubmitting(false);
@@ -138,6 +190,9 @@ export function DoctorProfileContent({
         });
         setProfileImage(null);
         setImagePreview(doctor?.profilePhoto || null);
+        setUploadProgress(0);
+        setUploadError(null);
+        setSelectedSpecialties(initialSpecialtyIds.filter(Boolean));
         setIsEditing(false);
     };
 
@@ -251,6 +306,26 @@ export function DoctorProfileContent({
                                     </>
                                 )}
                             </div>
+                            {isSubmitting && uploadProgress > 0 && (
+                                <div className="mt-3 w-full">
+                                    <div className="h-2 w-full rounded-full bg-muted">
+                                        <div
+                                            className="h-2 rounded-full bg-primary transition-all"
+                                            style={{
+                                                width: `${uploadProgress}%`,
+                                            }}
+                                        />
+                                    </div>
+                                    <p className="text-xs text-muted-foreground mt-1">
+                                        Uploading: {uploadProgress}%
+                                    </p>
+                                </div>
+                            )}
+                            {uploadError && (
+                                <p className="mt-3 text-xs text-destructive">
+                                    {uploadError}
+                                </p>
+                            )}
                             <h2 className="text-xl font-semibold mt-4">
                                 {doctor?.name || "Doctor"}
                             </h2>
@@ -322,6 +397,78 @@ export function DoctorProfileContent({
                                     </div>
                                 )}
                         </div>
+                    </CardContent>
+                </Card>
+
+                <Card className="lg:col-span-2">
+                    <CardHeader>
+                        <CardTitle>Specialties</CardTitle>
+                        <CardDescription>
+                            Manage your medical specialties
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        {specialties.length === 0 ? (
+                            <p className="text-sm text-muted-foreground">
+                                No specialties available.
+                            </p>
+                        ) : (
+                            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                                {specialties.map((specialty) => {
+                                    const isSelected =
+                                        selectedSpecialties.includes(
+                                            specialty.id,
+                                        );
+                                    return (
+                                        <button
+                                            key={specialty.id}
+                                            type="button"
+                                            onClick={() => {
+                                                if (!isEditing) return;
+                                                setSelectedSpecialties(
+                                                    (prev) =>
+                                                        prev.includes(
+                                                            specialty.id,
+                                                        )
+                                                            ? prev.filter(
+                                                                  (id) =>
+                                                                      id !==
+                                                                      specialty.id,
+                                                              )
+                                                            : [
+                                                                  ...prev,
+                                                                  specialty.id,
+                                                              ],
+                                                );
+                                            }}
+                                            className={`flex items-center justify-between rounded-lg border px-3 py-2 text-sm transition-colors ${
+                                                isSelected
+                                                    ? "border-primary/40 bg-primary/10 text-primary"
+                                                    : "border-border bg-background text-foreground"
+                                            } ${
+                                                isEditing
+                                                    ? "hover:border-primary/60"
+                                                    : "cursor-default"
+                                            }`}
+                                        >
+                                            <span className="truncate">
+                                                {specialty.title}
+                                            </span>
+                                            {isSelected && (
+                                                <Badge variant="success">
+                                                    Selected
+                                                </Badge>
+                                            )}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        )}
+                        {!isEditing && (
+                            <p className="text-xs text-muted-foreground mt-3">
+                                Click “Edit Profile” to update specialties.
+                            </p>
+                        )}
                     </CardContent>
                 </Card>
 

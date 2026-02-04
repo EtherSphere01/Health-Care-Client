@@ -1,18 +1,25 @@
-"use client";
+import { redirect } from "next/navigation";
+import { getCurrentUser } from "@/services/auth";
+import { DashboardLayout } from "@/components/shared/DashboardNavigation";
 
-import {
-    DashboardLayoutWrapper,
-    adminNavItems,
-} from "@/components/shared/DashboardNavigation";
-
-export default function AdminDashboardLayout({
+export default async function AdminDashboardLayout({
     children,
 }: {
     children: React.ReactNode;
 }) {
-    return (
-        <DashboardLayoutWrapper navItems={adminNavItems}>
-            {children}
-        </DashboardLayoutWrapper>
-    );
+    const user = await getCurrentUser();
+
+    if (!user) {
+        redirect("/login");
+    }
+
+    if (user.role !== "ADMIN" && user.role !== "SUPER_ADMIN") {
+        if (user.role === "DOCTOR") {
+            redirect("/doctor/dashboard");
+        } else if (user.role === "PATIENT") {
+            redirect("/dashboard");
+        }
+    }
+
+    return <DashboardLayout role="ADMIN">{children}</DashboardLayout>;
 }

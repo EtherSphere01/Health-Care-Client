@@ -6,6 +6,8 @@ import { cookies } from "next/headers";
 import { parse } from "cookie";
 import z from "zod";
 import jwt, { JwtPayload } from "jsonwebtoken";
+import { getDefaultDashboardRoute } from "@/lib/auth.utils";
+import { setCookie } from "./tokenHandlers";
 
 const loginValidationSchema = z.object({
     email: z.string().email({ message: "Invalid email address" }),
@@ -78,7 +80,6 @@ export const loginUser = async (
         }
 
         // Normalize to root path so cookies are sent on all routes.
-        const cookieStore = await cookies();
         const isProd = process.env.NODE_ENV === "production";
         const accessSameSite =
             isProd && accessTokenObject["SameSite"]
@@ -89,7 +90,7 @@ export const loginUser = async (
                 ? refreshTokenObject["SameSite"]
                 : "lax";
 
-        cookieStore.set("accessToken", accessTokenObject.accessToken, {
+        await setCookie("accessToken", accessTokenObject.accessToken, {
             secure: isProd,
             httpOnly: true,
             maxAge: parseInt(accessTokenObject["Max-Age"]) || 86400,
@@ -97,7 +98,7 @@ export const loginUser = async (
             sameSite: accessSameSite as any,
         });
 
-        cookieStore.set("refreshToken", refreshTokenObject.refreshToken, {
+        await setCookie("refreshToken", refreshTokenObject.refreshToken, {
             secure: isProd,
             httpOnly: true,
             maxAge: parseInt(refreshTokenObject["Max-Age"]) || 2592000,
@@ -105,21 +106,33 @@ export const loginUser = async (
             sameSite: refreshSameSite as any,
         });
 
-        // const verifiedToken: JwtPayload | string = jwt.verify(
-        //     accessTokenObject.accessToken,
-        //     process.env.JWT_SECRET || "default_secret",
-        // );
-        // if (typeof verifiedToken === "string") {
-        //     console.log(
-        //         "Token verification returned a string, expected JwtPayload",
-        //     );
-        // }
+        const verifiedToken: JwtPayload | string = jwt.verify(
+            accessTokenObject.accessToken,
+            process.env.JWT_SECRET as string,
+        );
+        if (typeof verifiedToken === "string") {
+            console.log(
+                "Token verification returned a string, expected JwtPayload",
+            );
+        }
+
+        const dataToken = verifiedToken as JwtPayload;
+        const defaultRedirect = getDefaultDashboardRoute(dataToken.role as any);
+
+        let redirectTo = defaultRedirect;
+        if (
+            String(formData.get("redirect")) &&
+            String(formData.get("redirect") !== "")
+        ) {
+            redirectTo = String(formData.get("redirect"));
+        }
 
         // Login successful
         return {
             success: true,
             message: data.message ?? "Login successful",
             user: data.user ?? null,
+            redirectTo: redirectTo,
         };
     } catch (error) {
         return {

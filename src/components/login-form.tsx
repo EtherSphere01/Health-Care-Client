@@ -21,8 +21,10 @@ import Link from "next/link";
 import { useActionState, useEffect } from "react";
 import { loginUser } from "@/services/auth/loginUser";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 export function LoginForm({ redirect }: { redirect?: string }) {
+    const router = useRouter();
     const [state, formAction, isPending] = useActionState(loginUser, null);
     const getFieldError = (fieldName: string) => {
         const errors = state?.errors;
@@ -39,6 +41,9 @@ export function LoginForm({ redirect }: { redirect?: string }) {
             toast.success(state.message ?? "Login successfully", {
                 position: "top-right",
             });
+            if (state.redirectTo) {
+                router.push(state.redirectTo);
+            }
             return;
         }
 
@@ -51,7 +56,7 @@ export function LoginForm({ redirect }: { redirect?: string }) {
                 position: "top-right",
             });
         }
-    }, [state, isPending]);
+    }, [state, isPending, router]);
 
     return (
         <div className={cn("flex flex-col gap-6")}>
@@ -67,7 +72,7 @@ export function LoginForm({ redirect }: { redirect?: string }) {
                         <input
                             type="hidden"
                             name="redirect"
-                            value={redirect || "/"}
+                            value={redirect ? redirect : ""}
                         ></input>
                         <FieldGroup>
                             <Field>

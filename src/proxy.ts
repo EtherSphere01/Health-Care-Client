@@ -130,9 +130,28 @@ export default async function proxy(request: NextRequest) {
         return NextResponse.next();
     }
 
+    if (!accessToken) {
+        const loginUrl = new URL("/login", request.url);
+        loginUrl.searchParams.set("redirect", pathname);
+        return NextResponse.redirect(loginUrl);
+    }
+
     if (routerOwner === "COMMON") {
-        if (!accessToken) {
-            return NextResponse.redirect(new URL("/login", request.url));
+        return NextResponse.next();
+    }
+
+    if (
+        routerOwner === "ADMIN" ||
+        routerOwner === "DOCTOR" ||
+        routerOwner === "PATIENT"
+    ) {
+        if (user !== routerOwner) {
+            return NextResponse.redirect(
+                new URL(
+                    getDefaultDashboardRoute(user as userRole),
+                    request.url,
+                ),
+            );
         }
         return NextResponse.next();
     }

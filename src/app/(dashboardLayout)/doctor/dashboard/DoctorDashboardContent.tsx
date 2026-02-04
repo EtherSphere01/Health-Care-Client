@@ -31,9 +31,9 @@ function isDoctorMeta(
 ): meta is IDoctorDashboardMeta {
     return (
         meta !== null &&
-        "totalPrescriptions" in meta &&
+        "reviewCount" in meta &&
         "totalRevenue" in meta &&
-        !("totalDoctors" in meta)
+        !("doctorCount" in meta)
     );
 }
 
@@ -51,22 +51,22 @@ export function DoctorDashboardContent({ stats }: DoctorDashboardContentProps) {
             <StatsGrid columns={4}>
                 <StatCard
                     title="Total Appointments"
-                    value={doctorStats?.totalAppointments || 0}
+                    value={doctorStats?.appointmentCount || 0}
                     icon={Calendar}
                     description="All-time appointments"
                 />
                 <StatCard
                     title="Total Patients"
-                    value={doctorStats?.totalPatients || 0}
+                    value={doctorStats?.patientCount || 0}
                     icon={Users}
                     trend={{ value: 12, isPositive: true }}
                     description="Unique patients"
                 />
                 <StatCard
-                    title="Prescriptions"
-                    value={doctorStats?.totalPrescriptions || 0}
+                    title="Reviews"
+                    value={doctorStats?.reviewCount || 0}
                     icon={Star}
-                    description="Total prescriptions"
+                    description="Total reviews"
                 />
                 <StatCard
                     title="Total Earnings"
@@ -88,7 +88,8 @@ export function DoctorDashboardContent({ stats }: DoctorDashboardContentProps) {
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">
-                            {doctorStats?.appointmentByStatus?.scheduled || 0}
+                            {doctorStats?.appointmentStatusDistribution
+                                ?.scheduled || 0}
                         </div>
                         <p className="text-xs text-muted-foreground">
                             appointments scheduled for today
@@ -106,7 +107,8 @@ export function DoctorDashboardContent({ stats }: DoctorDashboardContentProps) {
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">
-                            {doctorStats?.appointmentByStatus?.completed || 0}
+                            {doctorStats?.appointmentStatusDistribution
+                                ?.completed || 0}
                         </div>
                         <p className="text-xs text-muted-foreground">
                             appointments completed
@@ -124,7 +126,8 @@ export function DoctorDashboardContent({ stats }: DoctorDashboardContentProps) {
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">
-                            {doctorStats?.appointmentByStatus?.inProgress || 0}
+                            {doctorStats?.appointmentStatusDistribution
+                                ?.inProgress || 0}
                         </div>
                         <p className="text-xs text-muted-foreground">
                             currently active
@@ -143,7 +146,7 @@ export function DoctorDashboardContent({ stats }: DoctorDashboardContentProps) {
                 </CardHeader>
                 <CardContent>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        {doctorStats?.appointmentByStatus ? (
+                        {doctorStats?.appointmentStatusDistribution ? (
                             <>
                                 <div className="p-4 rounded-lg bg-muted/50">
                                     <p className="text-sm text-muted-foreground">
@@ -151,7 +154,8 @@ export function DoctorDashboardContent({ stats }: DoctorDashboardContentProps) {
                                     </p>
                                     <p className="text-2xl font-bold mt-1">
                                         {
-                                            doctorStats.appointmentByStatus
+                                            doctorStats
+                                                .appointmentStatusDistribution
                                                 .scheduled
                                         }
                                     </p>
@@ -162,7 +166,8 @@ export function DoctorDashboardContent({ stats }: DoctorDashboardContentProps) {
                                     </p>
                                     <p className="text-2xl font-bold mt-1">
                                         {
-                                            doctorStats.appointmentByStatus
+                                            doctorStats
+                                                .appointmentStatusDistribution
                                                 .inProgress
                                         }
                                     </p>
@@ -173,7 +178,8 @@ export function DoctorDashboardContent({ stats }: DoctorDashboardContentProps) {
                                     </p>
                                     <p className="text-2xl font-bold mt-1">
                                         {
-                                            doctorStats.appointmentByStatus
+                                            doctorStats
+                                                .appointmentStatusDistribution
                                                 .completed
                                         }
                                     </p>
@@ -184,7 +190,8 @@ export function DoctorDashboardContent({ stats }: DoctorDashboardContentProps) {
                                     </p>
                                     <p className="text-2xl font-bold mt-1">
                                         {
-                                            doctorStats.appointmentByStatus
+                                            doctorStats
+                                                .appointmentStatusDistribution
                                                 .canceled
                                         }
                                     </p>

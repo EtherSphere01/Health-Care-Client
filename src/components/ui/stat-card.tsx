@@ -57,8 +57,10 @@ export function StatCard({
 }: StatCardProps) {
     const styles = variantStyles[variant];
 
-    // Check if Icon is a function (LucideIcon) or a ReactNode
-    const isLucideIcon = typeof Icon === "function";
+    const isReactElement = React.isValidElement(Icon);
+    const isComponentType =
+        typeof Icon === "function" ||
+        (typeof Icon === "object" && Icon !== null && "$$typeof" in Icon);
 
     return (
         <div
@@ -77,7 +79,13 @@ export function StatCard({
                             iconClassName,
                         )}
                     >
-                        {isLucideIcon ? <Icon className="h-5 w-5" /> : Icon}
+                        {isReactElement
+                            ? Icon
+                            : isComponentType
+                              ? React.createElement(Icon as LucideIcon, {
+                                    className: "h-5 w-5",
+                                })
+                              : Icon}
                     </div>
                 )}
                 {trend && (

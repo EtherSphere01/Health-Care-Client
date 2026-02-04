@@ -496,8 +496,12 @@ function WriteReviewModal({
             } else {
                 toast.error(response.message || "Failed to submit review");
             }
-        } catch (error: any) {
-            toast.error(error.message || "Failed to submit review");
+        } catch (error: unknown) {
+            const message =
+                error instanceof Error
+                    ? error.message
+                    : "Failed to submit review";
+            toast.error(message);
         } finally {
             setIsSubmitting(false);
         }

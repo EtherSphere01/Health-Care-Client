@@ -47,7 +47,7 @@ export default function Testimonials() {
                             <Quote className="absolute top-8 right-8 h-8 w-8 text-indigo-200 fill-current" />
                             <div className="flex items-center gap-4 mb-6">
                                 <Image
-                                    src=""
+                                    src={t.image}
                                     height={48}
                                     width={48}
                                     alt={t.name}

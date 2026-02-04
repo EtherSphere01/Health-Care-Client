@@ -35,9 +35,14 @@ export default async function proxy(request: NextRequest) {
             const decodedToken = verified as IUserInterface;
             user = decodedToken.role;
         } catch (error) {
-            const response = NextResponse.redirect(
-                new URL("/login", request.url),
-            );
+            // If the token is invalid or expired, clear cookies.
+            // Avoid redirecting /login (or other auth routes) back to itself,
+            // which can cause an infinite redirect loop when a bad token is present.
+            const isAuthPath = isAuthRoutes(pathname);
+
+            const response = isAuthPath
+                ? NextResponse.next()
+                : NextResponse.redirect(new URL("/login", request.url));
 
             response.cookies.delete("accessToken");
             response.cookies.delete("refreshToken");
@@ -84,10 +89,11 @@ export default async function proxy(request: NextRequest) {
         }
         return NextResponse.next();
     }
+    return NextResponse.next();
 }
 
 export const config = {
     matcher: [
-        "/((?!api|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt|.well-known).*)",
+        "/((?!api|_next/|favicon.ico|sitemap.xml|robots.txt|.well-known).*)",
     ],
 };

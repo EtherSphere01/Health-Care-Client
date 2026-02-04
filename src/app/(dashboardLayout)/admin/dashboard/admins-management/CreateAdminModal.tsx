@@ -72,8 +72,12 @@ export function CreateAdminModal({
             } else {
                 toast.error(response.message || "Failed to create admin");
             }
-        } catch (error: any) {
-            toast.error(error.message || "Failed to create admin");
+        } catch (error: unknown) {
+            const message =
+                error instanceof Error
+                    ? error.message
+                    : "Failed to create admin";
+            toast.error(message);
         } finally {
             setIsSubmitting(false);
         }

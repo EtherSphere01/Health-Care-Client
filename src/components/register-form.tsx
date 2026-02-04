@@ -18,18 +18,20 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
-import { useActionState, useEffect } from "react";
+import { useActionState, useEffect, useRef } from "react";
 import { registerPatient } from "@/services/auth/registerPatient";
 import { toast } from "sonner";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 export function RegisterForm({
     className,
     ...props
 }: React.ComponentProps<"div">) {
+    const router = useRouter();
+    const hasRedirected = useRef(false);
     const [state, formAction, isPending] = useActionState(
         registerPatient,
-        null,
+        null
     );
 
     const getFieldError = (fieldName: string) => {
@@ -45,20 +47,17 @@ export function RegisterForm({
 
         if (state.success) {
             toast.success(state.message ?? "Account created successfully");
+            if (!hasRedirected.current) {
+                hasRedirected.current = true;
+                router.push("/login");
+            }
             return;
         }
 
         if (state.error) {
             toast.error(state.message ?? "Something went wrong");
         }
-    }, [state, isPending]);
-
-    useEffect(() => {
-        if (!state) return;
-        if (state.success && !isPending) {
-            redirect("/login");
-        }
-    }, [state, isPending]);
+    }, [state, isPending, router]);
 
     return (
         <div className={cn("flex flex-col gap-6", className)} {...props}>
@@ -145,7 +144,7 @@ export function RegisterForm({
                                         {getFieldError("confirmPassword") && (
                                             <FieldDescription className="text-red-600">
                                                 {getFieldError(
-                                                    "confirmPassword",
+                                                    "confirmPassword"
                                                 )}
                                             </FieldDescription>
                                         )}

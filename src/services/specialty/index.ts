@@ -58,25 +58,5 @@ export async function deleteSpecialty(
     return response;
 }
 
-/**
- * Update specialty (Admin only)
- */
-export async function updateSpecialty(
-    id: string,
-    data: Partial<ICreateSpecialtyRequest>,
-    file?: File,
-): Promise<IApiResponse<ISpecialty>> {
-    const formData = new FormData();
-    formData.append("data", JSON.stringify(data));
-    if (file) {
-        formData.append("file", file);
-    }
-
-    const response = await uploadFormData<ISpecialty>(
-        `/specialties/${id}`,
-        formData,
-        "PATCH",
-    );
-    revalidateTag(SPECIALTIES_TAG, "max");
-    return response;
-}
+// Note: Update specialty is not supported by the server API
+// The server only has GET, POST, DELETE endpoints for specialties

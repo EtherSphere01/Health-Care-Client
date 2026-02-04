@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Plus, Pencil, Trash2, Image } from "lucide-react";
+import { Plus, Trash2, Image } from "lucide-react";
 import { ISpecialty, IMeta } from "@/types";
 import { DashboardHeader } from "@/components/shared/DashboardLayout";
 import { Button } from "@/components/ui/button";
@@ -17,7 +17,6 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { deleteSpecialty } from "@/services/specialty";
 import { toast } from "sonner";
 import { CreateSpecialtyModal } from "./CreateSpecialtyModal";
-import { EditSpecialtyModal } from "./EditSpecialtyModal";
 
 interface SpecialtiesManagementContentProps {
     specialties: ISpecialty[];
@@ -38,9 +37,6 @@ export function SpecialtiesManagementContent({
     const [isPending, startTransition] = useTransition();
 
     const [showCreateModal, setShowCreateModal] = useState(false);
-    const [editingSpecialty, setEditingSpecialty] = useState<ISpecialty | null>(
-        null,
-    );
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [specialtyToDelete, setSpecialtyToDelete] =
         useState<ISpecialty | null>(null);
@@ -114,13 +110,6 @@ export function SpecialtiesManagementContent({
             header: "Actions",
             cell: (specialty: ISpecialty) => (
                 <div className="flex items-center gap-2">
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => setEditingSpecialty(specialty)}
-                    >
-                        <Pencil className="h-4 w-4" />
-                    </Button>
                     <Button
                         variant="ghost"
                         size="icon"
@@ -200,15 +189,6 @@ export function SpecialtiesManagementContent({
                 open={showCreateModal}
                 onOpenChange={setShowCreateModal}
             />
-
-            {/* Edit Specialty Modal */}
-            {editingSpecialty && (
-                <EditSpecialtyModal
-                    open={!!editingSpecialty}
-                    onOpenChange={(open) => !open && setEditingSpecialty(null)}
-                    specialty={editingSpecialty}
-                />
-            )}
 
             {/* Delete Confirmation Dialog */}
             <ConfirmDialog

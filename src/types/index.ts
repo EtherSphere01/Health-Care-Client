@@ -476,13 +476,12 @@ export interface ICreateSpecialtyRequest {
 // META/DASHBOARD TYPES
 // ============================================
 export interface IAdminDashboardMeta {
-    totalPatients: number;
-    totalDoctors: number;
-    totalAppointments: number;
+    appointmentCount: number;
+    patientCount: number;
+    doctorCount: number;
+    paymentCount: number;
     totalRevenue: number;
-    totalPaidAppointments: number;
-    totalUnpaidAppointments: number;
-    appointmentByStatus: {
+    appointmentStatusDistribution: {
         scheduled: number;
         inProgress: number;
         completed: number;
@@ -491,11 +490,11 @@ export interface IAdminDashboardMeta {
 }
 
 export interface IDoctorDashboardMeta {
-    totalAppointments: number;
-    totalPatients: number;
+    appointmentCount: number;
+    patientCount: number;
+    reviewCount: number;
     totalRevenue: number;
-    totalPrescriptions: number;
-    appointmentByStatus: {
+    appointmentStatusDistribution: {
         scheduled: number;
         inProgress: number;
         completed: number;
@@ -504,10 +503,10 @@ export interface IDoctorDashboardMeta {
 }
 
 export interface IPatientDashboardMeta {
-    totalAppointments: number;
-    totalPrescriptions: number;
-    totalCompletedAppointments: number;
-    appointmentByStatus: {
+    appointmentCount: number;
+    prescriptionCount: number;
+    reviewCount: number;
+    appointmentStatusDistribution: {
         scheduled: number;
         inProgress: number;
         completed: number;

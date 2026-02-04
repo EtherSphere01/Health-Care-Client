@@ -101,8 +101,12 @@ export function CreateDoctorModal({
             } else {
                 toast.error(response.message || "Failed to create doctor");
             }
-        } catch (error: any) {
-            toast.error(error.message || "Failed to create doctor");
+        } catch (error: unknown) {
+            const message =
+                error instanceof Error
+                    ? error.message
+                    : "Failed to create doctor";
+            toast.error(message);
         } finally {
             setIsSubmitting(false);
         }

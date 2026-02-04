@@ -142,8 +142,12 @@ export function ConsultationContent({
                 toast.success("Appointment created successfully!");
                 router.push("/dashboard/my-appointments");
             }
-        } catch (error: any) {
-            toast.error(error.message || "Failed to book appointment");
+        } catch (error: unknown) {
+            const message =
+                error instanceof Error
+                    ? error.message
+                    : "Failed to book appointment";
+            toast.error(message);
         } finally {
             setIsBooking(false);
         }

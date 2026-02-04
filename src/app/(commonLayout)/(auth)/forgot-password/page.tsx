@@ -40,8 +40,10 @@ export default function ForgotPasswordPage() {
             } else {
                 toast.error(response.message || "Failed to send reset email");
             }
-        } catch (error: any) {
-            toast.error(error.message || "Something went wrong");
+        } catch (error: unknown) {
+            const message =
+                error instanceof Error ? error.message : "Something went wrong";
+            toast.error(message);
         } finally {
             setIsSubmitting(false);
         }
@@ -78,13 +80,13 @@ export default function ForgotPasswordPage() {
                                     <Mail className="h-8 w-8 text-green-600" />
                                 </div>
                                 <p className="text-sm text-muted-foreground">
-                                    We've sent a password reset link to{" "}
+                                    We&apos;ve sent a password reset link to{" "}
                                     <span className="font-medium">{email}</span>
                                     . Please check your inbox and follow the
                                     instructions to reset your password.
                                 </p>
                                 <p className="text-sm text-muted-foreground">
-                                    Didn't receive the email?{" "}
+                                    Didn&apos;t receive the email?{" "}
                                     <button
                                         onClick={() => setIsSubmitted(false)}
                                         className="text-primary underline hover:no-underline"

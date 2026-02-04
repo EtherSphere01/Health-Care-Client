@@ -35,25 +35,39 @@ async function DoctorsListData({
     search?: string;
     page?: string;
 }) {
-    const [doctorsRes, specialtiesRes] = await Promise.all([
-        getAllDoctors({
-            specialties: specialty,
-            searchTerm: search,
-            page: page ? parseInt(page) : 1,
-            limit: 12,
-        }),
-        getAllSpecialties({}),
-    ]);
+    try {
+        const [doctorsRes, specialtiesRes] = await Promise.all([
+            getAllDoctors({
+                specialties: specialty,
+                searchTerm: search,
+                page: page ? parseInt(page) : 1,
+                limit: 12,
+            }),
+            getAllSpecialties({}),
+        ]);
 
-    return (
-        <DoctorsListContent
-            doctors={doctorsRes.data || []}
-            specialties={specialtiesRes.data || []}
-            meta={doctorsRes.meta}
-            initialFilters={{
-                specialty: specialty || "",
-                search: search || "",
-            }}
-        />
-    );
+        return (
+            <DoctorsListContent
+                doctors={doctorsRes.data || []}
+                specialties={specialtiesRes.data || []}
+                meta={doctorsRes.meta}
+                initialFilters={{
+                    specialty: specialty || "",
+                    search: search || "",
+                }}
+            />
+        );
+    } catch {
+        return (
+            <DoctorsListContent
+                doctors={[]}
+                specialties={[]}
+                meta={undefined}
+                initialFilters={{
+                    specialty: specialty || "",
+                    search: search || "",
+                }}
+            />
+        );
+    }
 }

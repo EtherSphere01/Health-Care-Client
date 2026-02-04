@@ -14,6 +14,7 @@ interface RequestOptions {
     cache?: RequestCache;
     revalidate?: number;
     tags?: string[];
+    headers?: HeadersInit;
 }
 
 interface FetchOptions extends RequestInit {
@@ -64,8 +65,12 @@ export async function apiRequest<T>(
     if (requireAuth) {
         const token = await getCookie("accessToken");
         if (token) {
-            headers["Authorization"] = `Bearer ${token}`;
+            headers["Authorization"] = token;
         }
+    }
+
+    if (options.headers) {
+        Object.assign(headers, options.headers);
     }
 
     // Set content type for JSON

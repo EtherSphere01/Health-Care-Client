@@ -33,10 +33,13 @@ export async function refreshToken(): Promise<{
 
         const response = await post<ILoginResponse>(
             "/auth/refresh-token",
+            undefined,
             {
-                refreshToken: refreshTokenValue,
+                requireAuth: false,
+                headers: {
+                    Cookie: `refreshToken=${refreshTokenValue}`,
+                },
             },
-            { requireAuth: false },
         );
 
         if (response.success && response.data.accessToken) {
@@ -101,9 +104,16 @@ export async function resetPassword(
     data: IResetPasswordRequest,
 ): Promise<{ success: boolean; message: string }> {
     try {
-        const response = await post<null>("/auth/reset-password", data, {
-            requireAuth: false,
-        });
+        const response = await post<null>(
+            "/auth/reset-password",
+            { password: data.newPassword },
+            {
+                requireAuth: false,
+                headers: {
+                    Authorization: `Bearer ${data.token}`,
+                },
+            },
+        );
         return { success: true, message: response.message };
     } catch (error) {
         const errorMessage =
@@ -118,8 +128,14 @@ export async function resetPassword(
  */
 export async function getMe(): Promise<IUser | null> {
     try {
+        const accessToken = await getCookie("accessToken");
         const response = await get<IUser>("/auth/me", undefined, {
             tags: ["user", "me"],
+            headers: accessToken
+                ? {
+                      Cookie: `accessToken=${accessToken}`,
+                  }
+                : undefined,
         });
         return response.data;
     } catch {

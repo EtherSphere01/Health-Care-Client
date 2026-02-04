@@ -33,19 +33,29 @@ async function ConsultationData({
     doctorId?: string;
     specialtyId?: string;
 }) {
-    const [doctorsRes, specialtiesRes] = await Promise.all([
-        getAllDoctors({
-            specialties: specialtyId,
-            limit: 100,
-        }),
-        getAllSpecialties({}),
-    ]);
+    try {
+        const [doctorsRes, specialtiesRes] = await Promise.all([
+            getAllDoctors({
+                specialties: specialtyId,
+                limit: 100,
+            }),
+            getAllSpecialties({}),
+        ]);
 
-    return (
-        <ConsultationContent
-            doctors={doctorsRes.data || []}
-            specialties={specialtiesRes.data || []}
-            selectedDoctorId={doctorId}
-        />
-    );
+        return (
+            <ConsultationContent
+                doctors={doctorsRes.data || []}
+                specialties={specialtiesRes.data || []}
+                selectedDoctorId={doctorId}
+            />
+        );
+    } catch {
+        return (
+            <ConsultationContent
+                doctors={[]}
+                specialties={[]}
+                selectedDoctorId={doctorId}
+            />
+        );
+    }
 }

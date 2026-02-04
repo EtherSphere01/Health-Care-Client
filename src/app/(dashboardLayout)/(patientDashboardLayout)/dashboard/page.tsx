@@ -3,6 +3,7 @@ import { getMyAppointments } from "@/services/appointment";
 import { getPatientPrescriptions } from "@/services/prescription";
 import { LoadingState } from "@/components/ui/loading";
 import { PatientDashboardContent } from "./PatientDashboardContent";
+import { ErrorState } from "@/components/ui/empty-state";
 
 export default function PatientDashboardPage() {
     return (
@@ -13,15 +14,24 @@ export default function PatientDashboardPage() {
 }
 
 async function PatientDashboardData() {
-    const [appointmentsRes, prescriptionsRes] = await Promise.all([
-        getMyAppointments({ limit: 5 }),
-        getPatientPrescriptions({ limit: 5 }),
-    ]);
+    try {
+        const [appointmentsRes, prescriptionsRes] = await Promise.all([
+            getMyAppointments({ limit: 5 }),
+            getPatientPrescriptions({ limit: 5 }),
+        ]);
 
-    return (
-        <PatientDashboardContent
-            appointments={appointmentsRes.data || []}
-            prescriptions={prescriptionsRes.data || []}
-        />
-    );
+        return (
+            <PatientDashboardContent
+                appointments={appointmentsRes.data || []}
+                prescriptions={prescriptionsRes.data || []}
+            />
+        );
+    } catch (error) {
+        return (
+            <ErrorState
+                title="Failed to load dashboard"
+                description="An error occurred while loading your dashboard. Please try again."
+            />
+        );
+    }
 }

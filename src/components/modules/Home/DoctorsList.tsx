@@ -94,13 +94,19 @@ export default function DoctorsList() {
                                     Available Today
                                 </div>
 
-                                <Image
-                                    src=""
-                                    width={100}
-                                    height={100}
-                                    alt={doctor.name}
-                                    className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700"
-                                />
+                                {doctor.avatarUrl ? (
+                                    <Image
+                                        src={
+                                            doctor.avatarUrl
+                                                ? doctor.avatarUrl
+                                                : ""
+                                        }
+                                        width={100}
+                                        height={100}
+                                        alt={doctor.name}
+                                        className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700"
+                                    />
+                                ) : null}
 
                                 {/* Name Overlay */}
                                 <div className="absolute bottom-0 left-0 p-6 z-20 text-white">

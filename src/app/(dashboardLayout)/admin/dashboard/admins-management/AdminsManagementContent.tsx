@@ -130,9 +130,7 @@ export function AdminsManagementContent({
             id: "status",
             header: "Status",
             cell: (admin: IAdmin) => (
-                <StatusBadge status={admin.isDeleted ? "INACTIVE" : "ACTIVE"}>
-                    {admin.isDeleted ? "Deleted" : "Active"}
-                </StatusBadge>
+                <StatusBadge status={admin.isDeleted ? "INACTIVE" : "ACTIVE"} />
             ),
         },
         {

@@ -47,7 +47,7 @@ const statusOptions = [
     { value: AppointmentStatus.SCHEDULED, label: "Scheduled" },
     { value: AppointmentStatus.INPROGRESS, label: "In Progress" },
     { value: AppointmentStatus.COMPLETED, label: "Completed" },
-    { value: AppointmentStatus.CANCELLED, label: "Cancelled" },
+    { value: AppointmentStatus.CANCELED, label: "Canceled" },
 ];
 
 export function PatientAppointmentsContent({
@@ -63,6 +63,7 @@ export function PatientAppointmentsContent({
         useState<IAppointment | null>(null);
 
     const formatDate = (date: string) => {
+        if (!date) return "N/A";
         return new Date(date).toLocaleDateString("en-US", {
             weekday: "short",
             month: "short",
@@ -71,12 +72,14 @@ export function PatientAppointmentsContent({
         });
     };
 
-    const formatTime = (time: string) => {
-        const [hours, minutes] = time.split(":");
-        const hour = parseInt(hours);
-        const ampm = hour >= 12 ? "PM" : "AM";
-        const formattedHour = hour % 12 || 12;
-        return `${formattedHour}:${minutes} ${ampm}`;
+    const formatTime = (dateTimeString: string) => {
+        if (!dateTimeString) return "";
+        const date = new Date(dateTimeString);
+        return date.toLocaleTimeString("en-US", {
+            hour: "numeric",
+            minute: "2-digit",
+            hour12: true,
+        });
     };
 
     const filteredAppointments = appointments.filter((appointment) => {
@@ -123,11 +126,10 @@ export function PatientAppointmentsContent({
                             ? "No appointments match your filter criteria."
                             : "You haven't booked any appointments yet."
                     }
-                    action={
-                        <Link href="/consultation">
-                            <Button>Book Your First Appointment</Button>
-                        </Link>
-                    }
+                    action={{
+                        label: "Book Your First Appointment",
+                        onClick: () => router.push("/consultation"),
+                    }}
                 />
             ) : (
                 <div className="space-y-4">
@@ -189,7 +191,7 @@ export function PatientAppointmentsContent({
                                             <span>
                                                 {formatDate(
                                                     appointment.schedule
-                                                        ?.scheduleDate || "",
+                                                        ?.startDateTime || "",
                                                 )}
                                             </span>
                                         </div>
@@ -198,28 +200,24 @@ export function PatientAppointmentsContent({
                                             <span>
                                                 {formatTime(
                                                     appointment.schedule
-                                                        ?.startTime || "",
+                                                        ?.startDateTime || "",
                                                 )}{" "}
                                                 -{" "}
                                                 {formatTime(
                                                     appointment.schedule
-                                                        ?.endTime || "",
+                                                        ?.endDateTime || "",
                                                 )}
                                             </span>
                                         </div>
                                         <div className="flex items-center gap-2">
                                             <AppointmentStatusBadge
                                                 status={appointment.status}
-                                            >
-                                                {appointment.status}
-                                            </AppointmentStatusBadge>
+                                            />
                                             <PaymentStatusBadge
                                                 status={
                                                     appointment.paymentStatus
                                                 }
-                                            >
-                                                {appointment.paymentStatus}
-                                            </PaymentStatusBadge>
+                                            />
                                         </div>
                                     </div>
                                 </div>
@@ -378,7 +376,7 @@ function ViewAppointmentModal({
                             </Label>
                             <p className="font-medium">
                                 {formatDate(
-                                    appointment.schedule?.scheduleDate || "",
+                                    appointment.schedule?.startDateTime || "",
                                 )}
                             </p>
                         </div>
@@ -388,11 +386,11 @@ function ViewAppointmentModal({
                             </Label>
                             <p className="font-medium">
                                 {formatTime(
-                                    appointment.schedule?.startTime || "",
+                                    appointment.schedule?.startDateTime || "",
                                 )}{" "}
                                 -{" "}
                                 {formatTime(
-                                    appointment.schedule?.endTime || "",
+                                    appointment.schedule?.endDateTime || "",
                                 )}
                             </p>
                         </div>
@@ -403,9 +401,7 @@ function ViewAppointmentModal({
                             <div className="mt-1">
                                 <AppointmentStatusBadge
                                     status={appointment.status}
-                                >
-                                    {appointment.status}
-                                </AppointmentStatusBadge>
+                                />
                             </div>
                         </div>
                         <div>
@@ -415,9 +411,7 @@ function ViewAppointmentModal({
                             <div className="mt-1">
                                 <PaymentStatusBadge
                                     status={appointment.paymentStatus}
-                                >
-                                    {appointment.paymentStatus}
-                                </PaymentStatusBadge>
+                                />
                             </div>
                         </div>
                     </div>
@@ -441,15 +435,11 @@ function ViewAppointmentModal({
                             {appointment.prescription.instructions && (
                                 <div className="text-sm">
                                     <p className="text-muted-foreground mb-1">
-                                        Medications:
+                                        Instructions:
                                     </p>
-                                    <ul className="list-disc list-inside space-y-1">
-                                        {appointment.prescription.instructions.map(
-                                            (inst, idx) => (
-                                                <li key={idx}>{inst}</li>
-                                            ),
-                                        )}
-                                    </ul>
+                                    <p className="whitespace-pre-line">
+                                        {appointment.prescription.instructions}
+                                    </p>
                                 </div>
                             )}
                             {appointment.prescription.followUpDate && (

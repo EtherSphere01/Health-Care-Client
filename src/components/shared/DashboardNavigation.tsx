@@ -278,3 +278,27 @@ export function DashboardLayoutWrapper({
         </div>
     );
 }
+
+interface DashboardLayoutProps {
+    children: React.ReactNode;
+    role: "ADMIN" | "DOCTOR" | "PATIENT";
+    sidebar?: React.ReactNode; // Optional custom sidebar, not used currently
+}
+
+export function DashboardLayout({
+    children,
+    role,
+}: DashboardLayoutProps) {
+    const navItems =
+        role === "ADMIN"
+            ? adminNavItems
+            : role === "DOCTOR"
+              ? doctorNavItems
+              : patientNavItems;
+
+    return (
+        <DashboardLayoutWrapper navItems={navItems}>
+            {children}
+        </DashboardLayoutWrapper>
+    );
+}

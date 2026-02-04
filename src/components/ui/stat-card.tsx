@@ -7,7 +7,7 @@ import { LucideIcon, TrendingUp, TrendingDown } from "lucide-react";
 interface StatCardProps {
     title: string;
     value: string | number;
-    icon?: LucideIcon;
+    icon?: LucideIcon | React.ReactNode;
     description?: string;
     trend?: {
         value: number;
@@ -15,7 +15,7 @@ interface StatCardProps {
     };
     className?: string;
     iconClassName?: string;
-    variant?: "default" | "primary" | "success" | "warning" | "danger";
+    variant?: "default" | "primary" | "success" | "warning" | "danger" | "info";
 }
 
 const variantStyles = {
@@ -39,6 +39,10 @@ const variantStyles = {
         icon: "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400",
         border: "border-red-100 dark:border-red-900/50",
     },
+    info: {
+        icon: "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400",
+        border: "border-blue-100 dark:border-blue-900/50",
+    },
 };
 
 export function StatCard({
@@ -52,6 +56,9 @@ export function StatCard({
     variant = "default",
 }: StatCardProps) {
     const styles = variantStyles[variant];
+
+    // Check if Icon is a function (LucideIcon) or a ReactNode
+    const isLucideIcon = typeof Icon === "function";
 
     return (
         <div
@@ -70,7 +77,7 @@ export function StatCard({
                             iconClassName,
                         )}
                     >
-                        <Icon className="h-5 w-5" />
+                        {isLucideIcon ? <Icon className="h-5 w-5" /> : Icon}
                     </div>
                 )}
                 {trend && (

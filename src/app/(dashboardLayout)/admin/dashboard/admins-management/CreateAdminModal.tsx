@@ -85,7 +85,7 @@ export function CreateAdminModal({
             password: "",
             name: "",
             contactNumber: "",
-            gender: "MALE",
+            gender: Gender.MALE,
         });
     };
 

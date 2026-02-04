@@ -176,22 +176,21 @@ export function PatientDashboardContent({
                                                 <p className="text-xs text-muted-foreground">
                                                     {formatDate(
                                                         appointment.schedule
-                                                            ?.scheduleDate ||
+                                                            ?.startDateTime ||
                                                             "",
                                                     )}{" "}
                                                     •{" "}
                                                     {formatTime(
                                                         appointment.schedule
-                                                            ?.startTime || "",
+                                                            ?.startDateTime ||
+                                                            "",
                                                     )}
                                                 </p>
                                             </div>
                                         </div>
                                         <AppointmentStatusBadge
                                             status={appointment.status}
-                                        >
-                                            {appointment.status}
-                                        </AppointmentStatusBadge>
+                                        />
                                     </div>
                                 ))}
                             </div>

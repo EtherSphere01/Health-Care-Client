@@ -51,7 +51,6 @@ export function PatientProfileContent({ user }: PatientProfileContentProps) {
         name: patient?.name || "",
         contactNumber: patient?.contactNumber || "",
         address: patient?.address || "",
-        emergencyContactNo: patient?.emergencyContactNo || "",
     });
 
     const [passwordData, setPasswordData] = useState({
@@ -92,13 +91,10 @@ export function PatientProfileContent({ user }: PatientProfileContentProps) {
     const handleSave = async () => {
         setIsSubmitting(true);
         try {
-            const formDataToSend = new FormData();
-            formDataToSend.append("data", JSON.stringify(formData));
-            if (profileImage) {
-                formDataToSend.append("file", profileImage);
-            }
-
-            const response = await updateMyProfile(formDataToSend);
+            const response = await updateMyProfile(
+                formData,
+                profileImage || undefined,
+            );
             if (response.success) {
                 toast.success("Profile updated successfully");
                 setIsEditing(false);
@@ -118,7 +114,6 @@ export function PatientProfileContent({ user }: PatientProfileContentProps) {
             name: patient?.name || "",
             contactNumber: patient?.contactNumber || "",
             address: patient?.address || "",
-            emergencyContactNo: patient?.emergencyContactNo || "",
         });
         setProfileImage(null);
         setImagePreview(patient?.profilePhoto || null);
@@ -245,12 +240,8 @@ export function PatientProfileContent({ user }: PatientProfileContentProps) {
                             </h2>
 
                             <div className="flex items-center gap-2 mt-2">
-                                <RoleBadge role={user.role}>
-                                    {user.role}
-                                </RoleBadge>
-                                <StatusBadge status={user.status}>
-                                    {user.status}
-                                </StatusBadge>
+                                <RoleBadge role={user.role} />
+                                <StatusBadge status={user.status} />
                             </div>
 
                             {/* Contact Info */}
@@ -345,27 +336,10 @@ export function PatientProfileContent({ user }: PatientProfileContentProps) {
                                     )}
                                 </div>
                                 <div className="space-y-2">
-                                    <Label htmlFor="emergencyContactNo">
-                                        Emergency Contact
-                                    </Label>
-                                    {isEditing ? (
-                                        <Input
-                                            id="emergencyContactNo"
-                                            name="emergencyContactNo"
-                                            value={formData.emergencyContactNo}
-                                            onChange={handleChange}
-                                        />
-                                    ) : (
-                                        <p className="text-sm p-2 bg-muted/50 rounded-md">
-                                            {patient?.emergencyContactNo ||
-                                                "Not provided"}
-                                        </p>
-                                    )}
-                                </div>
-                                <div className="space-y-2">
                                     <Label>Gender</Label>
                                     <p className="text-sm p-2 bg-muted/50 rounded-md">
-                                        {patient?.gender || "Not specified"}
+                                        {patient?.patientHealthData?.gender ||
+                                            "Not specified"}
                                     </p>
                                 </div>
                             </div>
@@ -427,7 +401,8 @@ export function PatientProfileContent({ user }: PatientProfileContentProps) {
                                 <div className="space-y-2">
                                     <Label>Smoker</Label>
                                     <p className="text-sm p-2 bg-muted/50 rounded-md">
-                                        {patient?.patientHealthData?.hasSmoker
+                                        {patient?.patientHealthData
+                                            ?.smokingStatus
                                             ? "Yes"
                                             : "No"}
                                     </p>

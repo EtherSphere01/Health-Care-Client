@@ -22,15 +22,18 @@ const spinnerVariants = cva("animate-spin text-muted-foreground", {
 interface SpinnerProps
     extends
         React.HTMLAttributes<HTMLDivElement>,
-        VariantProps<typeof spinnerVariants> {}
+        VariantProps<typeof spinnerVariants> {
+    text?: string;
+}
 
-export function Spinner({ className, size, ...props }: SpinnerProps) {
+export function Spinner({ className, size, text, ...props }: SpinnerProps) {
     return (
         <div
-            className={cn("flex items-center justify-center", className)}
+            className={cn("flex flex-col items-center justify-center gap-2", className)}
             {...props}
         >
             <Loader2 className={cn(spinnerVariants({ size }))} />
+            {text && <span className="text-sm text-muted-foreground">{text}</span>}
         </div>
     );
 }

@@ -242,34 +242,19 @@ function ViewPrescriptionModal({
                         )}
                     </div>
 
-                    {/* Medications */}
-                    {prescription.instructions &&
-                        prescription.instructions.length > 0 && (
-                            <div>
-                                <Label className="text-muted-foreground mb-2 block">
-                                    Medications & Instructions
-                                </Label>
-                                <div className="bg-muted/30 rounded-lg p-4">
-                                    <ul className="space-y-2">
-                                        {prescription.instructions.map(
-                                            (instruction, idx) => (
-                                                <li
-                                                    key={idx}
-                                                    className="flex items-start gap-2"
-                                                >
-                                                    <span className="font-medium text-primary">
-                                                        •
-                                                    </span>
-                                                    <span className="text-sm">
-                                                        {instruction}
-                                                    </span>
-                                                </li>
-                                            ),
-                                        )}
-                                    </ul>
-                                </div>
+                    {/* Instructions */}
+                    {prescription.instructions && (
+                        <div>
+                            <Label className="text-muted-foreground mb-2 block">
+                                Medications & Instructions
+                            </Label>
+                            <div className="bg-muted/30 rounded-lg p-4">
+                                <p className="whitespace-pre-line text-sm">
+                                    {prescription.instructions}
+                                </p>
                             </div>
-                        )}
+                        </div>
+                    )}
 
                     {/* Actions */}
                     <div className="flex justify-end gap-2 pt-4 border-t">

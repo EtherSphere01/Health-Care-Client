@@ -3,6 +3,7 @@ import { getAllDoctors } from "@/services/doctor";
 import { getAllSpecialties } from "@/services/specialty";
 import { TableSkeleton } from "@/components/ui/loading";
 import { DoctorsManagementContent } from "./DoctorsManagementContent";
+import { IDoctor, ISpecialty, IMeta } from "@/types";
 
 export const dynamic = "force-dynamic";
 
@@ -30,9 +31,9 @@ async function DoctorsManagementData({ searchParams }: PageProps) {
     const page = Number(params.page) || 1;
     const limit = Number(params.limit) || 10;
 
-    let doctors = [];
-    let meta = null;
-    let specialties = [];
+    let doctors: IDoctor[] = [];
+    let meta: IMeta | null = null;
+    let specialties: ISpecialty[] = [];
 
     try {
         const [doctorsResponse, specialtiesResponse] = await Promise.all([

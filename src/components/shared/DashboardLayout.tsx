@@ -90,7 +90,7 @@ export function Sidebar({
 }
 
 interface DashboardHeaderProps {
-    title: string;
+    title: string | React.ReactNode;
     description?: string;
     actions?: React.ReactNode;
     breadcrumbs?: { label: string; href?: string }[];

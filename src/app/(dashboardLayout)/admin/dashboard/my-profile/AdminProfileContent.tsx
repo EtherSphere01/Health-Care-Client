@@ -85,13 +85,10 @@ export function AdminProfileContent({ user }: AdminProfileContentProps) {
     const handleSave = async () => {
         setIsSubmitting(true);
         try {
-            const formDataToSend = new FormData();
-            formDataToSend.append("data", JSON.stringify(formData));
-            if (profileImage) {
-                formDataToSend.append("file", profileImage);
-            }
-
-            const response = await updateMyProfile(formDataToSend);
+            const response = await updateMyProfile(
+                formData,
+                profileImage || undefined,
+            );
             if (response.success) {
                 toast.success("Profile updated successfully");
                 setIsEditing(false);
@@ -229,12 +226,8 @@ export function AdminProfileContent({ user }: AdminProfileContentProps) {
                             </h2>
 
                             <div className="flex items-center gap-2 mt-2">
-                                <RoleBadge role={user.role}>
-                                    {user.role}
-                                </RoleBadge>
-                                <StatusBadge status={user.status}>
-                                    {user.status}
-                                </StatusBadge>
+                                <RoleBadge role={user.role} />
+                                <StatusBadge status={user.status} />
                             </div>
 
                             {/* Contact Info */}

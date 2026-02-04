@@ -176,18 +176,14 @@ export function DoctorAppointmentsContent({
             id: "status",
             header: "Status",
             cell: (appointment: IAppointment) => (
-                <AppointmentStatusBadge status={appointment.status}>
-                    {appointment.status}
-                </AppointmentStatusBadge>
+                <AppointmentStatusBadge status={appointment.status} />
             ),
         },
         {
             id: "payment",
             header: "Payment",
             cell: (appointment: IAppointment) => (
-                <PaymentStatusBadge status={appointment.paymentStatus}>
-                    {appointment.paymentStatus}
-                </PaymentStatusBadge>
+                <PaymentStatusBadge status={appointment.paymentStatus} />
             ),
         },
         {

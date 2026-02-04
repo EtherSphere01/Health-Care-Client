@@ -173,9 +173,7 @@ export function DoctorDetailContent({
                                     status={
                                         doctor.isDeleted ? "INACTIVE" : "ACTIVE"
                                     }
-                                >
-                                    {doctor.isDeleted ? "Deleted" : "Active"}
-                                </StatusBadge>
+                                />
                             </div>
 
                             <div className="flex items-center gap-1 mt-4">
@@ -448,9 +446,9 @@ export function DoctorDetailContent({
                                     </p>
                                 </div>
                                 <div className="space-y-2">
-                                    <Label>User ID</Label>
+                                    <Label>Doctor ID</Label>
                                     <p className="text-sm p-2 bg-muted/50 rounded-md truncate">
-                                        {doctor.userId}
+                                        {doctor.id}
                                     </p>
                                 </div>
                                 <div className="space-y-2">

@@ -59,17 +59,15 @@ export function ViewAppointmentModal({
                     <div className="flex items-center gap-4">
                         <div className="flex items-center gap-2">
                             <Label>Status:</Label>
-                            <AppointmentStatusBadge status={appointment.status}>
-                                {appointment.status}
-                            </AppointmentStatusBadge>
+                            <AppointmentStatusBadge
+                                status={appointment.status}
+                            />
                         </div>
                         <div className="flex items-center gap-2">
                             <Label>Payment:</Label>
                             <PaymentStatusBadge
                                 status={appointment.paymentStatus}
-                            >
-                                {appointment.paymentStatus}
-                            </PaymentStatusBadge>
+                            />
                         </div>
                     </div>
 

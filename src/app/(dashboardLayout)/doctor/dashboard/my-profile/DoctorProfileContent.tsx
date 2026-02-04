@@ -254,12 +254,8 @@ export function DoctorProfileContent({
                             </p>
 
                             <div className="flex items-center gap-2 mt-2">
-                                <RoleBadge role={user.role}>
-                                    {user.role}
-                                </RoleBadge>
-                                <StatusBadge status={user.status}>
-                                    {user.status}
-                                </StatusBadge>
+                                <RoleBadge role={user.role} />
+                                <StatusBadge status={user.status} />
                             </div>
 
                             <div className="flex items-center gap-1 mt-4">

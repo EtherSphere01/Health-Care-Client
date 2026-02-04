@@ -29,11 +29,16 @@ interface SpinnerProps
 export function Spinner({ className, size, text, ...props }: SpinnerProps) {
     return (
         <div
-            className={cn("flex flex-col items-center justify-center gap-2", className)}
+            className={cn(
+                "flex flex-col items-center justify-center gap-2",
+                className,
+            )}
             {...props}
         >
             <Loader2 className={cn(spinnerVariants({ size }))} />
-            {text && <span className="text-sm text-muted-foreground">{text}</span>}
+            {text && (
+                <span className="text-sm text-muted-foreground">{text}</span>
+            )}
         </div>
     );
 }

@@ -44,7 +44,7 @@ export function PatientDetailContent({ patient }: PatientDetailContentProps) {
         name: patient.name,
         contactNumber: patient.contactNumber || "",
         address: patient.address || "",
-        gender: patient.gender || ("MALE" as Gender),
+        gender: patient.patientHealthData?.gender || Gender.MALE,
     });
 
     const handleChange = (
@@ -80,7 +80,7 @@ export function PatientDetailContent({ patient }: PatientDetailContentProps) {
             name: patient.name,
             contactNumber: patient.contactNumber || "",
             address: patient.address || "",
-            gender: patient.gender || "MALE",
+            gender: patient.patientHealthData?.gender || Gender.MALE,
         });
         setIsEditing(false);
     };

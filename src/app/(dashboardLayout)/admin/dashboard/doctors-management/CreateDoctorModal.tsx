@@ -117,7 +117,7 @@ export function CreateDoctorModal({
             address: "",
             registrationNumber: "",
             experience: 0,
-            gender: "MALE",
+            gender: Gender.MALE,
             appointmentFee: 0,
             qualification: "",
             currentWorkingPlace: "",

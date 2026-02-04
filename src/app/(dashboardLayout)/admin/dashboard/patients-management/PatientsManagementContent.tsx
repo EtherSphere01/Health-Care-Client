@@ -149,9 +149,9 @@ export function PatientsManagementContent({
             id: "status",
             header: "Status",
             cell: (patient: IPatient) => (
-                <StatusBadge status={patient.isDeleted ? "INACTIVE" : "ACTIVE"}>
-                    {patient.isDeleted ? "Deleted" : "Active"}
-                </StatusBadge>
+                <StatusBadge
+                    status={patient.isDeleted ? "INACTIVE" : "ACTIVE"}
+                />
             ),
         },
         {

@@ -61,16 +61,22 @@ export function EmptyState({
 interface ErrorStateProps {
     title?: string;
     message?: string;
+    description?: string; // alias for message
     onRetry?: () => void;
     className?: string;
 }
 
 export function ErrorState({
     title = "Something went wrong",
-    message = "An error occurred while loading. Please try again.",
+    message,
+    description,
     onRetry,
     className,
 }: ErrorStateProps) {
+    const displayMessage =
+        message ||
+        description ||
+        "An error occurred while loading. Please try again.";
     return (
         <div
             className={cn(
@@ -85,7 +91,7 @@ export function ErrorState({
                 {title}
             </h3>
             <p className="text-sm text-muted-foreground mt-2 max-w-md">
-                {message}
+                {displayMessage}
             </p>
             {onRetry && (
                 <Button onClick={onRetry} variant="outline" className="mt-6">

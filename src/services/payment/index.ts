@@ -1,19 +1,42 @@
 "use server";
 
 import { post } from "@/lib/api";
-import { IInitPaymentResponse, IApiResponse } from "@/types";
+import {
+    IInitPaymentRequest,
+    IInitPaymentResponse,
+    IApiResponse,
+} from "@/types";
 import { revalidateTag } from "next/cache";
 
 /**
  * Initialize payment for an appointment (Patient)
  */
 export async function initializePayment(
-  appointmentId: string
+    appointmentId: string,
 ): Promise<IApiResponse<IInitPaymentResponse>> {
-  const response = await post<IInitPaymentResponse>(`/payment/init-payment/${appointmentId}`);
-  revalidateTag("appointments");
-  revalidateTag("my-appointments");
-  return response;
+    const response = await post<IInitPaymentResponse>(
+        `/payment/init-payment/${appointmentId}`,
+    );
+    revalidateTag("appointments");
+    revalidateTag("my-appointments");
+    return response;
+}
+
+/**
+ * Initialize payment with amount (Patient)
+ */
+export async function initPayment(
+    data: IInitPaymentRequest,
+): Promise<IApiResponse<IInitPaymentResponse>> {
+    const response = await post<IInitPaymentResponse>(
+        `/payment/init-payment/${data.appointmentId}`,
+        {
+            amount: data.amount,
+        },
+    );
+    revalidateTag("appointments");
+    revalidateTag("my-appointments");
+    return response;
 }
 
 /**

@@ -1,18 +1,18 @@
 "use client";
 
 import {
-  DashboardLayoutWrapper,
-  adminNavItems,
+    DashboardLayoutWrapper,
+    adminNavItems,
 } from "@/components/shared/DashboardNavigation";
 
 export default function AdminDashboardLayout({
-  children,
+    children,
 }: {
-  children: React.ReactNode;
+    children: React.ReactNode;
 }) {
-  return (
-    <DashboardLayoutWrapper navItems={adminNavItems}>
-      {children}
-    </DashboardLayoutWrapper>
-  );
+    return (
+        <DashboardLayoutWrapper navItems={adminNavItems}>
+            {children}
+        </DashboardLayoutWrapper>
+    );
 }

@@ -6,41 +6,41 @@ import { Spinner } from "@/components/ui/loading";
 import { ErrorState } from "@/components/ui/empty-state";
 
 export default async function DoctorProfilePage() {
-  return (
-    <Suspense fallback={<Spinner size="lg" text="Loading profile..." />}>
-      <ProfileFetcher />
-    </Suspense>
-  );
+    return (
+        <Suspense fallback={<Spinner size="lg" text="Loading profile..." />}>
+            <ProfileFetcher />
+        </Suspense>
+    );
 }
 
 async function ProfileFetcher() {
-  try {
-    const [profileResponse, specialtiesResponse] = await Promise.all([
-      getMyProfile(),
-      getAllSpecialties(),
-    ]);
+    try {
+        const [profileResponse, specialtiesResponse] = await Promise.all([
+            getMyProfile(),
+            getAllSpecialties(),
+        ]);
 
-    if (!profileResponse.success || !profileResponse.data) {
-      return (
-        <ErrorState
-          title="Failed to load profile"
-          description="Could not load your profile information."
-        />
-      );
+        if (!profileResponse.success || !profileResponse.data) {
+            return (
+                <ErrorState
+                    title="Failed to load profile"
+                    description="Could not load your profile information."
+                />
+            );
+        }
+
+        return (
+            <DoctorProfileContent
+                user={profileResponse.data}
+                specialties={specialtiesResponse.data ?? []}
+            />
+        );
+    } catch (error) {
+        return (
+            <ErrorState
+                title="Failed to load profile"
+                description="An error occurred while loading your profile."
+            />
+        );
     }
-
-    return (
-      <DoctorProfileContent
-        user={profileResponse.data}
-        specialties={specialtiesResponse.data ?? []}
-      />
-    );
-  } catch (error) {
-    return (
-      <ErrorState
-        title="Failed to load profile"
-        description="An error occurred while loading your profile."
-      />
-    );
-  }
 }

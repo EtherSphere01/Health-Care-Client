@@ -151,13 +151,10 @@ export function DoctorsListContent({
                                 icon={<Stethoscope className="h-12 w-12" />}
                                 title="No doctors found"
                                 description="Try adjusting your search or filter criteria."
-                                action={
-                                    <Button
-                                        onClick={() => router.push("/doctors")}
-                                    >
-                                        Clear Filters
-                                    </Button>
-                                }
+                                action={{
+                                    label: "Clear Filters",
+                                    onClick: () => router.push("/doctors"),
+                                }}
                             />
                         ) : (
                             <>
@@ -178,11 +175,11 @@ export function DoctorsListContent({
                                 </div>
 
                                 {/* Pagination */}
-                                {meta && meta.totalPages > 1 && (
+                                {meta && meta.totalPage > 1 && (
                                     <div className="mt-8">
                                         <Pagination
                                             currentPage={meta.page}
-                                            totalPages={meta.totalPages}
+                                            totalPages={meta.totalPage}
                                             onPageChange={handlePageChange}
                                         />
                                     </div>
@@ -225,9 +222,6 @@ function DoctorCard({ doctor }: { doctor: IDoctor }) {
                         <Star className="h-4 w-4 text-amber-500 fill-amber-500" />
                         <span className="font-medium">
                             {doctor.averageRating?.toFixed(1) || "0.0"}
-                        </span>
-                        <span className="text-sm text-muted-foreground">
-                            ({doctor.review?.length || 0} reviews)
                         </span>
                     </div>
 

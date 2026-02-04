@@ -158,18 +158,20 @@ export function ConsultationContent({
         });
     };
 
-    const formatTime = (time: string) => {
-        const [hours, minutes] = time.split(":");
-        const hour = parseInt(hours);
-        const ampm = hour >= 12 ? "PM" : "AM";
-        const formattedHour = hour % 12 || 12;
-        return `${formattedHour}:${minutes} ${ampm}`;
+    const formatTime = (dateTimeString: string) => {
+        if (!dateTimeString) return "";
+        const date = new Date(dateTimeString);
+        return date.toLocaleTimeString("en-US", {
+            hour: "numeric",
+            minute: "2-digit",
+            hour12: true,
+        });
     };
 
     // Group schedules by date
     const groupedSchedules = schedules.reduce(
         (acc, schedule) => {
-            const date = schedule.schedule?.scheduleDate || "";
+            const date = schedule.schedule?.startDateTime?.split("T")[0] || "";
             if (!acc[date]) acc[date] = [];
             acc[date].push(schedule);
             return acc;
@@ -309,15 +311,10 @@ export function ConsultationContent({
                                         }
                                         title="No doctors available"
                                         description="No doctors found for this specialty."
-                                        action={
-                                            <Button
-                                                onClick={() =>
-                                                    setStep("specialty")
-                                                }
-                                            >
-                                                Choose Another Specialty
-                                            </Button>
-                                        }
+                                        action={{
+                                            label: "Choose Another Specialty",
+                                            onClick: () => setStep("specialty"),
+                                        }}
                                     />
                                 ) : (
                                     <div className="space-y-4">
@@ -416,16 +413,11 @@ export function ConsultationContent({
                                             <Calendar className="h-12 w-12" />
                                         }
                                         title="No available slots"
-                                        description="Dr. {selectedDoctor.name} has no available appointment slots."
-                                        action={
-                                            <Button
-                                                onClick={() =>
-                                                    setStep("doctor")
-                                                }
-                                            >
-                                                Choose Another Doctor
-                                            </Button>
-                                        }
+                                        description={`Dr. ${selectedDoctor.name} has no available appointment slots.`}
+                                        action={{
+                                            label: "Choose Another Doctor",
+                                            onClick: () => setStep("doctor"),
+                                        }}
                                     />
                                 ) : (
                                     <div className="space-y-6">
@@ -441,7 +433,7 @@ export function ConsultationContent({
                                                             (schedule) => (
                                                                 <button
                                                                     key={
-                                                                        schedule.id
+                                                                        schedule.scheduleId
                                                                     }
                                                                     onClick={() =>
                                                                         handleSelectSchedule(
@@ -449,8 +441,8 @@ export function ConsultationContent({
                                                                         )
                                                                     }
                                                                     className={`p-3 rounded-lg border text-center transition-colors ${
-                                                                        selectedSchedule?.id ===
-                                                                        schedule.id
+                                                                        selectedSchedule?.scheduleId ===
+                                                                        schedule.scheduleId
                                                                             ? "bg-primary text-white border-primary"
                                                                             : "hover:border-primary hover:bg-primary/5"
                                                                     }`}
@@ -460,7 +452,7 @@ export function ConsultationContent({
                                                                         {formatTime(
                                                                             schedule
                                                                                 .schedule
-                                                                                ?.startTime ||
+                                                                                ?.startDateTime ||
                                                                                 "",
                                                                         )}
                                                                     </span>
@@ -566,7 +558,7 @@ export function ConsultationContent({
                                                     {formatDate(
                                                         selectedSchedule
                                                             .schedule
-                                                            ?.scheduleDate ||
+                                                            ?.startDateTime ||
                                                             "",
                                                     )}
                                                 </p>
@@ -582,13 +574,14 @@ export function ConsultationContent({
                                                     {formatTime(
                                                         selectedSchedule
                                                             .schedule
-                                                            ?.startTime || "",
+                                                            ?.startDateTime ||
+                                                            "",
                                                     )}{" "}
                                                     -{" "}
                                                     {formatTime(
                                                         selectedSchedule
                                                             .schedule
-                                                            ?.endTime || "",
+                                                            ?.endDateTime || "",
                                                     )}
                                                 </p>
                                             </div>

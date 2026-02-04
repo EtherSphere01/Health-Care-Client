@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { getDoctorById } from "@/services/doctor";
-import { Loading } from "@/components/ui/loading";
+import { LoadingState } from "@/components/ui/loading";
 import { DoctorDetailContent } from "./DoctorDetailContent";
 
 interface DoctorDetailPageProps {
@@ -14,7 +14,9 @@ export default async function DoctorDetailPage({
     const { id } = await params;
 
     return (
-        <Suspense fallback={<Loading text="Loading doctor profile..." />}>
+        <Suspense
+            fallback={<LoadingState message="Loading doctor profile..." />}
+        >
             <DoctorDetailData id={id} />
         </Suspense>
     );

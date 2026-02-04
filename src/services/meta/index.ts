@@ -1,10 +1,7 @@
 "use server";
 
 import { get } from "@/lib/api";
-import {
-    IDashboardMeta,
-    IApiResponse,
-} from "@/types";
+import { IDashboardMeta, IApiResponse } from "@/types";
 
 /**
  * Get dashboard metadata based on user role

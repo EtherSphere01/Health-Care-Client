@@ -73,10 +73,6 @@ export function DoctorDetailContent({ doctor }: DoctorDetailContentProps) {
                                             {doctor.averageRating?.toFixed(1) ||
                                                 "0.0"}
                                         </span>
-                                        <span className="text-muted-foreground">
-                                            ({doctor.review?.length || 0}{" "}
-                                            reviews)
-                                        </span>
                                     </div>
 
                                     {/* Specialties */}
@@ -247,62 +243,13 @@ export function DoctorDetailContent({ doctor }: DoctorDetailContentProps) {
                                 </CardTitle>
                             </CardHeader>
                             <CardContent>
-                                {!doctor.review ||
-                                doctor.review.length === 0 ? (
-                                    <div className="text-center py-8 text-muted-foreground">
-                                        <Star className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                                        <p>No reviews yet</p>
-                                        <p className="text-sm">
-                                            Be the first to review Dr.{" "}
-                                            {doctor.name}
-                                        </p>
-                                    </div>
-                                ) : (
-                                    <div className="space-y-4">
-                                        {doctor.review.map((review) => (
-                                            <div
-                                                key={review.id}
-                                                className="p-4 bg-muted/30 rounded-lg"
-                                            >
-                                                <div className="flex items-center justify-between mb-2">
-                                                    <div className="flex items-center gap-2">
-                                                        <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-                                                            <span className="text-sm font-medium text-primary">
-                                                                {review.patient?.name
-                                                                    ?.charAt(0)
-                                                                    .toUpperCase() ||
-                                                                    "P"}
-                                                            </span>
-                                                        </div>
-                                                        <span className="font-medium">
-                                                            {review.patient
-                                                                ?.name ||
-                                                                "Patient"}
-                                                        </span>
-                                                    </div>
-                                                    <div className="flex items-center gap-1">
-                                                        {[...Array(5)].map(
-                                                            (_, i) => (
-                                                                <Star
-                                                                    key={i}
-                                                                    className={`h-4 w-4 ${
-                                                                        i <
-                                                                        review.rating
-                                                                            ? "text-amber-500 fill-amber-500"
-                                                                            : "text-gray-300"
-                                                                    }`}
-                                                                />
-                                                            ),
-                                                        )}
-                                                    </div>
-                                                </div>
-                                                <p className="text-sm text-muted-foreground">
-                                                    {review.comment}
-                                                </p>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
+                                <div className="text-center py-8 text-muted-foreground">
+                                    <Star className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                                    <p>No reviews yet</p>
+                                    <p className="text-sm">
+                                        Be the first to review Dr. {doctor.name}
+                                    </p>
+                                </div>
                             </CardContent>
                         </Card>
                     </div>

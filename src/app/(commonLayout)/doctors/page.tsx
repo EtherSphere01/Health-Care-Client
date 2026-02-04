@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { getAllDoctors } from "@/services/doctor";
 import { getAllSpecialties } from "@/services/specialty";
-import { Loading } from "@/components/ui/loading";
+import { LoadingState } from "@/components/ui/loading";
 import { DoctorsListContent } from "./DoctorsListContent";
 
 interface DoctorsPageProps {
@@ -16,7 +16,7 @@ export default async function DoctorsPage({ searchParams }: DoctorsPageProps) {
     const params = await searchParams;
 
     return (
-        <Suspense fallback={<Loading text="Loading doctors..." />}>
+        <Suspense fallback={<LoadingState message="Loading doctors..." />}>
             <DoctorsListData
                 specialty={params.specialty}
                 search={params.search}

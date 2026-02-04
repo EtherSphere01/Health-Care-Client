@@ -1,12 +1,12 @@
 import { Suspense } from "react";
 import { getMyAppointments } from "@/services/appointment";
 import { getPatientPrescriptions } from "@/services/prescription";
-import { Loading } from "@/components/ui/loading";
+import { LoadingState } from "@/components/ui/loading";
 import { PatientDashboardContent } from "./PatientDashboardContent";
 
 export default function PatientDashboardPage() {
     return (
-        <Suspense fallback={<Loading text="Loading dashboard..." />}>
+        <Suspense fallback={<LoadingState message="Loading dashboard..." />}>
             <PatientDashboardData />
         </Suspense>
     );

@@ -1,11 +1,13 @@
 import { Suspense } from "react";
 import { getPatientPrescriptions } from "@/services/prescription";
-import { Loading } from "@/components/ui/loading";
+import { LoadingState } from "@/components/ui/loading";
 import { PatientPrescriptionsContent } from "./PatientPrescriptionsContent";
 
 export default function PatientPrescriptionsPage() {
     return (
-        <Suspense fallback={<Loading text="Loading prescriptions..." />}>
+        <Suspense
+            fallback={<LoadingState message="Loading prescriptions..." />}
+        >
             <PatientPrescriptionsData />
         </Suspense>
     );

@@ -24,6 +24,9 @@ export async function getAllDoctorSchedules(
   });
 }
 
+// Alias for backwards compatibility
+export const getDoctorSchedules = getAllDoctorSchedules;
+
 /**
  * Get logged-in doctor's schedules (Doctor only)
  */

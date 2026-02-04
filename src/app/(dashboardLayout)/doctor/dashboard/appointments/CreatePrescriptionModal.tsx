@@ -74,8 +74,12 @@ export function CreatePrescriptionModal({
                     response.message || "Failed to create prescription",
                 );
             }
-        } catch (error: any) {
-            toast.error(error.message || "Failed to create prescription");
+        } catch (error: unknown) {
+            const message =
+                error instanceof Error
+                    ? error.message
+                    : "Failed to create prescription";
+            toast.error(message);
         } finally {
             setIsSubmitting(false);
         }

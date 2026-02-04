@@ -108,8 +108,12 @@ export function SelectSchedulesModal({
             } else {
                 toast.error(response.message || "Failed to add schedules");
             }
-        } catch (error: any) {
-            toast.error(error.message || "Failed to add schedules");
+        } catch (error: unknown) {
+            const message =
+                error instanceof Error
+                    ? error.message
+                    : "Failed to add schedules";
+            toast.error(message);
         } finally {
             setIsSubmitting(false);
         }

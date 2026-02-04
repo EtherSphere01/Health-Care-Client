@@ -68,8 +68,12 @@ export function PatientDetailContent({ patient }: PatientDetailContentProps) {
             } else {
                 toast.error(response.message || "Failed to update patient");
             }
-        } catch (error: any) {
-            toast.error(error.message || "Failed to update patient");
+        } catch (error: unknown) {
+            const message =
+                error instanceof Error
+                    ? error.message
+                    : "Failed to update patient";
+            toast.error(message);
         } finally {
             setIsSubmitting(false);
         }

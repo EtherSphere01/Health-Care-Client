@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 
 // Table Root
-interface TableProps extends React.HTMLAttributes<HTMLTableElement> {}
+type TableProps = React.HTMLAttributes<HTMLTableElement>;
 
 export function Table({ className, ...props }: TableProps) {
     return (
@@ -24,14 +24,14 @@ export function Table({ className, ...props }: TableProps) {
 }
 
 // Table Header
-interface TableHeaderProps extends React.HTMLAttributes<HTMLTableSectionElement> {}
+type TableHeaderProps = React.HTMLAttributes<HTMLTableSectionElement>;
 
 export function TableHeader({ className, ...props }: TableHeaderProps) {
     return <thead className={cn("[&_tr]:border-b", className)} {...props} />;
 }
 
 // Table Body
-interface TableBodyProps extends React.HTMLAttributes<HTMLTableSectionElement> {}
+type TableBodyProps = React.HTMLAttributes<HTMLTableSectionElement>;
 
 export function TableBody({ className, ...props }: TableBodyProps) {
     return (
@@ -43,7 +43,7 @@ export function TableBody({ className, ...props }: TableBodyProps) {
 }
 
 // Table Footer
-interface TableFooterProps extends React.HTMLAttributes<HTMLTableSectionElement> {}
+type TableFooterProps = React.HTMLAttributes<HTMLTableSectionElement>;
 
 export function TableFooter({ className, ...props }: TableFooterProps) {
     return (
@@ -119,7 +119,7 @@ export function TableHead({
 }
 
 // Table Data Cell
-interface TableCellProps extends React.TdHTMLAttributes<HTMLTableCellElement> {}
+type TableCellProps = React.TdHTMLAttributes<HTMLTableCellElement>;
 
 export function TableCell({ className, ...props }: TableCellProps) {
     return (
@@ -134,7 +134,7 @@ export function TableCell({ className, ...props }: TableCellProps) {
 }
 
 // Table Caption
-interface TableCaptionProps extends React.HTMLAttributes<HTMLTableCaptionElement> {}
+type TableCaptionProps = React.HTMLAttributes<HTMLTableCaptionElement>;
 
 export function TableCaption({ className, ...props }: TableCaptionProps) {
     return (

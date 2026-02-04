@@ -71,8 +71,12 @@ export function CreateScheduleModal({
             } else {
                 toast.error(response.message || "Failed to create schedule");
             }
-        } catch (error: any) {
-            toast.error(error.message || "Failed to create schedule");
+        } catch (error: unknown) {
+            const message =
+                error instanceof Error
+                    ? error.message
+                    : "Failed to create schedule";
+            toast.error(message);
         } finally {
             setIsSubmitting(false);
         }

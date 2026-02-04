@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Bot, Lock, CheckCircle } from "lucide-react";
+import { Bot, CheckCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
     Card,
@@ -17,7 +17,7 @@ import { Label } from "@/components/ui/label";
 import { resetPassword } from "@/services/auth";
 import { toast } from "sonner";
 
-export default function ResetPasswordPage() {
+function ResetPasswordContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const [password, setPassword] = useState("");
@@ -58,8 +58,10 @@ export default function ResetPasswordPage() {
             } else {
                 toast.error(response.message || "Failed to reset password");
             }
-        } catch (error: any) {
-            toast.error(error.message || "Something went wrong");
+        } catch (error: unknown) {
+            const message =
+                error instanceof Error ? error.message : "Something went wrong";
+            toast.error(message);
         } finally {
             setIsSubmitting(false);
         }
@@ -193,5 +195,33 @@ export default function ResetPasswordPage() {
                 </Card>
             </div>
         </div>
+    );
+}
+
+function LoadingFallback() {
+    return (
+        <div className="bg-muted flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10">
+            <div className="flex w-full max-w-sm flex-col gap-6">
+                <div className="flex items-center gap-2 self-center font-medium">
+                    <div className="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md">
+                        <Bot className="size-4" />
+                    </div>
+                    Nexus Health
+                </div>
+                <Card>
+                    <CardContent className="flex items-center justify-center py-12">
+                        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                    </CardContent>
+                </Card>
+            </div>
+        </div>
+    );
+}
+
+export default function ResetPasswordPage() {
+    return (
+        <Suspense fallback={<LoadingFallback />}>
+            <ResetPasswordContent />
+        </Suspense>
     );
 }

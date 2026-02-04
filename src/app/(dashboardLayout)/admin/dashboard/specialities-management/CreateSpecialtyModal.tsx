@@ -77,8 +77,12 @@ export function CreateSpecialtyModal({
             } else {
                 toast.error(response.message || "Failed to create specialty");
             }
-        } catch (error: any) {
-            toast.error(error.message || "Failed to create specialty");
+        } catch (error: unknown) {
+            const message =
+                error instanceof Error
+                    ? error.message
+                    : "Failed to create specialty";
+            toast.error(message);
         } finally {
             setIsSubmitting(false);
         }

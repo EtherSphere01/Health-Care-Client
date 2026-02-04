@@ -106,8 +106,12 @@ export function DoctorAppointmentsContent({
             } else {
                 toast.error(response.message || "Failed to update status");
             }
-        } catch (error: any) {
-            toast.error(error.message || "Failed to update status");
+        } catch (error: unknown) {
+            const message =
+                error instanceof Error
+                    ? error.message
+                    : "Failed to update status";
+            toast.error(message);
         } finally {
             setIsUpdating(false);
             setStatusUpdateAppointment(null);

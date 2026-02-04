@@ -96,8 +96,12 @@ export function AdminProfileContent({ user }: AdminProfileContentProps) {
             } else {
                 toast.error(response.message || "Failed to update profile");
             }
-        } catch (error: any) {
-            toast.error(error.message || "Failed to update profile");
+        } catch (error: unknown) {
+            const message =
+                error instanceof Error
+                    ? error.message
+                    : "Failed to update profile";
+            toast.error(message);
         } finally {
             setIsSubmitting(false);
         }
@@ -144,8 +148,12 @@ export function AdminProfileContent({ user }: AdminProfileContentProps) {
             } else {
                 toast.error(response.message || "Failed to change password");
             }
-        } catch (error: any) {
-            toast.error(error.message || "Failed to change password");
+        } catch (error: unknown) {
+            const message =
+                error instanceof Error
+                    ? error.message
+                    : "Failed to change password";
+            toast.error(message);
         } finally {
             setIsChangingPassword(false);
         }

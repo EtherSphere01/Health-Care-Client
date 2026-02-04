@@ -77,8 +77,12 @@ export function DoctorDetailContent({
             } else {
                 toast.error(response.message || "Failed to update doctor");
             }
-        } catch (error: any) {
-            toast.error(error.message || "Failed to update doctor");
+        } catch (error: unknown) {
+            const message =
+                error instanceof Error
+                    ? error.message
+                    : "Failed to update doctor";
+            toast.error(message);
         } finally {
             setIsSubmitting(false);
         }

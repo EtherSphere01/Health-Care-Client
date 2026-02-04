@@ -112,7 +112,8 @@ export function PatientsManagementContent({
                     <div>
                         <p className="font-medium">{patient.name}</p>
                         <p className="text-xs text-muted-foreground capitalize">
-                            {patient.gender?.toLowerCase() || "N/A"}
+                            {patient.patientHealthData?.gender?.toLowerCase() ||
+                                "N/A"}
                         </p>
                     </div>
                 </div>

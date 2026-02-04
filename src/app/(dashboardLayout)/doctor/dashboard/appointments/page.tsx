@@ -3,6 +3,7 @@ import { getMyAppointments } from "@/services/appointment";
 import { DoctorAppointmentsContent } from "./DoctorAppointmentsContent";
 import { Spinner } from "@/components/ui/loading";
 import { ErrorState } from "@/components/ui/empty-state";
+import { AppointmentStatus, PaymentStatus } from "@/types";
 
 interface DoctorAppointmentsPageProps {
     searchParams: Promise<{
@@ -46,8 +47,10 @@ async function AppointmentsFetcher({
         const response = await getMyAppointments({
             page,
             limit,
-            ...(status && { status }),
-            ...(paymentStatus && { paymentStatus }),
+            ...(status && { status: status as AppointmentStatus }),
+            ...(paymentStatus && {
+                paymentStatus: paymentStatus as PaymentStatus,
+            }),
         });
 
         return (

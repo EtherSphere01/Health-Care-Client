@@ -64,13 +64,10 @@ export function CreateSpecialtyModal({
         setIsSubmitting(true);
 
         try {
-            const formData = new FormData();
-            formData.append("data", JSON.stringify({ title }));
-            if (iconFile) {
-                formData.append("file", iconFile);
-            }
-
-            const response = await createSpecialty(formData);
+            const response = await createSpecialty(
+                { title },
+                iconFile || undefined,
+            );
 
             if (response.success) {
                 toast.success("Specialty created successfully");

@@ -106,6 +106,12 @@ export interface IPatient {
     createdAt: string;
     updatedAt: string;
     patientHealthData?: IPatientHealthData;
+    medicalReports?: IMedicalReport[];
+}
+
+export interface IMedicalReport {
+    reportName: string;
+    reportLink: string;
 }
 
 export interface IPatientHealthData {
@@ -137,6 +143,9 @@ export interface ISpecialty {
     icon?: string;
     createdAt: string;
     updatedAt: string;
+    _count?: {
+        doctorSpecialties?: number;
+    };
 }
 
 export interface IDoctorSpecialty {
@@ -151,6 +160,7 @@ export interface ISchedule {
     endDateTime: string;
     createdAt: string;
     updatedAt: string;
+    doctorSchedule?: IDoctorSchedule[];
 }
 
 export interface IDoctorSchedule {

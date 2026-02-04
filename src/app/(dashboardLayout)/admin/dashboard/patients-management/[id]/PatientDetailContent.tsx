@@ -151,7 +151,7 @@ export function PatientDetailContent({ patient }: PatientDetailContentProps) {
                                 {patient.name}
                             </h2>
                             <p className="text-sm text-muted-foreground capitalize">
-                                {patient.gender?.toLowerCase() ||
+                                {patient.patientHealthData?.gender?.toLowerCase() ||
                                     "Not specified"}
                             </p>
 
@@ -162,9 +162,7 @@ export function PatientDetailContent({ patient }: PatientDetailContentProps) {
                                             ? "INACTIVE"
                                             : "ACTIVE"
                                     }
-                                >
-                                    {patient.isDeleted ? "Deleted" : "Active"}
-                                </StatusBadge>
+                                />
                             </div>
 
                             {/* Contact Info */}
@@ -242,7 +240,7 @@ export function PatientDetailContent({ patient }: PatientDetailContentProps) {
                                         </select>
                                     ) : (
                                         <p className="text-sm p-2 bg-muted/50 rounded-md capitalize">
-                                            {patient.gender?.toLowerCase() ||
+                                            {patient.patientHealthData?.gender?.toLowerCase() ||
                                                 "Not specified"}
                                         </p>
                                     )}
@@ -388,9 +386,9 @@ export function PatientDetailContent({ patient }: PatientDetailContentProps) {
                                     </p>
                                 </div>
                                 <div className="space-y-2">
-                                    <Label>User ID</Label>
+                                    <Label>Patient ID</Label>
                                     <p className="text-sm p-2 bg-muted/50 rounded-md truncate">
-                                        {patient.userId}
+                                        {patient.id}
                                     </p>
                                 </div>
                                 <div className="space-y-2">

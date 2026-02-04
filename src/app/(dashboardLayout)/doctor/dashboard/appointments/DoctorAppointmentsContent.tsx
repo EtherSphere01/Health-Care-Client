@@ -215,21 +215,23 @@ export function DoctorAppointmentsContent({
                                 <Video className="h-4 w-4 text-blue-600" />
                             </Button>
                         )}
-                    {appointment.status !== "COMPLETED" &&
-                        appointment.status !== "CANCELED" && (
+                    {appointment.status !== AppointmentStatus.COMPLETED &&
+                        appointment.status !== AppointmentStatus.CANCELED && (
                             <Button
                                 variant="ghost"
                                 size="icon"
                                 onClick={() => {
                                     setStatusUpdateAppointment(appointment);
                                     setNewStatus(
-                                        appointment.status === "SCHEDULED"
-                                            ? "INPROGRESS"
-                                            : "COMPLETED",
+                                        appointment.status ===
+                                            AppointmentStatus.SCHEDULED
+                                            ? AppointmentStatus.INPROGRESS
+                                            : AppointmentStatus.COMPLETED,
                                     );
                                 }}
                                 title={
-                                    appointment.status === "SCHEDULED"
+                                    appointment.status ===
+                                    AppointmentStatus.SCHEDULED
                                         ? "Start Appointment"
                                         : "Complete Appointment"
                                 }
@@ -237,8 +239,8 @@ export function DoctorAppointmentsContent({
                                 <CheckCircle className="h-4 w-4 text-green-600" />
                             </Button>
                         )}
-                    {(appointment.status === "INPROGRESS" ||
-                        appointment.status === "COMPLETED") && (
+                    {(appointment.status === AppointmentStatus.INPROGRESS ||
+                        appointment.status === AppointmentStatus.COMPLETED) && (
                         <Button
                             variant="ghost"
                             size="icon"

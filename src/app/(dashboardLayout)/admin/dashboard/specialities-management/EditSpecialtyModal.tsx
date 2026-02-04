@@ -70,13 +70,11 @@ export function EditSpecialtyModal({
         setIsSubmitting(true);
 
         try {
-            const formData = new FormData();
-            formData.append("data", JSON.stringify({ title }));
-            if (iconFile) {
-                formData.append("file", iconFile);
-            }
-
-            const response = await updateSpecialty(specialty.id, formData);
+            const response = await updateSpecialty(
+                specialty.id,
+                { title },
+                iconFile || undefined,
+            );
 
             if (response.success) {
                 toast.success("Specialty updated successfully");

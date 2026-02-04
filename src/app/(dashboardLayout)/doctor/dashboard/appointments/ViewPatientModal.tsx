@@ -50,7 +50,7 @@ export function ViewPatientModal({
                                 {patient?.name || "N/A"}
                             </h3>
                             <p className="text-sm text-muted-foreground capitalize">
-                                {patient?.gender?.toLowerCase() ||
+                                {patient?.patientHealthData?.gender?.toLowerCase() ||
                                     "Not specified"}
                             </p>
                         </div>

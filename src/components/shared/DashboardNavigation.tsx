@@ -22,6 +22,7 @@ import {
     Bot,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { INotification } from "@/types";
 
 interface NavItem {
     title: string;
@@ -272,6 +273,7 @@ function buildBreadcrumbs(pathname: string) {
 export function DashboardTopbar({ onMenuClick, title }: DashboardTopbarProps) {
     const { user } = useAuth();
     const pathname = usePathname();
+    const router = useRouter();
     const breadcrumbCtx = React.useContext(DashboardBreadcrumbContext);
     const breadcrumbs = React.useMemo(
         () => buildBreadcrumbs(pathname),
@@ -287,6 +289,79 @@ export function DashboardTopbar({ onMenuClick, title }: DashboardTopbarProps) {
             return { ...crumb, label: override, href: undefined };
         });
     }, [breadcrumbs, breadcrumbCtx?.currentPageLabel]);
+
+    const [notificationOpen, setNotificationOpen] = React.useState(false);
+    const [notifications, setNotifications] = React.useState<INotification[]>(
+        [],
+    );
+    const [unreadCount, setUnreadCount] = React.useState(0);
+    const [notificationsLoading, setNotificationsLoading] =
+        React.useState(false);
+    const notificationRef = React.useRef<HTMLDivElement>(null);
+
+    const fetchNotifications = React.useCallback(async () => {
+        try {
+            setNotificationsLoading(true);
+            const res = await fetch(
+                "/api/notification/my-notifications?limit=10&page=1&sortBy=createdAt&sortOrder=desc",
+                {
+                    method: "GET",
+                    credentials: "include",
+                },
+            );
+
+            const json = await res.json();
+            if (!res.ok) {
+                setNotifications([]);
+                setUnreadCount(0);
+                return;
+            }
+
+            setNotifications(Array.isArray(json?.data) ? json.data : []);
+            setUnreadCount(Number(json?.meta?.unreadCount ?? 0));
+        } catch {
+            setNotifications([]);
+            setUnreadCount(0);
+        } finally {
+            setNotificationsLoading(false);
+        }
+    }, []);
+
+    const markAllRead = React.useCallback(async () => {
+        try {
+            const res = await fetch("/api/notification/mark-all-read", {
+                method: "PATCH",
+                credentials: "include",
+            });
+
+            if (!res.ok) return;
+
+            setUnreadCount(0);
+            setNotifications((prev) =>
+                prev.map((n) => ({ ...n, isRead: true })),
+            );
+        } catch {
+            // ignore
+        }
+    }, []);
+
+    React.useEffect(() => {
+        fetchNotifications();
+    }, [fetchNotifications, pathname]);
+
+    React.useEffect(() => {
+        const onMouseDown = (e: MouseEvent) => {
+            if (!notificationOpen) return;
+            const el = notificationRef.current;
+            if (!el) return;
+            if (e.target instanceof Node && !el.contains(e.target)) {
+                setNotificationOpen(false);
+            }
+        };
+
+        document.addEventListener("mousedown", onMouseDown);
+        return () => document.removeEventListener("mousedown", onMouseDown);
+    }, [notificationOpen]);
 
     return (
         <header className="fixed top-0 left-0 right-0 z-30 h-16 border-b border-slate-200/60 bg-white/90 backdrop-blur-xl supports-backdrop-filter:bg-white/80 lg:left-64">
@@ -355,13 +430,120 @@ export function DashboardTopbar({ onMenuClick, title }: DashboardTopbarProps) {
 
                 <div className="flex items-center gap-4">
                     {/* Notifications */}
-                    <button
-                        className="relative p-2 rounded-full hover:bg-slate-100"
-                        aria-label="Notifications"
-                    >
-                        <Bell className="h-5 w-5" />
-                        <span className="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full" />
-                    </button>
+                    <div className="relative" ref={notificationRef}>
+                        <button
+                            className="relative p-2 rounded-full hover:bg-slate-100"
+                            aria-label="Notifications"
+                            onClick={async () => {
+                                const next = !notificationOpen;
+                                setNotificationOpen(next);
+                                if (next) {
+                                    await fetchNotifications();
+                                }
+                            }}
+                        >
+                            <Bell className="h-5 w-5" />
+                            {unreadCount > 0 && (
+                                <span className="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full" />
+                            )}
+                        </button>
+
+                        {notificationOpen && (
+                            <div className="absolute right-0 mt-2 w-80 rounded-lg border bg-white shadow-lg overflow-hidden z-50">
+                                <div className="px-4 py-3 border-b flex items-center justify-between gap-3">
+                                    <div>
+                                        <p className="text-sm font-medium text-slate-900">
+                                            Notifications
+                                        </p>
+                                        <p className="text-xs text-slate-500">
+                                            {unreadCount > 0
+                                                ? `${unreadCount} unread`
+                                                : "All caught up"}
+                                        </p>
+                                    </div>
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="sm"
+                                        className="text-xs"
+                                        disabled={unreadCount === 0}
+                                        onClick={async () => {
+                                            await markAllRead();
+                                        }}
+                                    >
+                                        Mark all read
+                                    </Button>
+                                </div>
+                                <div className="max-h-96 overflow-auto">
+                                    {notificationsLoading ? (
+                                        <div className="px-4 py-6 text-sm text-slate-500">
+                                            Loading...
+                                        </div>
+                                    ) : notifications.length === 0 ? (
+                                        <div className="px-4 py-6 text-sm text-slate-500">
+                                            No notifications
+                                        </div>
+                                    ) : (
+                                        notifications.map((n) => (
+                                            <button
+                                                key={n.id}
+                                                className={cn(
+                                                    "w-full text-left px-4 py-3 border-b last:border-b-0 hover:bg-slate-50",
+                                                    !n.isRead && "bg-slate-50",
+                                                )}
+                                                onClick={async () => {
+                                                    setNotificationOpen(false);
+                                                    try {
+                                                        await fetch(
+                                                            `/api/notification/${n.id}/read`,
+                                                            {
+                                                                method: "PATCH",
+                                                                credentials:
+                                                                    "include",
+                                                            },
+                                                        );
+                                                        setNotifications(
+                                                            (prev) =>
+                                                                prev.map((x) =>
+                                                                    x.id ===
+                                                                    n.id
+                                                                        ? {
+                                                                              ...x,
+                                                                              isRead: true,
+                                                                          }
+                                                                        : x,
+                                                                ),
+                                                        );
+                                                        if (!n.isRead) {
+                                                            setUnreadCount(
+                                                                (c) =>
+                                                                    Math.max(
+                                                                        0,
+                                                                        c - 1,
+                                                                    ),
+                                                            );
+                                                        }
+                                                    } catch {
+                                                        // ignore
+                                                    }
+                                                    if (n.link) {
+                                                        router.push(n.link);
+                                                    }
+                                                }}
+                                            >
+                                                <p className="text-sm font-medium text-slate-900">
+                                                    {n.title}
+                                                </p>
+                                                <p className="text-xs text-slate-600 mt-1">
+                                                    {n.message}
+                                                </p>
+                                            </button>
+                                        ))
+                                    )}
+                                </div>
+                            </div>
+                        )}
+                    </div>
 
                     {/* User Menu */}
                     <div className="flex items-center gap-3">

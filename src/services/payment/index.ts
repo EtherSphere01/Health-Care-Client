@@ -19,8 +19,8 @@ export async function initializePayment(
     const response = await post<IInitPaymentResponse>(
         `/appointment/${appointmentId}/initiate-payment`,
     );
-    revalidateTag("appointments");
-    revalidateTag("my-appointments");
+    revalidateTag("appointments", "default");
+    revalidateTag("my-appointments", "default");
     return response;
 }
 
@@ -34,17 +34,15 @@ export async function initPayment(
     const response = await post<IInitPaymentResponse>(
         `/appointment/${data.appointmentId}/initiate-payment`,
     );
-    revalidateTag("appointments");
-    revalidateTag("my-appointments");
+    revalidateTag("appointments", "default");
+    revalidateTag("my-appointments", "default");
     return response;
 }
 
 /**
  * Validate Stripe checkout session on return (Patient)
  */
-export async function validateStripeCheckoutSession(
-    sessionId: string,
-): Promise<
+export async function validateStripeCheckoutSession(sessionId: string): Promise<
     IApiResponse<{
         appointmentId: string;
         paymentId: string;
@@ -56,8 +54,8 @@ export async function validateStripeCheckoutSession(
         paymentId: string;
         status: PaymentStatus;
     }>("/payment/stripe/validate", { session_id: sessionId });
-    revalidateTag("appointments");
-    revalidateTag("my-appointments");
+    revalidateTag("appointments", "default");
+    revalidateTag("my-appointments", "default");
     return response;
 }
 

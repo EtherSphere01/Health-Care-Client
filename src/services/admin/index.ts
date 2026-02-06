@@ -35,8 +35,8 @@ export async function updateAdmin(
     data: Partial<Pick<IAdmin, "name" | "contactNumber">>,
 ): Promise<IApiResponse<IAdmin>> {
     const response = await patch<IAdmin>(`/admin/${id}`, data);
-    revalidateTag(ADMINS_TAG);
-    revalidateTag(`admin-${id}`);
+    revalidateTag(ADMINS_TAG, "default");
+    revalidateTag(`admin-${id}`, "default");
     return response;
 }
 
@@ -45,7 +45,7 @@ export async function updateAdmin(
  */
 export async function deleteAdmin(id: string): Promise<IApiResponse<IAdmin>> {
     const response = await del<IAdmin>(`/admin/${id}`);
-    revalidateTag(ADMINS_TAG);
+    revalidateTag(ADMINS_TAG, "default");
     return response;
 }
 
@@ -56,6 +56,6 @@ export async function softDeleteAdmin(
     id: string,
 ): Promise<IApiResponse<IAdmin>> {
     const response = await del<IAdmin>(`/admin/soft/${id}`);
-    revalidateTag(ADMINS_TAG);
+    revalidateTag(ADMINS_TAG, "default");
     return response;
 }

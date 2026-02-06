@@ -42,47 +42,8 @@ export const registerPatient = async (
             otp: String(formData.get("otp") ?? ""),
         };
 
-        const hasOtp = Boolean(submittedValues.otp);
-
-        if (hasOtp) {
-            const otpValidated = otpSchema.safeParse({
-                email: submittedValues.email,
-                otp: submittedValues.otp,
-            });
-
-            if (!otpValidated.success) {
-                return {
-                    success: false,
-                    step: "otp",
-                    errors: otpValidated.error.issues.map((issue) => ({
-                        field: issue.path[0],
-                        message: issue.message,
-                    })),
-                    values: submittedValues,
-                };
-            }
-
-            const res = await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL}/auth/register-patient/verify-otp`,
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        email: submittedValues.email,
-                        otp: submittedValues.otp,
-                    }),
-                },
-            ).then((res) => res.json());
-
-            return {
-                ...res,
-                completed: Boolean(res?.success),
-                step: "done",
-                values: submittedValues,
-            };
-        }
+        // OTP verification is handled on a separate page.
+        // This action only requests an OTP.
 
         const validatedFields =
             registerValidationSchema.safeParse(submittedValues);
@@ -116,7 +77,6 @@ export const registerPatient = async (
         return {
             ...res,
             step: res?.success ? "otp" : "form",
-            completed: false,
             values: submittedValues,
         };
     } catch (error) {

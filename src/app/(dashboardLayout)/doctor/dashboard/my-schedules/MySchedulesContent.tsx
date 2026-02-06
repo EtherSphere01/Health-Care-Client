@@ -103,14 +103,18 @@ export function MySchedulesContent({
     };
 
     const formatTime = (dateString: string) => {
-        return new Date(dateString).toLocaleTimeString([], {
+        const date = new Date(dateString);
+        if (!dateString || Number.isNaN(date.getTime())) return "—";
+        return date.toLocaleTimeString([], {
             hour: "2-digit",
             minute: "2-digit",
         });
     };
 
     const formatDate = (dateString: string) => {
-        return new Date(dateString).toLocaleDateString([], {
+        const date = new Date(dateString);
+        if (!dateString || Number.isNaN(date.getTime())) return "—";
+        return date.toLocaleDateString([], {
             year: "numeric",
             month: "short",
             day: "numeric",

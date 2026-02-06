@@ -11,8 +11,10 @@ import {
     Eye,
     Star,
     CreditCard,
+    Video,
 } from "lucide-react";
 import { IAppointment, IMeta, AppointmentStatus, PaymentStatus } from "@/types";
+import { getVideoCallUrl } from "@/lib/utils";
 import { DashboardHeader } from "@/components/shared/DashboardLayout";
 import {
     Card,
@@ -308,6 +310,33 @@ export function PatientAppointmentsContent({
                                         <Eye className="h-4 w-4 mr-2" />
                                         View Details
                                     </Button>
+                                    {appointment.videoCallingId &&
+                                        appointment.status ===
+                                            AppointmentStatus.INPROGRESS && (
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() => {
+                                                    const url = getVideoCallUrl(
+                                                        appointment.videoCallingId,
+                                                    );
+                                                    if (!url) {
+                                                        toast.error(
+                                                            "Video call link is missing",
+                                                        );
+                                                        return;
+                                                    }
+                                                    window.open(
+                                                        url,
+                                                        "_blank",
+                                                        "noopener,noreferrer",
+                                                    );
+                                                }}
+                                            >
+                                                <Video className="h-4 w-4 mr-2 text-blue-600" />
+                                                Join Video Call
+                                            </Button>
+                                        )}
                                     {appointment.status ===
                                         AppointmentStatus.COMPLETED &&
                                         !appointment.review && (
@@ -496,6 +525,34 @@ function ViewAppointmentModal({
                             <p className="font-mono bg-muted p-2 rounded mt-1">
                                 {appointment.videoCallingId}
                             </p>
+                            {appointment.status ===
+                                AppointmentStatus.INPROGRESS && (
+                                <div className="mt-2">
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => {
+                                            const url = getVideoCallUrl(
+                                                appointment.videoCallingId,
+                                            );
+                                            if (!url) {
+                                                toast.error(
+                                                    "Video call link is missing",
+                                                );
+                                                return;
+                                            }
+                                            window.open(
+                                                url,
+                                                "_blank",
+                                                "noopener,noreferrer",
+                                            );
+                                        }}
+                                    >
+                                        <Video className="h-4 w-4 mr-2 text-blue-600" />
+                                        Join Video Call
+                                    </Button>
+                                </div>
+                            )}
                         </div>
                     )}
 

@@ -37,8 +37,8 @@ export async function updatePatient(
     data: Partial<Pick<IPatient, "name" | "contactNumber" | "address">>,
 ): Promise<IApiResponse<IPatient>> {
     const response = await patch<IPatient>(`/patient/${id}`, data);
-    revalidateTag(PATIENTS_TAG);
-    revalidateTag(`patient-${id}`);
+    revalidateTag(PATIENTS_TAG, "default");
+    revalidateTag(`patient-${id}`, "default");
     return response;
 }
 
@@ -49,7 +49,7 @@ export async function deletePatient(
     id: string,
 ): Promise<IApiResponse<IPatient>> {
     const response = await del<IPatient>(`/patient/${id}`);
-    revalidateTag(PATIENTS_TAG);
+    revalidateTag(PATIENTS_TAG, "default");
     return response;
 }
 
@@ -60,6 +60,6 @@ export async function softDeletePatient(
     id: string,
 ): Promise<IApiResponse<IPatient>> {
     const response = await del<IPatient>(`/patient/soft/${id}`);
-    revalidateTag(PATIENTS_TAG);
+    revalidateTag(PATIENTS_TAG, "default");
     return response;
 }

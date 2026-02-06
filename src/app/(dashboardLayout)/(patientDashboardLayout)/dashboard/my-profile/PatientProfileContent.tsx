@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import {
     Edit2,
@@ -14,7 +14,13 @@ import {
     User,
     Heart,
 } from "lucide-react";
-import { IUser, Gender, MaritalStatus, BloodGroup } from "@/types";
+import {
+    IUser,
+    Gender,
+    MaritalStatus,
+    BloodGroup,
+    IUpdateProfileRequest,
+} from "@/types";
 import { DashboardHeader } from "@/components/shared/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -38,6 +44,7 @@ interface PatientProfileContentProps {
 export function PatientProfileContent({ user }: PatientProfileContentProps) {
     const router = useRouter();
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const [currentUser, setCurrentUser] = useState<IUser>(user);
     const [isEditing, setIsEditing] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
@@ -45,32 +52,39 @@ export function PatientProfileContent({ user }: PatientProfileContentProps) {
     const [showPasswordForm, setShowPasswordForm] = useState(false);
     const [isChangingPassword, setIsChangingPassword] = useState(false);
 
-    const patient = user.patient;
+    const patient = currentUser.patient;
 
     const inputLikeClassName =
         "file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]";
 
-    const [formData, setFormData] = useState({
-        name: patient?.name || "",
-        contactNumber: patient?.contactNumber || "",
-        address: patient?.address || "",
-        patientHealthData: {
-            gender: patient?.patientHealthData?.gender,
-            dateOfBirth: patient?.patientHealthData?.dateOfBirth || "",
-            bloodGroup: patient?.patientHealthData?.bloodGroup,
-            maritalStatus: patient?.patientHealthData?.maritalStatus,
-            height: patient?.patientHealthData?.height || "",
-            weight: patient?.patientHealthData?.weight || "",
-            smokingStatus: Boolean(patient?.patientHealthData?.smokingStatus),
-            hasAllergies: Boolean(patient?.patientHealthData?.hasAllergies),
-            hasDiabetes: Boolean(patient?.patientHealthData?.hasDiabetes),
-            hasPastSurgeries: Boolean(
-                patient?.patientHealthData?.hasPastSurgeries,
-            ),
-            dietaryPreferences:
-                patient?.patientHealthData?.dietaryPreferences || "",
-        },
-    });
+    const buildFormStateFromUser = (u: IUser) => {
+        const p = u.patient;
+        return {
+            name: p?.name || "",
+            contactNumber: p?.contactNumber || "",
+            address: p?.address || "",
+            patientHealthData: {
+                gender: p?.patientHealthData?.gender,
+                dateOfBirth: p?.patientHealthData?.dateOfBirth || "",
+                bloodGroup: p?.patientHealthData?.bloodGroup,
+                maritalStatus: p?.patientHealthData?.maritalStatus,
+                height: p?.patientHealthData?.height || "",
+                weight: p?.patientHealthData?.weight || "",
+                smokingStatus: Boolean(p?.patientHealthData?.smokingStatus),
+                hasAllergies: Boolean(p?.patientHealthData?.hasAllergies),
+                hasDiabetes: Boolean(p?.patientHealthData?.hasDiabetes),
+                hasPastSurgeries: Boolean(
+                    p?.patientHealthData?.hasPastSurgeries,
+                ),
+                dietaryPreferences:
+                    p?.patientHealthData?.dietaryPreferences || "",
+            },
+        };
+    };
+
+    const [formData, setFormData] = useState(() =>
+        buildFormStateFromUser(user),
+    );
 
     const [passwordData, setPasswordData] = useState({
         oldPassword: "",
@@ -82,6 +96,95 @@ export function PatientProfileContent({ user }: PatientProfileContentProps) {
     const [imagePreview, setImagePreview] = useState<string | null>(
         patient?.profilePhoto || null,
     );
+
+    useEffect(() => {
+        setCurrentUser(user);
+        if (!isEditing) {
+            setFormData(buildFormStateFromUser(user));
+            setImagePreview(user.patient?.profilePhoto || null);
+            setProfileImage(null);
+            setUploadError(null);
+            setUploadProgress(0);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [user]);
+
+    const buildUpdatePayload = (): IUpdateProfileRequest => {
+        const baseline = currentUser.patient;
+        const payload: IUpdateProfileRequest = {};
+
+        if ((baseline?.name || "") !== formData.name)
+            payload.name = formData.name;
+        if ((baseline?.contactNumber || "") !== formData.contactNumber)
+            payload.contactNumber = formData.contactNumber;
+        if ((baseline?.address || "") !== formData.address)
+            payload.address = formData.address;
+
+        const baselineHealth = baseline?.patientHealthData;
+        const changedHealth: NonNullable<
+            IUpdateProfileRequest["patientHealthData"]
+        > = {};
+
+        const bool = (v: unknown) => Boolean(v);
+        const str = (v: unknown) => (typeof v === "string" ? v : "");
+
+        if (baselineHealth?.gender !== formData.patientHealthData.gender)
+            changedHealth.gender = formData.patientHealthData.gender;
+        if (
+            str(baselineHealth?.dateOfBirth) !==
+            formData.patientHealthData.dateOfBirth
+        )
+            changedHealth.dateOfBirth = formData.patientHealthData.dateOfBirth;
+        if (
+            baselineHealth?.bloodGroup !== formData.patientHealthData.bloodGroup
+        )
+            changedHealth.bloodGroup = formData.patientHealthData.bloodGroup;
+        if (
+            baselineHealth?.maritalStatus !==
+            formData.patientHealthData.maritalStatus
+        )
+            changedHealth.maritalStatus =
+                formData.patientHealthData.maritalStatus;
+        if (str(baselineHealth?.height) !== formData.patientHealthData.height)
+            changedHealth.height = formData.patientHealthData.height;
+        if (str(baselineHealth?.weight) !== formData.patientHealthData.weight)
+            changedHealth.weight = formData.patientHealthData.weight;
+        if (
+            bool(baselineHealth?.smokingStatus) !==
+            formData.patientHealthData.smokingStatus
+        )
+            changedHealth.smokingStatus =
+                formData.patientHealthData.smokingStatus;
+        if (
+            bool(baselineHealth?.hasAllergies) !==
+            formData.patientHealthData.hasAllergies
+        )
+            changedHealth.hasAllergies =
+                formData.patientHealthData.hasAllergies;
+        if (
+            bool(baselineHealth?.hasDiabetes) !==
+            formData.patientHealthData.hasDiabetes
+        )
+            changedHealth.hasDiabetes = formData.patientHealthData.hasDiabetes;
+        if (
+            bool(baselineHealth?.hasPastSurgeries) !==
+            formData.patientHealthData.hasPastSurgeries
+        )
+            changedHealth.hasPastSurgeries =
+                formData.patientHealthData.hasPastSurgeries;
+        if (
+            str(baselineHealth?.dietaryPreferences) !==
+            formData.patientHealthData.dietaryPreferences
+        )
+            changedHealth.dietaryPreferences =
+                formData.patientHealthData.dietaryPreferences;
+
+        if (Object.keys(changedHealth).length > 0) {
+            payload.patientHealthData = changedHealth;
+        }
+
+        return payload;
+    };
 
     const handleChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
@@ -141,16 +244,36 @@ export function PatientProfileContent({ user }: PatientProfileContentProps) {
     };
 
     const handleSave = async () => {
+        const payload = buildUpdatePayload();
+
+        const hasAnyChange =
+            Object.keys(payload).length > 0 || Boolean(profileImage);
+
+        if (!hasAnyChange) {
+            toast.message("No changes to save");
+            setIsEditing(false);
+            return;
+        }
+
         setIsSubmitting(true);
         setUploadProgress(0);
         try {
             const response = await updateMyProfileWithProgress(
-                formData,
+                payload,
                 profileImage || undefined,
                 setUploadProgress,
             );
             if (response.success) {
                 toast.success("Profile updated successfully");
+                if (response.data) {
+                    setCurrentUser(response.data);
+
+                    const nextPatient = response.data.patient;
+                    if (nextPatient) {
+                        setFormData(buildFormStateFromUser(response.data));
+                        setImagePreview(nextPatient?.profilePhoto || null);
+                    }
+                }
                 setIsEditing(false);
                 router.refresh();
             } else {
@@ -343,8 +466,8 @@ export function PatientProfileContent({ user }: PatientProfileContentProps) {
                             </h2>
 
                             <div className="flex items-center gap-2 mt-2">
-                                <RoleBadge role={user.role} />
-                                <StatusBadge status={user.status} />
+                                <RoleBadge role={currentUser.role} />
+                                <StatusBadge status={currentUser.status} />
                             </div>
 
                             {/* Contact Info */}
@@ -352,7 +475,7 @@ export function PatientProfileContent({ user }: PatientProfileContentProps) {
                                 <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
                                     <Mail className="h-4 w-4 text-muted-foreground" />
                                     <span className="text-sm truncate">
-                                        {patient?.email || user.email}
+                                        {patient?.email || currentUser.email}
                                     </span>
                                 </div>
                                 {patient?.contactNumber && (

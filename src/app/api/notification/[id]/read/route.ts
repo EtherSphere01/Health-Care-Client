@@ -1,13 +1,15 @@
 import { cookies } from "next/headers";
-import { revalidateTag } from "next/cache";
 import { NextResponse } from "next/server";
 
 const API_BASE_URL =
     process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1";
 
-export async function PATCH(request: Request) {
+export async function PATCH(
+    _request: Request,
+    { params }: { params: Promise<{ id: string }> },
+) {
     try {
-        const formData = await request.formData();
+        const { id } = await params;
         const accessToken = (await cookies()).get("accessToken")?.value;
 
         const headers: HeadersInit = {};
@@ -15,19 +17,15 @@ export async function PATCH(request: Request) {
             headers.Authorization = accessToken;
         }
 
-        const response = await fetch(`${API_BASE_URL}/user/update-my-profile`, {
-            method: "PATCH",
-            headers,
-            body: formData,
-        });
+        const response = await fetch(
+            `${API_BASE_URL}/notification/${id}/read`,
+            {
+                method: "PATCH",
+                headers,
+            },
+        );
 
         const data = await response.json();
-
-        if (response.ok) {
-            revalidateTag("user", "default");
-            revalidateTag("profile", "default");
-        }
-
         return NextResponse.json(data, { status: response.status });
     } catch (error) {
         return NextResponse.json(
@@ -37,7 +35,7 @@ export async function PATCH(request: Request) {
                 message:
                     error instanceof Error
                         ? error.message
-                        : "Failed to update profile",
+                        : "Failed to mark notification as read",
             },
             { status: 500 },
         );

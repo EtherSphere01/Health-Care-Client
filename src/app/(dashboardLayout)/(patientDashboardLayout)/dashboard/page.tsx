@@ -5,6 +5,13 @@ import { getDashboardMeta, getPatientDashboardSummary } from "@/services/meta";
 import { LoadingState } from "@/components/ui/loading";
 import { PatientDashboardContent } from "./PatientDashboardContent";
 import { ErrorState } from "@/components/ui/empty-state";
+import type { IDashboardMeta, IPatientDashboardMeta } from "@/types";
+
+function isPatientDashboardMeta(
+    meta: IDashboardMeta,
+): meta is IPatientDashboardMeta {
+    return "prescriptionCount" in meta;
+}
 
 export default function PatientDashboardPage() {
     return (
@@ -24,11 +31,16 @@ async function PatientDashboardData() {
                 getPatientDashboardSummary(),
             ]);
 
+        const meta =
+            metaRes.data && isPatientDashboardMeta(metaRes.data)
+                ? metaRes.data
+                : null;
+
         return (
             <PatientDashboardContent
                 appointments={appointmentsRes.data || []}
                 prescriptions={prescriptionsRes.data || []}
-                meta={metaRes.data ?? null}
+                meta={meta}
                 summary={summaryRes.data ?? null}
             />
         );

@@ -141,8 +141,8 @@ export async function updateDoctor(
     },
 ): Promise<IApiResponse<IDoctor>> {
     const response = await patch<IDoctor>(`/doctor/${id}`, data);
-    revalidateTag(DOCTORS_TAG);
-    revalidateTag(`doctor-${id}`);
+    revalidateTag(DOCTORS_TAG, "default");
+    revalidateTag(`doctor-${id}`, "default");
     return response;
 }
 
@@ -151,7 +151,7 @@ export async function updateDoctor(
  */
 export async function deleteDoctor(id: string): Promise<IApiResponse<IDoctor>> {
     const response = await del<IDoctor>(`/doctor/${id}`);
-    revalidateTag(DOCTORS_TAG);
+    revalidateTag(DOCTORS_TAG, "default");
     return response;
 }
 
@@ -162,6 +162,6 @@ export async function softDeleteDoctor(
     id: string,
 ): Promise<IApiResponse<IDoctor>> {
     const response = await del<IDoctor>(`/doctor/soft/${id}`);
-    revalidateTag(DOCTORS_TAG);
+    revalidateTag(DOCTORS_TAG, "default");
     return response;
 }

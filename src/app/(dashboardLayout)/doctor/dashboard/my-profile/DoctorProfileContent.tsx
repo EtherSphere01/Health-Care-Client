@@ -390,7 +390,10 @@ export function DoctorProfileContent({
                                                         key={ds.specialtyId}
                                                         variant="secondary"
                                                     >
-                                                        {ds.specialty?.title ||
+                                                        {ds.specialities
+                                                            ?.title ||
+                                                            ds.specialty
+                                                                ?.title ||
                                                             "Unknown"}
                                                     </Badge>
                                                 ),

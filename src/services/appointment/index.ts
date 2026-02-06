@@ -52,9 +52,9 @@ export async function createAppointment(
     data: ICreateAppointmentRequest,
 ): Promise<IApiResponse<{ paymentUrl: string }>> {
     const response = await post<{ paymentUrl: string }>("/appointment", data);
-    revalidateTag(APPOINTMENTS_TAG);
-    revalidateTag("my-appointments");
-    revalidateTag("doctor-schedules");
+    revalidateTag(APPOINTMENTS_TAG, "default");
+    revalidateTag("my-appointments", "default");
+    revalidateTag("doctor-schedules", "default");
     return response;
 }
 
@@ -69,7 +69,7 @@ export async function updateAppointmentStatus(
         `/appointment/status/${appointmentId}`,
         data,
     );
-    revalidateTag(APPOINTMENTS_TAG);
-    revalidateTag("my-appointments");
+    revalidateTag(APPOINTMENTS_TAG, "default");
+    revalidateTag("my-appointments", "default");
     return response;
 }

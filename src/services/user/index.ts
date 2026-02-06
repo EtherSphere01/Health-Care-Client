@@ -59,8 +59,8 @@ export async function createAdmin(
         "/user/create-admin",
         formData,
     );
-    revalidateTag(USERS_TAG);
-    revalidateTag("admins");
+    revalidateTag(USERS_TAG, "default");
+    revalidateTag("admins", "default");
     return response;
 }
 
@@ -81,8 +81,8 @@ export async function createDoctor(
         "/user/create-doctor",
         formData,
     );
-    revalidateTag(USERS_TAG);
-    revalidateTag("doctors");
+    revalidateTag(USERS_TAG, "default");
+    revalidateTag("doctors", "default");
     return response;
 }
 
@@ -103,8 +103,8 @@ export async function createPatient(
         "/user/create-patient",
         formData,
     );
-    revalidateTag(USERS_TAG);
-    revalidateTag("patients");
+    revalidateTag(USERS_TAG, "default");
+    revalidateTag("patients", "default");
     return response;
 }
 
@@ -116,7 +116,7 @@ export async function updateUserStatus(
     data: IUpdateUserStatusRequest,
 ): Promise<IApiResponse<IUser>> {
     const response = await patch<IUser>(`/user/${userId}/status`, data);
-    revalidateTag(USERS_TAG);
+    revalidateTag(USERS_TAG, "default");
     return response;
 }
 
@@ -138,7 +138,7 @@ export async function updateMyProfile(
         formData,
         "PATCH",
     );
-    revalidateTag("user");
-    revalidateTag("profile");
+    revalidateTag("user", "default");
+    revalidateTag("profile", "default");
     return response;
 }

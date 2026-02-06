@@ -1,13 +1,12 @@
 import { cookies } from "next/headers";
-import { revalidateTag } from "next/cache";
 import { NextResponse } from "next/server";
 
 const API_BASE_URL =
     process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api/v1";
 
-export async function PATCH(request: Request) {
+export async function GET(request: Request) {
     try {
-        const formData = await request.formData();
+        const { searchParams } = new URL(request.url);
         const accessToken = (await cookies()).get("accessToken")?.value;
 
         const headers: HeadersInit = {};
@@ -15,19 +14,15 @@ export async function PATCH(request: Request) {
             headers.Authorization = accessToken;
         }
 
-        const response = await fetch(`${API_BASE_URL}/user/update-my-profile`, {
-            method: "PATCH",
+        const qs = searchParams.toString();
+        const url = `${API_BASE_URL}/notification/my-notifications${qs ? `?${qs}` : ""}`;
+
+        const response = await fetch(url, {
+            method: "GET",
             headers,
-            body: formData,
         });
 
         const data = await response.json();
-
-        if (response.ok) {
-            revalidateTag("user", "default");
-            revalidateTag("profile", "default");
-        }
-
         return NextResponse.json(data, { status: response.status });
     } catch (error) {
         return NextResponse.json(
@@ -37,7 +32,7 @@ export async function PATCH(request: Request) {
                 message:
                     error instanceof Error
                         ? error.message
-                        : "Failed to update profile",
+                        : "Failed to fetch notifications",
             },
             { status: 500 },
         );

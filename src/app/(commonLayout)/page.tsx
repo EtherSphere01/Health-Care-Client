@@ -6,13 +6,14 @@ import Features from "@/components/modules/Home/Features";
 import HeroSection from "@/components/modules/Home/HeroSection";
 import Statistics from "@/components/modules/Home/Statistics";
 import Testimonials from "@/components/modules/Home/Testimonials";
+import type { IDoctor } from "@/types";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export default async function Home() {
-    let doctors = [];
-    let error = null;
+    let doctors: IDoctor[] = [];
+    let error: string | null = null;
 
     try {
         const doctorsResponse = await getAllDoctors({ limit: 6 });

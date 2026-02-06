@@ -45,11 +45,14 @@ export function RegisterForm({
         if (!state || isPending) return;
 
         if (state.success) {
-            toast.success(state.message ?? "Success");
-            if (state.completed && !hasRedirected.current) {
+            if (state?.step === "otp" && !hasRedirected.current) {
                 hasRedirected.current = true;
-                router.push("/login");
+                const email = encodeURIComponent(state?.data?.email ?? "");
+                router.push(`/verify-otp?email=${email}&sent=1`);
+                return;
             }
+
+            toast.success(state.message ?? "Success");
             return;
         }
 
@@ -82,7 +85,6 @@ export function RegisterForm({
                                     type="text"
                                     placeholder="John Doe"
                                     defaultValue={state?.values?.name}
-                                    readOnly={state?.step === "otp"}
                                     required
                                 />
                                 {getFieldError("name") && (
@@ -99,7 +101,6 @@ export function RegisterForm({
                                     type="email"
                                     placeholder="m@example.com"
                                     defaultValue={state?.values?.email}
-                                    readOnly={state?.step === "otp"}
                                     required
                                 />
                                 {getFieldError("email") && (
@@ -121,7 +122,6 @@ export function RegisterForm({
                                             defaultValue={
                                                 state?.values?.password
                                             }
-                                            readOnly={state?.step === "otp"}
                                             required
                                         />
                                         {getFieldError("password") && (
@@ -141,7 +141,6 @@ export function RegisterForm({
                                             defaultValue={
                                                 state?.values?.confirmPassword
                                             }
-                                            readOnly={state?.step === "otp"}
                                             required
                                         />
                                         {getFieldError("confirmPassword") && (
@@ -158,37 +157,10 @@ export function RegisterForm({
                                 </FieldDescription>
                             </Field>
                             <Field>
-                                {state?.step === "otp" && (
-                                    <>
-                                        <FieldLabel htmlFor="otp">
-                                            OTP Code
-                                        </FieldLabel>
-                                        <Input
-                                            id="otp"
-                                            name="otp"
-                                            type="text"
-                                            placeholder="6-digit code"
-                                            defaultValue={state?.values?.otp}
-                                            required
-                                        />
-                                        {getFieldError("otp") && (
-                                            <FieldDescription className="text-red-600">
-                                                {getFieldError("otp")}
-                                            </FieldDescription>
-                                        )}
-                                        <FieldDescription>
-                                            Check your email for the OTP.
-                                        </FieldDescription>
-                                    </>
-                                )}
                                 <Button type="submit" disabled={isPending}>
                                     {isPending
-                                        ? state?.step === "otp"
-                                            ? "Verifying..."
-                                            : "Creating..."
-                                        : state?.step === "otp"
-                                          ? "Verify OTP"
-                                          : "Create Account"}
+                                        ? "Sending OTP..."
+                                        : "Create Account"}
                                 </Button>
                                 <FieldDescription className="text-center">
                                     Already have an account?{" "}

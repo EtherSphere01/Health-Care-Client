@@ -42,7 +42,7 @@ export async function createSchedule(
     data: ICreateScheduleRequest,
 ): Promise<IApiResponse<ISchedule[]>> {
     const response = await post<ISchedule[]>("/schedule", data);
-    revalidateTag(SCHEDULES_TAG);
+    revalidateTag(SCHEDULES_TAG, "default");
     return response;
 }
 
@@ -53,6 +53,6 @@ export async function deleteSchedule(
     id: string,
 ): Promise<IApiResponse<ISchedule>> {
     const response = await del<ISchedule>(`/schedule/${id}`);
-    revalidateTag(SCHEDULES_TAG);
+    revalidateTag(SCHEDULES_TAG, "default");
     return response;
 }

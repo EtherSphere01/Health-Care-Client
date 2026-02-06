@@ -43,7 +43,7 @@ export async function createSpecialty(
     }
 
     const response = await uploadFormData<ISpecialty>("/specialties", formData);
-    revalidateTag(SPECIALTIES_TAG);
+    revalidateTag(SPECIALTIES_TAG, "default");
     return response;
 }
 
@@ -54,7 +54,7 @@ export async function deleteSpecialty(
     id: string,
 ): Promise<IApiResponse<ISpecialty>> {
     const response = await del<ISpecialty>(`/specialties/${id}`);
-    revalidateTag(SPECIALTIES_TAG);
+    revalidateTag(SPECIALTIES_TAG, "default");
     return response;
 }
 

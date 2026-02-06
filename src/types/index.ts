@@ -115,6 +115,18 @@ export interface IMedicalReport {
     reportLink: string;
 }
 
+export interface INotification {
+    id: string;
+    recipientEmail: string;
+    recipientRole: UserRole;
+    type: string;
+    title: string;
+    message: string;
+    link?: string;
+    isRead: boolean;
+    createdAt: string;
+}
+
 export interface IPatientHealthData {
     id: string;
     patientId: string;
@@ -559,6 +571,7 @@ export type IDashboardMeta =
 // ============================================
 export interface IAiSuggestion {
     suggestedSpecialties: string[];
+    suggestedDoctors?: string[];
     recommendations: string;
     urgencyLevel: "low" | "medium" | "high";
 }

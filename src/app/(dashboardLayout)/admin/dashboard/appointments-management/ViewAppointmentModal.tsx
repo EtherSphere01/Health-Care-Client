@@ -1,6 +1,8 @@
 "use client";
 
-import { IAppointment } from "@/types";
+import { AppointmentStatus, IAppointment } from "@/types";
+import { getVideoCallUrl } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import {
     Dialog,
     DialogContent,
@@ -19,6 +21,7 @@ import {
     Clock,
     CreditCard,
     FileText,
+    Video,
 } from "lucide-react";
 
 interface ViewAppointmentModalProps {
@@ -218,6 +221,29 @@ export function ViewAppointmentModal({
                             <p className="font-medium text-sm break-all">
                                 {appointment.videoCallingId}
                             </p>
+                            {appointment.status ===
+                                AppointmentStatus.INPROGRESS && (
+                                <div className="mt-3">
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => {
+                                            const url = getVideoCallUrl(
+                                                appointment.videoCallingId,
+                                            );
+                                            if (!url) return;
+                                            window.open(
+                                                url,
+                                                "_blank",
+                                                "noopener,noreferrer",
+                                            );
+                                        }}
+                                    >
+                                        <Video className="h-4 w-4 mr-2 text-blue-600" />
+                                        Join Video Call
+                                    </Button>
+                                </div>
+                            )}
                         </div>
                     )}
 

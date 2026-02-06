@@ -83,7 +83,13 @@ export function ConsultationContent({
     const filteredDoctors = selectedSpecialty
         ? doctors.filter((d) =>
               d.doctorSpecialties?.some(
-                  (ds) => ds.specialtyId === selectedSpecialty,
+                  (ds) =>
+                      (ds.specialtyId ??
+                          // Backward-compatible field names from API
+                          (ds as unknown as { specialitiesId?: string })
+                              .specialitiesId ??
+                          (ds as unknown as { specialityId?: string })
+                              .specialityId) === selectedSpecialty,
               ),
           )
         : doctors;
@@ -322,6 +328,27 @@ export function ConsultationContent({
                                         )}
                                     </div>
                                 </div>
+                                {Array.isArray(aiSuggestion.suggestedDoctors) &&
+                                    aiSuggestion.suggestedDoctors.length >
+                                        0 && (
+                                        <div>
+                                            <p className="text-sm font-semibold text-muted-foreground">
+                                                Suggested Doctors
+                                            </p>
+                                            <div className="mt-2 flex flex-wrap gap-2">
+                                                {aiSuggestion.suggestedDoctors.map(
+                                                    (doctor) => (
+                                                        <Badge
+                                                            key={doctor}
+                                                            variant="outline"
+                                                        >
+                                                            {doctor}
+                                                        </Badge>
+                                                    ),
+                                                )}
+                                            </div>
+                                        </div>
+                                    )}
                                 <div>
                                     <p className="text-sm font-semibold text-muted-foreground">
                                         Recommendations

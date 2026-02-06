@@ -12,6 +12,7 @@ import {
     User,
 } from "lucide-react";
 import { IAppointment, IMeta, AppointmentStatus } from "@/types";
+import { getVideoCallUrl } from "@/lib/utils";
 import { DashboardHeader } from "@/components/shared/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/table";
@@ -208,12 +209,22 @@ export function DoctorAppointmentsContent({
                             <Button
                                 variant="ghost"
                                 size="icon"
-                                onClick={() =>
-                                    window.open(
+                                onClick={() => {
+                                    const url = getVideoCallUrl(
                                         appointment.videoCallingId,
+                                    );
+                                    if (!url) {
+                                        toast.error(
+                                            "Video call link is missing",
+                                        );
+                                        return;
+                                    }
+                                    window.open(
+                                        url,
                                         "_blank",
-                                    )
-                                }
+                                        "noopener,noreferrer",
+                                    );
+                                }}
                                 title="Join Video Call"
                             >
                                 <Video className="h-4 w-4 text-blue-600" />
@@ -244,18 +255,19 @@ export function DoctorAppointmentsContent({
                             </Button>
                         )}
                     {(appointment.status === AppointmentStatus.INPROGRESS ||
-                        appointment.status === AppointmentStatus.COMPLETED) && (
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() =>
-                                setPrescriptionAppointment(appointment)
-                            }
-                            title="Write Prescription"
-                        >
-                            <FileText className="h-4 w-4 text-amber-600" />
-                        </Button>
-                    )}
+                        appointment.status === AppointmentStatus.COMPLETED) &&
+                        !appointment.prescription && (
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() =>
+                                    setPrescriptionAppointment(appointment)
+                                }
+                                title="Write Prescription"
+                            >
+                                <FileText className="h-4 w-4 text-amber-600" />
+                            </Button>
+                        )}
                 </div>
             ),
         },

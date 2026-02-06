@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
     Plus,
@@ -28,6 +28,7 @@ import { EmptyState, ErrorState } from "@/components/ui/empty-state";
 import { softDeleteDoctor, deleteDoctor } from "@/services/doctor";
 import { toast } from "sonner";
 import { CreateDoctorModal } from "./CreateDoctorModal";
+import { useDebounce } from "@/hooks/usePagination";
 
 interface DoctorsManagementContentProps {
     doctors: IDoctor[];
@@ -52,6 +53,7 @@ export function DoctorsManagementContent({
     const [isPending, startTransition] = useTransition();
 
     const [searchTerm, setSearchTerm] = useState(currentFilters.searchTerm);
+    const debouncedSearchTerm = useDebounce(searchTerm, 300);
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [doctorToDelete, setDoctorToDelete] = useState<IDoctor | null>(null);
@@ -78,6 +80,16 @@ export function DoctorsManagementContent({
     const handleSearch = () => {
         updateFilters({ searchTerm });
     };
+
+    useEffect(() => {
+        setSearchTerm(currentFilters.searchTerm);
+    }, [currentFilters.searchTerm]);
+
+    useEffect(() => {
+        if (debouncedSearchTerm === currentFilters.searchTerm) return;
+        updateFilters({ searchTerm: debouncedSearchTerm });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [debouncedSearchTerm, currentFilters.searchTerm]);
 
     const handleDelete = async () => {
         if (!doctorToDelete) return;
@@ -131,7 +143,7 @@ export function DoctorsManagementContent({
                 <div className="space-y-1">
                     <div className="flex items-center gap-1 text-sm">
                         <Mail className="h-3 w-3 text-muted-foreground" />
-                        <span className="truncate max-w-[150px]">
+                        <span className="truncate max-w-37.5">
                             {doctor.email}
                         </span>
                     </div>
@@ -194,11 +206,12 @@ export function DoctorsManagementContent({
                     <Button
                         variant="ghost"
                         size="icon"
-                        onClick={() =>
+                        onClick={(e) => {
+                            e.stopPropagation();
                             router.push(
                                 `/admin/dashboard/doctors-management/${doctor.id}`,
-                            )
-                        }
+                            );
+                        }}
                     >
                         <Pencil className="h-4 w-4" />
                     </Button>
@@ -206,7 +219,8 @@ export function DoctorsManagementContent({
                         variant="ghost"
                         size="icon"
                         className="text-destructive"
-                        onClick={() => {
+                        onClick={(e) => {
+                            e.stopPropagation();
                             setDoctorToDelete(doctor);
                             setDeleteDialogOpen(true);
                         }}
@@ -233,7 +247,7 @@ export function DoctorsManagementContent({
 
             {/* Filters */}
             <FilterBar>
-                <div className="flex-1 min-w-[200px]">
+                <div className="flex-1 min-w-50">
                     <SearchInput
                         placeholder="Search doctors..."
                         value={searchTerm}
@@ -276,7 +290,15 @@ export function DoctorsManagementContent({
             ) : (
                 <>
                     <div className="rounded-lg border">
-                        <DataTable data={doctors} columns={columns} />
+                        <DataTable
+                            data={doctors}
+                            columns={columns}
+                            onRowClick={(doctor) =>
+                                router.push(
+                                    `/admin/dashboard/doctors-management/${doctor.id}`,
+                                )
+                            }
+                        />
                     </div>
 
                     {/* Pagination */}

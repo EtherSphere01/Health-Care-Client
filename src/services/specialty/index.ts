@@ -23,7 +23,7 @@ export async function getAllSpecialties(
         params as Record<string, unknown>,
         {
             tags: [SPECIALTIES_TAG],
-            revalidate: 300, // Cache for 5 minutes
+            revalidate: 0,
             requireAuth: false,
         },
     );
@@ -43,7 +43,7 @@ export async function createSpecialty(
     }
 
     const response = await uploadFormData<ISpecialty>("/specialties", formData);
-    revalidateTag(SPECIALTIES_TAG, "max");
+    revalidateTag(SPECIALTIES_TAG);
     return response;
 }
 
@@ -54,7 +54,7 @@ export async function deleteSpecialty(
     id: string,
 ): Promise<IApiResponse<ISpecialty>> {
     const response = await del<ISpecialty>(`/specialties/${id}`);
-    revalidateTag(SPECIALTIES_TAG, "max");
+    revalidateTag(SPECIALTIES_TAG);
     return response;
 }
 

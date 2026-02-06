@@ -34,6 +34,7 @@ async function DoctorsManagementData({ searchParams }: PageProps) {
     let doctors: IDoctor[] = [];
     let meta: IMeta | null = null;
     let specialties: ISpecialty[] = [];
+    let error: string | null = null;
 
     try {
         const [doctorsResponse, specialtiesResponse] = await Promise.all([
@@ -46,11 +47,32 @@ async function DoctorsManagementData({ searchParams }: PageProps) {
             getAllSpecialties({ limit: 100 }),
         ]);
 
-        doctors = doctorsResponse.data || [];
-        meta = doctorsResponse.meta || null;
-        specialties = specialtiesResponse.data || [];
-    } catch (error) {
-        console.error("Failed to fetch doctors:", error);
+        if (!doctorsResponse.success || !specialtiesResponse.success) {
+            error =
+                doctorsResponse.message ||
+                specialtiesResponse.message ||
+                "Failed to load data";
+        } else {
+            doctors = doctorsResponse.data || [];
+            meta = doctorsResponse.meta || null;
+            specialties = specialtiesResponse.data || [];
+        }
+    } catch (e) {
+        error = e instanceof Error ? e.message : "An unexpected error occurred";
+    }
+
+    // Show error UI if fetch failed
+    if (error) {
+        return (
+            <div className="flex items-center justify-center min-h-96">
+                <div className="text-center">
+                    <h2 className="text-xl font-bold text-destructive mb-2">
+                        Error Loading Doctors
+                    </h2>
+                    <p className="text-muted-foreground">{error}</p>
+                </div>
+            </div>
+        );
     }
 
     return (

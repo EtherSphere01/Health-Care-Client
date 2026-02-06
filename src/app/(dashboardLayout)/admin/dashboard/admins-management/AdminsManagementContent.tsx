@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Plus, Pencil, Trash2, Mail, Phone } from "lucide-react";
 import { IAdmin, IMeta } from "@/types";
@@ -19,6 +19,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { softDeleteAdmin } from "@/services/admin";
 import { toast } from "sonner";
 import { CreateAdminModal } from "./CreateAdminModal";
+import { useDebounce } from "@/hooks/usePagination";
 
 interface AdminsManagementContentProps {
     admins: IAdmin[];
@@ -40,6 +41,7 @@ export function AdminsManagementContent({
     const [isPending, startTransition] = useTransition();
 
     const [searchTerm, setSearchTerm] = useState(currentFilters.searchTerm);
+    const debouncedSearchTerm = useDebounce(searchTerm, 300);
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [adminToDelete, setAdminToDelete] = useState<IAdmin | null>(null);
@@ -65,6 +67,16 @@ export function AdminsManagementContent({
     const handleSearch = () => {
         updateFilters({ searchTerm });
     };
+
+    useEffect(() => {
+        setSearchTerm(currentFilters.searchTerm);
+    }, [currentFilters.searchTerm]);
+
+    useEffect(() => {
+        if (debouncedSearchTerm === currentFilters.searchTerm) return;
+        updateFilters({ searchTerm: debouncedSearchTerm });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [debouncedSearchTerm, currentFilters.searchTerm]);
 
     const handleDelete = async () => {
         if (!adminToDelete) return;
@@ -115,7 +127,7 @@ export function AdminsManagementContent({
                 <div className="space-y-1">
                     <div className="flex items-center gap-1 text-sm">
                         <Mail className="h-3 w-3 text-muted-foreground" />
-                        <span className="truncate max-w-[150px]">
+                        <span className="truncate max-w-37.5">
                             {admin.email}
                         </span>
                     </div>
@@ -189,7 +201,7 @@ export function AdminsManagementContent({
 
             {/* Filters */}
             <FilterBar>
-                <div className="flex-1 min-w-[200px]">
+                <div className="flex-1 min-w-50">
                     <SearchInput
                         placeholder="Search admins..."
                         value={searchTerm}

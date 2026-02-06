@@ -12,7 +12,7 @@ export default function Footer() {
                                 <Bot className="h-5 w-5" />
                             </div>
                             <span className="text-xl font-bold text-slate-900">
-                                NexusHealth
+                                Nexus Health
                             </span>
                         </div>
                         <p className="text-slate-500 max-w-xs mb-6">
@@ -75,7 +75,7 @@ export default function Footer() {
 
                 <div className="pt-8 border-t border-slate-100 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-slate-500">
                     <p>
-                        © {new Date().getFullYear()} NexusHealth AI Inc. All
+                        © {new Date().getFullYear()} Nexus Health AI Inc. All
                         rights reserved.
                     </p>
                     <div className="flex gap-8">

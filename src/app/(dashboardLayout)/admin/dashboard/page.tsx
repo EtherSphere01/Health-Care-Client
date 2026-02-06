@@ -15,11 +15,31 @@ export default async function AdminDashboardPage() {
 
 async function AdminDashboardData() {
     let meta = null;
+    let error: string | null = null;
+
     try {
         const response = await getDashboardMeta();
-        meta = response.data;
-    } catch (error) {
-        console.error("Failed to fetch dashboard meta:", error);
+        if (!response.success) {
+            error = response.message || "Failed to load dashboard metrics";
+        } else {
+            meta = response.data;
+        }
+    } catch (e) {
+        error = e instanceof Error ? e.message : "An unexpected error occurred";
+    }
+
+    // Show error UI if fetch failed
+    if (error) {
+        return (
+            <div className="flex items-center justify-center min-h-96">
+                <div className="text-center">
+                    <h2 className="text-xl font-bold text-destructive mb-2">
+                        Error Loading Dashboard
+                    </h2>
+                    <p className="text-muted-foreground">{error}</p>
+                </div>
+            </div>
+        );
     }
 
     return <AdminDashboardContent meta={meta} />;

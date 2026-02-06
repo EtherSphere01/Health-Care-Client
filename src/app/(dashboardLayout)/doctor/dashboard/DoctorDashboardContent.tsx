@@ -59,7 +59,6 @@ export function DoctorDashboardContent({ stats }: DoctorDashboardContentProps) {
                     title="Total Patients"
                     value={doctorStats?.patientCount || 0}
                     icon={Users}
-                    trend={{ value: 12, isPositive: true }}
                     description="Unique patients"
                 />
                 <StatCard
@@ -148,7 +147,7 @@ export function DoctorDashboardContent({ stats }: DoctorDashboardContentProps) {
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         {doctorStats?.appointmentStatusDistribution ? (
                             <>
-                                <div className="p-4 rounded-lg bg-muted/50">
+                                <div className="rounded-xl border border-slate-200/70 bg-white/70 p-4 shadow-sm">
                                     <p className="text-sm text-muted-foreground">
                                         Scheduled
                                     </p>
@@ -160,7 +159,7 @@ export function DoctorDashboardContent({ stats }: DoctorDashboardContentProps) {
                                         }
                                     </p>
                                 </div>
-                                <div className="p-4 rounded-lg bg-muted/50">
+                                <div className="rounded-xl border border-slate-200/70 bg-white/70 p-4 shadow-sm">
                                     <p className="text-sm text-muted-foreground">
                                         In Progress
                                     </p>
@@ -172,7 +171,7 @@ export function DoctorDashboardContent({ stats }: DoctorDashboardContentProps) {
                                         }
                                     </p>
                                 </div>
-                                <div className="p-4 rounded-lg bg-muted/50">
+                                <div className="rounded-xl border border-slate-200/70 bg-white/70 p-4 shadow-sm">
                                     <p className="text-sm text-muted-foreground">
                                         Completed
                                     </p>
@@ -184,7 +183,7 @@ export function DoctorDashboardContent({ stats }: DoctorDashboardContentProps) {
                                         }
                                     </p>
                                 </div>
-                                <div className="p-4 rounded-lg bg-muted/50">
+                                <div className="rounded-xl border border-slate-200/70 bg-white/70 p-4 shadow-sm">
                                     <p className="text-sm text-muted-foreground">
                                         Canceled
                                     </p>

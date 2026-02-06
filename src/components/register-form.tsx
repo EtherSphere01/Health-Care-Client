@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { cn } from "@/lib/utils";
@@ -46,8 +45,8 @@ export function RegisterForm({
         if (!state || isPending) return;
 
         if (state.success) {
-            toast.success(state.message ?? "Account created successfully");
-            if (!hasRedirected.current) {
+            toast.success(state.message ?? "Success");
+            if (state.completed && !hasRedirected.current) {
                 hasRedirected.current = true;
                 router.push("/login");
             }
@@ -83,6 +82,7 @@ export function RegisterForm({
                                     type="text"
                                     placeholder="John Doe"
                                     defaultValue={state?.values?.name}
+                                    readOnly={state?.step === "otp"}
                                     required
                                 />
                                 {getFieldError("name") && (
@@ -99,6 +99,7 @@ export function RegisterForm({
                                     type="email"
                                     placeholder="m@example.com"
                                     defaultValue={state?.values?.email}
+                                    readOnly={state?.step === "otp"}
                                     required
                                 />
                                 {getFieldError("email") && (
@@ -120,6 +121,7 @@ export function RegisterForm({
                                             defaultValue={
                                                 state?.values?.password
                                             }
+                                            readOnly={state?.step === "otp"}
                                             required
                                         />
                                         {getFieldError("password") && (
@@ -139,6 +141,7 @@ export function RegisterForm({
                                             defaultValue={
                                                 state?.values?.confirmPassword
                                             }
+                                            readOnly={state?.step === "otp"}
                                             required
                                         />
                                         {getFieldError("confirmPassword") && (
@@ -155,10 +158,37 @@ export function RegisterForm({
                                 </FieldDescription>
                             </Field>
                             <Field>
+                                {state?.step === "otp" && (
+                                    <>
+                                        <FieldLabel htmlFor="otp">
+                                            OTP Code
+                                        </FieldLabel>
+                                        <Input
+                                            id="otp"
+                                            name="otp"
+                                            type="text"
+                                            placeholder="6-digit code"
+                                            defaultValue={state?.values?.otp}
+                                            required
+                                        />
+                                        {getFieldError("otp") && (
+                                            <FieldDescription className="text-red-600">
+                                                {getFieldError("otp")}
+                                            </FieldDescription>
+                                        )}
+                                        <FieldDescription>
+                                            Check your email for the OTP.
+                                        </FieldDescription>
+                                    </>
+                                )}
                                 <Button type="submit" disabled={isPending}>
                                     {isPending
-                                        ? "Creating..."
-                                        : "Create Account"}
+                                        ? state?.step === "otp"
+                                            ? "Verifying..."
+                                            : "Creating..."
+                                        : state?.step === "otp"
+                                          ? "Verify OTP"
+                                          : "Create Account"}
                                 </Button>
                                 <FieldDescription className="text-center">
                                     Already have an account?{" "}

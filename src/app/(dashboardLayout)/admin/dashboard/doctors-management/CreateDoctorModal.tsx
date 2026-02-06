@@ -117,6 +117,10 @@ export function CreateDoctorModal({
                     qualification: formData.qualification,
                     currentWorkingPlace: formData.currentWorkingPlace,
                     designation: formData.designation,
+                    specialties:
+                        formData.specialties.length > 0
+                            ? formData.specialties
+                            : undefined,
                 },
             };
 

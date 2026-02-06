@@ -1,10 +1,11 @@
 "use server";
 
-import { post } from "@/lib/api";
+import { get, post } from "@/lib/api";
 import {
     IInitPaymentRequest,
     IInitPaymentResponse,
     IApiResponse,
+    PaymentStatus,
 } from "@/types";
 import { revalidateTag } from "next/cache";
 
@@ -14,11 +15,12 @@ import { revalidateTag } from "next/cache";
 export async function initializePayment(
     appointmentId: string,
 ): Promise<IApiResponse<IInitPaymentResponse>> {
+    // Backend initiates Stripe checkout via Appointment module
     const response = await post<IInitPaymentResponse>(
-        `/payment/init-payment/${appointmentId}`,
+        `/appointment/${appointmentId}/initiate-payment`,
     );
-    revalidateTag("appointments", "max");
-    revalidateTag("my-appointments", "max");
+    revalidateTag("appointments");
+    revalidateTag("my-appointments");
     return response;
 }
 
@@ -28,14 +30,34 @@ export async function initializePayment(
 export async function initPayment(
     data: IInitPaymentRequest,
 ): Promise<IApiResponse<IInitPaymentResponse>> {
+    // Amount is derived server-side from appointment/payment records.
     const response = await post<IInitPaymentResponse>(
-        `/payment/init-payment/${data.appointmentId}`,
-        {
-            amount: data.amount,
-        },
+        `/appointment/${data.appointmentId}/initiate-payment`,
     );
-    revalidateTag("appointments", "max");
-    revalidateTag("my-appointments", "max");
+    revalidateTag("appointments");
+    revalidateTag("my-appointments");
+    return response;
+}
+
+/**
+ * Validate Stripe checkout session on return (Patient)
+ */
+export async function validateStripeCheckoutSession(
+    sessionId: string,
+): Promise<
+    IApiResponse<{
+        appointmentId: string;
+        paymentId: string;
+        status: PaymentStatus;
+    }>
+> {
+    const response = await get<{
+        appointmentId: string;
+        paymentId: string;
+        status: PaymentStatus;
+    }>("/payment/stripe/validate", { session_id: sessionId });
+    revalidateTag("appointments");
+    revalidateTag("my-appointments");
     return response;
 }
 

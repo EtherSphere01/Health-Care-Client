@@ -15,7 +15,7 @@ export default function Testimonials() {
             name: "Michael Chen",
             role: "Patient",
             image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=100",
-            text: "Booking a specialist used to take weeks. With NexusHealth, I got an appointment with a top cardiologist in 2 days.",
+            text: "Booking a specialist used to take weeks. With Nexus Health, I got an appointment with a top cardiologist in 2 days.",
             rating: 5,
         },
         {

@@ -20,7 +20,7 @@ export async function getAllReviews(
 ): Promise<IApiResponse<IReview[]> & { meta?: IMeta }> {
     return get<IReview[]>("/review", params as Record<string, unknown>, {
         tags: [REVIEWS_TAG],
-        revalidate: 60,
+        revalidate: 0,
         requireAuth: false,
     });
 }
@@ -32,8 +32,8 @@ export async function createReview(
     data: ICreateReviewRequest,
 ): Promise<IApiResponse<IReview>> {
     const response = await post<IReview>("/review", data);
-    revalidateTag(REVIEWS_TAG, "max");
-    revalidateTag("doctors", "max");
-    revalidateTag("appointments", "max");
+    revalidateTag(REVIEWS_TAG);
+    revalidateTag("doctors");
+    revalidateTag("appointments");
     return response;
 }

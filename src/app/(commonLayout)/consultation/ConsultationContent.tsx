@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
     Stethoscope,
@@ -17,9 +18,9 @@ import {
 import {
     IDoctor,
     ISpecialty,
-    ISchedule,
     IDoctorSchedule,
     IAiSuggestion,
+    UserRole,
 } from "@/types";
 import {
     Card,
@@ -35,8 +36,8 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { Spinner } from "@/components/ui/loading";
 import { getDoctorSchedules } from "@/services/doctor-schedule";
 import { createAppointment } from "@/services/appointment";
-import { initPayment } from "@/services/payment";
 import { getAiDoctorSuggestionClient } from "@/services/doctor/client";
+import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 
 interface ConsultationContentProps {
@@ -53,6 +54,12 @@ export function ConsultationContent({
     selectedDoctorId,
 }: ConsultationContentProps) {
     const router = useRouter();
+    const {
+        isAuthenticated,
+        isPatient,
+        role,
+        isLoading: isAuthLoading,
+    } = useAuth();
     const [step, setStep] = useState<Step>(
         selectedDoctorId ? "schedule" : "specialty",
     );
@@ -81,14 +88,7 @@ export function ConsultationContent({
           )
         : doctors;
 
-    // Load doctor schedules when doctor is selected
-    useEffect(() => {
-        if (selectedDoctor) {
-            loadSchedules();
-        }
-    }, [selectedDoctor]);
-
-    const loadSchedules = async () => {
+    const loadSchedules = useCallback(async () => {
         if (!selectedDoctor) return;
 
         setIsLoadingSchedules(true);
@@ -101,11 +101,18 @@ export function ConsultationContent({
 
             setSchedules(response.data || []);
         } catch (error) {
+            console.error(error);
             toast.error("Failed to load schedules");
         } finally {
             setIsLoadingSchedules(false);
         }
-    };
+    }, [selectedDoctor]);
+
+    // Load doctor schedules when doctor is selected
+    useEffect(() => {
+        if (!selectedDoctor) return;
+        loadSchedules();
+    }, [selectedDoctor, loadSchedules]);
 
     const handleSelectSpecialty = (specialtyId: string) => {
         setSelectedSpecialty(specialtyId);
@@ -152,6 +159,28 @@ export function ConsultationContent({
     const handleBookAppointment = async () => {
         if (!selectedDoctor || !selectedSchedule) return;
 
+        if (isAuthLoading) return;
+
+        if (!isAuthenticated) {
+            toast.error("Please login as a patient to book an appointment.");
+            router.push(
+                `/login?redirect=${encodeURIComponent("/consultation")}`,
+            );
+            return;
+        }
+
+        if (!isPatient) {
+            toast.error("Only patients can book and pay for appointments.");
+            if (role === UserRole.ADMIN || role === UserRole.SUPER_ADMIN) {
+                router.push("/admin/dashboard");
+            } else if (role === UserRole.DOCTOR) {
+                router.push("/doctor/dashboard");
+            } else {
+                router.push("/");
+            }
+            return;
+        }
+
         setIsBooking(true);
         try {
             // Create appointment
@@ -167,26 +196,18 @@ export function ConsultationContent({
                 return;
             }
 
-            const appointment = appointmentRes.data;
-
-            // Initialize payment
-            const paymentRes = await initPayment({
-                appointmentId: appointment!.id,
-                amount: selectedDoctor.appointmentFee,
-            });
-
-            if (paymentRes.success && paymentRes.data?.paymentUrl) {
-                // Redirect to Stripe payment
-                window.location.href = paymentRes.data.paymentUrl;
-            } else {
-                toast.success("Appointment created successfully!");
-                router.push("/dashboard/my-appointments");
+            const paymentUrl = appointmentRes.data?.paymentUrl;
+            if (paymentUrl) {
+                window.location.href = paymentUrl;
+                return;
             }
+
+            toast.error("Failed to start payment session");
         } catch (error: unknown) {
             const message =
-                error instanceof Error
-                    ? error.message
-                    : "Failed to book appointment";
+                (error as { message?: string })?.message ||
+                (error instanceof Error ? error.message : undefined) ||
+                "Failed to book appointment";
             toast.error(message);
         } finally {
             setIsBooking(false);
@@ -229,7 +250,7 @@ export function ConsultationContent({
                 {/* AI Doctor Suggestion */}
                 <Card
                     id="ai-suggestion"
-                    className="mb-8 border-primary/10 bg-gradient-to-br from-white to-indigo-50/40"
+                    className="mb-8 border-primary/10 bg-linear-to-br from-white to-indigo-50/40"
                 >
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
@@ -248,7 +269,7 @@ export function ConsultationContent({
                                 value={symptoms}
                                 onChange={(e) => setSymptoms(e.target.value)}
                                 placeholder="E.g., persistent headache, blurred vision, fatigue"
-                                className="min-h-[96px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                                className="min-h-24 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                             />
                             {aiError && (
                                 <p className="text-sm text-destructive flex items-center gap-2">
@@ -398,9 +419,12 @@ export function ConsultationContent({
                                         >
                                             <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mb-3">
                                                 {specialty.icon ? (
-                                                    <img
+                                                    <Image
                                                         src={specialty.icon}
                                                         alt={specialty.title}
+                                                        width={24}
+                                                        height={24}
+                                                        unoptimized
                                                         className="h-6 w-6"
                                                     />
                                                 ) : (
@@ -461,13 +485,16 @@ export function ConsultationContent({
                                                 <div className="flex items-center gap-4">
                                                     <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden">
                                                         {doctor.profilePhoto ? (
-                                                            <img
+                                                            <Image
                                                                 src={
                                                                     doctor.profilePhoto
                                                                 }
                                                                 alt={
                                                                     doctor.name
                                                                 }
+                                                                width={64}
+                                                                height={64}
+                                                                unoptimized
                                                                 className="h-16 w-16 object-cover"
                                                             />
                                                         ) : (
@@ -629,13 +656,16 @@ export function ConsultationContent({
                                             <div className="flex items-center gap-4">
                                                 <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden">
                                                     {selectedDoctor.profilePhoto ? (
-                                                        <img
+                                                        <Image
                                                             src={
                                                                 selectedDoctor.profilePhoto
                                                             }
                                                             alt={
                                                                 selectedDoctor.name
                                                             }
+                                                            width={64}
+                                                            height={64}
+                                                            unoptimized
                                                             className="h-16 w-16 object-cover"
                                                         />
                                                     ) : (

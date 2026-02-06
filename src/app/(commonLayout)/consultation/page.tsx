@@ -4,6 +4,9 @@ import { getAllSpecialties } from "@/services/specialty";
 import { LoadingState } from "@/components/ui/loading";
 import { ConsultationContent } from "./ConsultationContent";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 interface ConsultationPageProps {
     searchParams: Promise<{
         doctor?: string;
@@ -34,13 +37,34 @@ async function ConsultationData({
     specialtyId?: string;
 }) {
     try {
-        const [doctorsRes, specialtiesRes] = await Promise.all([
-            getAllDoctors({
-                specialties: specialtyId,
-                limit: 100,
-            }),
-            getAllSpecialties({}),
-        ]);
+        const specialtiesRes = await getAllSpecialties({});
+
+        const specialtyTitle = specialtyId
+            ? specialtiesRes.data?.find((s) => s.id === specialtyId)?.title
+            : undefined;
+
+        const doctorsRes = await getAllDoctors({
+            ...(specialtyTitle ? { specialties: specialtyTitle } : {}),
+            limit: 100,
+        });
+
+        // If API call succeeded but returned no success flag, show error
+        if (!doctorsRes.success || !specialtiesRes.success) {
+            return (
+                <div className="min-h-screen flex items-center justify-center py-12">
+                    <div className="text-center">
+                        <h2 className="text-2xl font-bold text-destructive mb-4">
+                            Error Loading Consultation Data
+                        </h2>
+                        <p className="text-muted-foreground">
+                            {doctorsRes.message ||
+                                specialtiesRes.message ||
+                                "Failed to load doctors or specialties"}
+                        </p>
+                    </div>
+                </div>
+            );
+        }
 
         return (
             <ConsultationContent
@@ -49,13 +73,23 @@ async function ConsultationData({
                 selectedDoctorId={doctorId}
             />
         );
-    } catch {
+    } catch (error) {
         return (
-            <ConsultationContent
-                doctors={[]}
-                specialties={[]}
-                selectedDoctorId={doctorId}
-            />
+            <div className="min-h-screen flex items-center justify-center py-12">
+                <div className="text-center">
+                    <h2 className="text-2xl font-bold text-destructive mb-4">
+                        Error Loading Consultation
+                    </h2>
+                    <p className="text-muted-foreground">
+                        {error instanceof Error
+                            ? error.message
+                            : "An unexpected error occurred"}
+                    </p>
+                    <p className="text-sm text-muted-foreground mt-2">
+                        Please try refreshing the page
+                    </p>
+                </div>
+            </div>
         );
     }
 }

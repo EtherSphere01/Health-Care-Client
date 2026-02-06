@@ -7,12 +7,22 @@ import HeroSection from "@/components/modules/Home/HeroSection";
 import Statistics from "@/components/modules/Home/Statistics";
 import Testimonials from "@/components/modules/Home/Testimonials";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function Home() {
     let doctors = [];
+    let error = null;
+
     try {
         const doctorsResponse = await getAllDoctors({ limit: 6 });
-        doctors = doctorsResponse.data ?? [];
-    } catch {
+        if (!doctorsResponse.success) {
+            error = doctorsResponse.message || "Failed to fetch doctors";
+        } else {
+            doctors = doctorsResponse.data ?? [];
+        }
+    } catch (e) {
+        error = e instanceof Error ? e.message : "Failed to load doctors";
         doctors = [];
     }
 
@@ -20,7 +30,7 @@ export default async function Home() {
         <div>
             <HeroSection />
             <Features />
-            <DoctorsList doctors={doctors} />
+            <DoctorsList doctors={doctors} error={error} />
             <Testimonials />
             <Statistics />
             <FAQs />

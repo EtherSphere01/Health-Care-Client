@@ -23,7 +23,7 @@ export async function getAllPrescriptions(
         params as Record<string, unknown>,
         {
             tags: [PRESCRIPTIONS_TAG],
-            revalidate: 60,
+            revalidate: 0,
         },
     );
 }
@@ -40,7 +40,7 @@ export async function getMyPrescriptions(params?: {
         params as Record<string, unknown>,
         {
             tags: [PRESCRIPTIONS_TAG, "my-prescriptions"],
-            revalidate: 60,
+            revalidate: 0,
         },
     );
 }
@@ -55,8 +55,8 @@ export async function createPrescription(
     data: ICreatePrescriptionRequest,
 ): Promise<IApiResponse<IPrescription>> {
     const response = await post<IPrescription>("/prescription", data);
-    revalidateTag(PRESCRIPTIONS_TAG, "max");
-    revalidateTag("my-prescriptions", "max");
-    revalidateTag("appointments", "max");
+    revalidateTag(PRESCRIPTIONS_TAG);
+    revalidateTag("my-prescriptions");
+    revalidateTag("appointments");
     return response;
 }

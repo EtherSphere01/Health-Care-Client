@@ -108,33 +108,34 @@ export default function PublicNavbar() {
             </header>
 
             {/* Mobile */}
-            <header className="lg:hidden p-2 cursor-pointer flex items-center justify-between">
-                <Link href="/">
-                    <span className="text-2xl font-bold text-transparent bg-clip-text bg-linear-to-r from-indigo-600 via-violet-600 to-indigo-900 animate-gradient-x">
-                        Nexus
-                        <span className="font-semibold text-indigo-950">
-                            Health
+            <div className="mx-[10px]">
+                <header className="lg:hidden p-2 cursor-pointer flex items-center justify-between ">
+                    <Link href="/">
+                        <span className="text-2xl font-bold text-transparent bg-clip-text bg-linear-to-r from-indigo-600 via-violet-600 to-indigo-900 animate-gradient-x">
+                            Nexus
+                            <span className="font-semibold text-indigo-950">
+                                Health
+                            </span>
                         </span>
-                    </span>
-                </Link>
-                <Sheet>
-                    <SheetTrigger>
-                        <Menu className="w-4 h-4 text-indigo-950 cursor-pointer" />
-                    </SheetTrigger>
+                    </Link>
+                    <Sheet>
+                        <SheetTrigger>
+                            <Menu className="w-4 h-4 text-indigo-950 cursor-pointer" />
+                        </SheetTrigger>
 
-                    <SheetContent>
-                        <SheetHeader>
-                            <SheetTitle className="font-bold text-xl ">
-                                Menu
-                            </SheetTitle>
+                        <SheetContent>
+                            <SheetHeader>
+                                <SheetTitle className="font-bold text-xl ">
+                                    Menu
+                                </SheetTitle>
 
-                            <SheetDescription>
-                                <nav>
-                                    <ul>
-                                        {navItems.map((item) => (
-                                            <li
-                                                key={item.name}
-                                                className={`
+                                <SheetDescription>
+                                    <nav>
+                                        <ul>
+                                            {navItems.map((item) => (
+                                                <li
+                                                    key={item.name}
+                                                    className={`
                                                     py-2 px-4 rounded-md mb-2 transition-all
                                                     ${
                                                         isActive(item.href)
@@ -142,64 +143,65 @@ export default function PublicNavbar() {
                                                             : "text-slate-800 hover:bg-slate-100"
                                                     }
                                                 `}
-                                            >
-                                                <Link href={item.href}>
-                                                    {item.name}
-                                                </Link>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </nav>
-
-                                {!isLoading && (
-                                    <div className="mt-4 space-y-2">
-                                        {isAuthenticated ? (
-                                            <>
-                                                <Link href={dashboardHref}>
-                                                    <Button className="w-full">
-                                                        Dashboard
-                                                    </Button>
-                                                </Link>
-                                                <Link href={profileHref}>
-                                                    <Button
-                                                        variant="outline"
-                                                        className="w-full"
-                                                    >
-                                                        Profile
-                                                    </Button>
-                                                </Link>
-                                                <Button
-                                                    variant="ghost"
-                                                    className="w-full"
-                                                    onClick={logout}
                                                 >
-                                                    Logout
-                                                </Button>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <Link href="/login">
-                                                    <Button className="w-full">
-                                                        Login
-                                                    </Button>
-                                                </Link>
-                                                <Link href="/register">
+                                                    <Link href={item.href}>
+                                                        {item.name}
+                                                    </Link>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </nav>
+
+                                    {!isLoading && (
+                                        <div className="mt-4 space-y-2">
+                                            {isAuthenticated ? (
+                                                <>
+                                                    <Link href={dashboardHref}>
+                                                        <Button className="w-full mb-[10px]">
+                                                            Dashboard
+                                                        </Button>
+                                                    </Link>
+                                                    {/* <Link href={profileHref}>
+                                                        <Button
+                                                            variant="outline"
+                                                            className="w-full"
+                                                        >
+                                                            Profile
+                                                        </Button>
+                                                    </Link> */}
                                                     <Button
-                                                        variant="outline"
+                                                        variant="ghost"
                                                         className="w-full"
+                                                        onClick={logout}
                                                     >
-                                                        Register
+                                                        Logout
                                                     </Button>
-                                                </Link>
-                                            </>
-                                        )}
-                                    </div>
-                                )}
-                            </SheetDescription>
-                        </SheetHeader>
-                    </SheetContent>
-                </Sheet>
-            </header>
+                                                </>
+                                            ) : (
+                                                <div className="space-y-4">
+                                                    <Link href="/login">
+                                                        <Button className="w-full mb-[10px]">
+                                                            Login
+                                                        </Button>
+                                                    </Link>
+                                                    <Link href="/register">
+                                                        <Button
+                                                            variant="outline"
+                                                            className="w-full"
+                                                        >
+                                                            Register
+                                                        </Button>
+                                                    </Link>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                </SheetDescription>
+                            </SheetHeader>
+                        </SheetContent>
+                    </Sheet>
+                </header>
+            </div>
         </>
     );
 }

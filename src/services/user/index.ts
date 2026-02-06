@@ -31,7 +31,7 @@ export async function getAllUsers(
 ): Promise<IApiResponse<IUser[]> & { meta?: IMeta }> {
     return get<IUser[]>("/user", params as Record<string, unknown>, {
         tags: [USERS_TAG],
-        revalidate: 60,
+        revalidate: 0,
     });
 }
 
@@ -59,8 +59,8 @@ export async function createAdmin(
         "/user/create-admin",
         formData,
     );
-    revalidateTag(USERS_TAG, "max");
-    revalidateTag("admins", "max");
+    revalidateTag(USERS_TAG);
+    revalidateTag("admins");
     return response;
 }
 
@@ -81,8 +81,8 @@ export async function createDoctor(
         "/user/create-doctor",
         formData,
     );
-    revalidateTag(USERS_TAG, "max");
-    revalidateTag("doctors", "max");
+    revalidateTag(USERS_TAG);
+    revalidateTag("doctors");
     return response;
 }
 
@@ -103,8 +103,8 @@ export async function createPatient(
         "/user/create-patient",
         formData,
     );
-    revalidateTag(USERS_TAG, "max");
-    revalidateTag("patients", "max");
+    revalidateTag(USERS_TAG);
+    revalidateTag("patients");
     return response;
 }
 
@@ -116,7 +116,7 @@ export async function updateUserStatus(
     data: IUpdateUserStatusRequest,
 ): Promise<IApiResponse<IUser>> {
     const response = await patch<IUser>(`/user/${userId}/status`, data);
-    revalidateTag(USERS_TAG, "max");
+    revalidateTag(USERS_TAG);
     return response;
 }
 
@@ -138,7 +138,7 @@ export async function updateMyProfile(
         formData,
         "PATCH",
     );
-    revalidateTag("user", "max");
-    revalidateTag("profile", "max");
+    revalidateTag("user");
+    revalidateTag("profile");
     return response;
 }

@@ -58,6 +58,7 @@ export function DoctorProfileContent({
         name: doctor?.name || "",
         contactNumber: doctor?.contactNumber || "",
         address: doctor?.address || "",
+        registrationNumber: doctor?.registrationNumber || "",
         experience: doctor?.experience || 0,
         appointmentFee: doctor?.appointmentFee || 0,
         qualification: doctor?.qualification || "",
@@ -182,6 +183,7 @@ export function DoctorProfileContent({
             name: doctor?.name || "",
             contactNumber: doctor?.contactNumber || "",
             address: doctor?.address || "",
+            registrationNumber: doctor?.registrationNumber || "",
             experience: doctor?.experience || 0,
             appointmentFee: doctor?.appointmentFee || 0,
             qualification: doctor?.qualification || "",
@@ -473,7 +475,7 @@ export function DoctorProfileContent({
                 </Card>
 
                 {/* Details Section */}
-                <div className="lg:col-span-2 space-y-6">
+                <div className="lg:col-span-3 space-y-6">
                     {/* Personal Information */}
                     <Card>
                         <CardHeader>
@@ -552,9 +554,19 @@ export function DoctorProfileContent({
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
                                     <Label>Registration Number</Label>
-                                    <p className="text-sm p-2 bg-muted/50 rounded-md">
-                                        {doctor?.registrationNumber || "N/A"}
-                                    </p>
+                                    {isEditing ? (
+                                        <Input
+                                            id="registrationNumber"
+                                            name="registrationNumber"
+                                            value={formData.registrationNumber}
+                                            onChange={handleChange}
+                                        />
+                                    ) : (
+                                        <p className="text-sm p-2 bg-muted/50 rounded-md">
+                                            {doctor?.registrationNumber ||
+                                                "N/A"}
+                                        </p>
+                                    )}
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="experience">

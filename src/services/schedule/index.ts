@@ -20,7 +20,7 @@ export async function getAllSchedules(
 ): Promise<IApiResponse<ISchedule[]> & { meta?: IMeta }> {
     return get<ISchedule[]>("/schedule", params as Record<string, unknown>, {
         tags: [SCHEDULES_TAG],
-        revalidate: 60,
+        revalidate: 0,
     });
 }
 
@@ -42,7 +42,7 @@ export async function createSchedule(
     data: ICreateScheduleRequest,
 ): Promise<IApiResponse<ISchedule[]>> {
     const response = await post<ISchedule[]>("/schedule", data);
-    revalidateTag(SCHEDULES_TAG, "max");
+    revalidateTag(SCHEDULES_TAG);
     return response;
 }
 
@@ -53,6 +53,6 @@ export async function deleteSchedule(
     id: string,
 ): Promise<IApiResponse<ISchedule>> {
     const response = await del<ISchedule>(`/schedule/${id}`);
-    revalidateTag(SCHEDULES_TAG, "max");
+    revalidateTag(SCHEDULES_TAG);
     return response;
 }

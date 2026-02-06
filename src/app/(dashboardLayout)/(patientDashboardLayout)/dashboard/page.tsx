@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { getMyAppointments } from "@/services/appointment";
 import { getPatientPrescriptions } from "@/services/prescription";
+import { getDashboardMeta, getPatientDashboardSummary } from "@/services/meta";
 import { LoadingState } from "@/components/ui/loading";
 import { PatientDashboardContent } from "./PatientDashboardContent";
 import { ErrorState } from "@/components/ui/empty-state";
@@ -15,15 +16,20 @@ export default function PatientDashboardPage() {
 
 async function PatientDashboardData() {
     try {
-        const [appointmentsRes, prescriptionsRes] = await Promise.all([
-            getMyAppointments({ limit: 5 }),
-            getPatientPrescriptions({ limit: 5 }),
-        ]);
+        const [appointmentsRes, prescriptionsRes, metaRes, summaryRes] =
+            await Promise.all([
+                getMyAppointments({ limit: 5 }),
+                getPatientPrescriptions({ limit: 5 }),
+                getDashboardMeta(),
+                getPatientDashboardSummary(),
+            ]);
 
         return (
             <PatientDashboardContent
                 appointments={appointmentsRes.data || []}
                 prescriptions={prescriptionsRes.data || []}
+                meta={metaRes.data ?? null}
+                summary={summaryRes.data ?? null}
             />
         );
     } catch (error) {

@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import {
     Calendar,
     Clock,
@@ -35,6 +36,10 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { createReview } from "@/services/review";
+import {
+    initializePayment,
+    validateStripeCheckoutSession,
+} from "@/services/payment";
 import { toast } from "sonner";
 
 interface PatientAppointmentsContentProps {
@@ -55,12 +60,65 @@ export function PatientAppointmentsContent({
     meta,
 }: PatientAppointmentsContentProps) {
     const router = useRouter();
+    const searchParams = useSearchParams();
     const [statusFilter, setStatusFilter] = useState("");
     const [selectedAppointment, setSelectedAppointment] =
         useState<IAppointment | null>(null);
     const [showReviewModal, setShowReviewModal] = useState(false);
     const [reviewAppointment, setReviewAppointment] =
         useState<IAppointment | null>(null);
+
+    const [payingAppointmentId, setPayingAppointmentId] = useState<
+        string | null
+    >(null);
+
+    useEffect(() => {
+        const sessionId = searchParams.get("session_id");
+        if (!sessionId) return;
+
+        let cancelled = false;
+        (async () => {
+            try {
+                await validateStripeCheckoutSession(sessionId);
+                if (cancelled) return;
+                toast.success("Payment status updated");
+            } catch (error: unknown) {
+                if (cancelled) return;
+                const message =
+                    (error as { message?: string })?.message ||
+                    "Failed to validate payment";
+                toast.error(message);
+            } finally {
+                if (cancelled) return;
+                router.replace("/dashboard/my-appointments");
+                router.refresh();
+            }
+        })();
+
+        return () => {
+            cancelled = true;
+        };
+    }, [router, searchParams]);
+
+    const handlePayNow = async (appointmentId: string) => {
+        setPayingAppointmentId(appointmentId);
+        try {
+            const res = await initializePayment(appointmentId);
+            const url = res.data?.paymentUrl;
+            if (!url) {
+                toast.error(res.message || "Failed to start payment");
+                return;
+            }
+            window.location.href = url;
+        } catch (error: unknown) {
+            const message =
+                (error as { message?: string })?.message ||
+                "Failed to start payment";
+            toast.error(message);
+        } finally {
+            setPayingAppointmentId(null);
+        }
+    };
 
     const formatDate = (date: string) => {
         if (!date) return "N/A";
@@ -269,9 +327,22 @@ export function PatientAppointmentsContent({
                                         )}
                                     {appointment.paymentStatus ===
                                         PaymentStatus.UNPAID && (
-                                        <Button variant="default" size="sm">
+                                        <Button
+                                            variant="default"
+                                            size="sm"
+                                            disabled={
+                                                payingAppointmentId ===
+                                                appointment.id
+                                            }
+                                            onClick={() =>
+                                                handlePayNow(appointment.id)
+                                            }
+                                        >
                                             <CreditCard className="h-4 w-4 mr-2" />
-                                            Pay Now
+                                            {payingAppointmentId ===
+                                            appointment.id
+                                                ? "Redirecting..."
+                                                : "Pay Now"}
                                         </Button>
                                     )}
                                 </div>
@@ -565,7 +636,7 @@ function WriteReviewModal({
                             value={comment}
                             onChange={(e) => setComment(e.target.value)}
                             placeholder="Share your experience..."
-                            className="w-full min-h-[100px] p-3 border rounded-md resize-none"
+                            className="w-full min-h-25 p-3 border rounded-md resize-none"
                             rows={4}
                         />
                     </div>

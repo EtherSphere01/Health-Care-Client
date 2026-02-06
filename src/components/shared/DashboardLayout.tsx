@@ -105,7 +105,7 @@ export function DashboardHeader({
     className,
 }: DashboardHeaderProps) {
     return (
-        <div className={cn("mb-10", className)}>
+        <div className={cn("mb-2", className)}>
             {breadcrumbs && breadcrumbs.length > 0 && (
                 <nav className="mb-4" aria-label="Breadcrumb">
                     <ol className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -131,13 +131,11 @@ export function DashboardHeader({
             )}
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                    <h1 className="text-2xl font-bold tracking-tight">
+                    <h1 className="text-2xl md:text-3xl font-semibold tracking-tight text-slate-900">
                         {title}
                     </h1>
                     {description && (
-                        <p className="text-muted-foreground mt-1">
-                            {description}
-                        </p>
+                        <p className="text-slate-500 mt-1">{description}</p>
                     )}
                 </div>
                 {actions && (

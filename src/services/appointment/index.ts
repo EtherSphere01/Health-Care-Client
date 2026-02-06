@@ -24,7 +24,7 @@ export async function getAllAppointments(
         params as Record<string, unknown>,
         {
             tags: [APPOINTMENTS_TAG],
-            revalidate: 30,
+            revalidate: 0,
         },
     );
 }
@@ -40,7 +40,7 @@ export async function getMyAppointments(
         params as Record<string, unknown>,
         {
             tags: [APPOINTMENTS_TAG, "my-appointments"],
-            revalidate: 30,
+            revalidate: 0,
         },
     );
 }
@@ -50,11 +50,11 @@ export async function getMyAppointments(
  */
 export async function createAppointment(
     data: ICreateAppointmentRequest,
-): Promise<IApiResponse<IAppointment>> {
-    const response = await post<IAppointment>("/appointment", data);
-    revalidateTag(APPOINTMENTS_TAG, "max");
-    revalidateTag("my-appointments", "max");
-    revalidateTag("doctor-schedules", "max");
+): Promise<IApiResponse<{ paymentUrl: string }>> {
+    const response = await post<{ paymentUrl: string }>("/appointment", data);
+    revalidateTag(APPOINTMENTS_TAG);
+    revalidateTag("my-appointments");
+    revalidateTag("doctor-schedules");
     return response;
 }
 
@@ -69,7 +69,7 @@ export async function updateAppointmentStatus(
         `/appointment/status/${appointmentId}`,
         data,
     );
-    revalidateTag(APPOINTMENTS_TAG, "max");
-    revalidateTag("my-appointments", "max");
+    revalidateTag(APPOINTMENTS_TAG);
+    revalidateTag("my-appointments");
     return response;
 }

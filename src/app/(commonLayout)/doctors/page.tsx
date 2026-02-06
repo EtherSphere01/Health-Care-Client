@@ -4,6 +4,9 @@ import { getAllSpecialties } from "@/services/specialty";
 import { LoadingState } from "@/components/ui/loading";
 import { DoctorsListContent } from "./DoctorsListContent";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 interface DoctorsPageProps {
     searchParams: Promise<{
         specialty?: string;

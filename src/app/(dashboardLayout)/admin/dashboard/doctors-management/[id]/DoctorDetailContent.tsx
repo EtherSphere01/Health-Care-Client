@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
     ArrowLeft,
@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/card";
 import { updateDoctor } from "@/services/doctor";
 import { toast } from "sonner";
+import { useDashboardBreadcrumbs } from "@/components/shared/DashboardNavigation";
 
 interface DoctorDetailContentProps {
     doctor: IDoctor;
@@ -41,8 +42,14 @@ export function DoctorDetailContent({
     specialties,
 }: DoctorDetailContentProps) {
     const router = useRouter();
+    const { setCurrentPageLabel } = useDashboardBreadcrumbs();
     const [isEditing, setIsEditing] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    useEffect(() => {
+        setCurrentPageLabel(doctor.name);
+        return () => setCurrentPageLabel(undefined);
+    }, [doctor.name, setCurrentPageLabel]);
 
     const initialSpecialtyIds =
         doctor.doctorSpecialties?.map(

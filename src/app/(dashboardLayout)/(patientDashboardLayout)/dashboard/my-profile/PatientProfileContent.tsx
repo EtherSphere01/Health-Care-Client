@@ -12,9 +12,7 @@ import {
     MapPin,
     Lock,
     User,
-    Calendar,
     Heart,
-    AlertCircle,
 } from "lucide-react";
 import { IUser, Gender, MaritalStatus, BloodGroup } from "@/types";
 import { DashboardHeader } from "@/components/shared/DashboardLayout";
@@ -49,10 +47,29 @@ export function PatientProfileContent({ user }: PatientProfileContentProps) {
 
     const patient = user.patient;
 
+    const inputLikeClassName =
+        "file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]";
+
     const [formData, setFormData] = useState({
         name: patient?.name || "",
         contactNumber: patient?.contactNumber || "",
         address: patient?.address || "",
+        patientHealthData: {
+            gender: patient?.patientHealthData?.gender,
+            dateOfBirth: patient?.patientHealthData?.dateOfBirth || "",
+            bloodGroup: patient?.patientHealthData?.bloodGroup,
+            maritalStatus: patient?.patientHealthData?.maritalStatus,
+            height: patient?.patientHealthData?.height || "",
+            weight: patient?.patientHealthData?.weight || "",
+            smokingStatus: Boolean(patient?.patientHealthData?.smokingStatus),
+            hasAllergies: Boolean(patient?.patientHealthData?.hasAllergies),
+            hasDiabetes: Boolean(patient?.patientHealthData?.hasDiabetes),
+            hasPastSurgeries: Boolean(
+                patient?.patientHealthData?.hasPastSurgeries,
+            ),
+            dietaryPreferences:
+                patient?.patientHealthData?.dietaryPreferences || "",
+        },
     });
 
     const [passwordData, setPasswordData] = useState({
@@ -70,6 +87,23 @@ export function PatientProfileContent({ user }: PatientProfileContentProps) {
         e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
     ) => {
         const { name, value } = e.target;
+        const checked =
+            e.target instanceof HTMLInputElement && e.target.type === "checkbox"
+                ? e.target.checked
+                : undefined;
+
+        if (name.startsWith("patientHealthData.")) {
+            const key = name.replace("patientHealthData.", "");
+            setFormData((prev) => ({
+                ...prev,
+                patientHealthData: {
+                    ...prev.patientHealthData,
+                    [key]: checked ?? value,
+                },
+            }));
+            return;
+        }
+
         setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
@@ -139,6 +173,24 @@ export function PatientProfileContent({ user }: PatientProfileContentProps) {
             name: patient?.name || "",
             contactNumber: patient?.contactNumber || "",
             address: patient?.address || "",
+            patientHealthData: {
+                gender: patient?.patientHealthData?.gender,
+                dateOfBirth: patient?.patientHealthData?.dateOfBirth || "",
+                bloodGroup: patient?.patientHealthData?.bloodGroup,
+                maritalStatus: patient?.patientHealthData?.maritalStatus,
+                height: patient?.patientHealthData?.height || "",
+                weight: patient?.patientHealthData?.weight || "",
+                smokingStatus: Boolean(
+                    patient?.patientHealthData?.smokingStatus,
+                ),
+                hasAllergies: Boolean(patient?.patientHealthData?.hasAllergies),
+                hasDiabetes: Boolean(patient?.patientHealthData?.hasDiabetes),
+                hasPastSurgeries: Boolean(
+                    patient?.patientHealthData?.hasPastSurgeries,
+                ),
+                dietaryPreferences:
+                    patient?.patientHealthData?.dietaryPreferences || "",
+            },
         });
         setProfileImage(null);
         setImagePreview(patient?.profilePhoto || null);
@@ -388,10 +440,31 @@ export function PatientProfileContent({ user }: PatientProfileContentProps) {
                                 </div>
                                 <div className="space-y-2">
                                     <Label>Gender</Label>
-                                    <p className="text-sm p-2 bg-muted/50 rounded-md">
-                                        {patient?.patientHealthData?.gender ||
-                                            "Not specified"}
-                                    </p>
+                                    {isEditing ? (
+                                        <select
+                                            name="patientHealthData.gender"
+                                            value={
+                                                formData.patientHealthData
+                                                    .gender ?? ""
+                                            }
+                                            onChange={handleChange}
+                                            className={inputLikeClassName}
+                                        >
+                                            <option value="">
+                                                Not specified
+                                            </option>
+                                            {Object.values(Gender).map((g) => (
+                                                <option key={g} value={g}>
+                                                    {g}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    ) : (
+                                        <p className="text-sm p-2 bg-muted/50 rounded-md">
+                                            {patient?.patientHealthData
+                                                ?.gender || "Not specified"}
+                                        </p>
+                                    )}
                                 </div>
                             </div>
                         </CardContent>
@@ -412,90 +485,255 @@ export function PatientProfileContent({ user }: PatientProfileContentProps) {
                             <div className="grid grid-cols-3 gap-4">
                                 <div className="space-y-2">
                                     <Label>Blood Group</Label>
-                                    <p className="text-sm p-2 bg-muted/50 rounded-md">
-                                        {patient?.patientHealthData
-                                            ?.bloodGroup || "Not specified"}
-                                    </p>
+                                    {isEditing ? (
+                                        <select
+                                            name="patientHealthData.bloodGroup"
+                                            value={
+                                                formData.patientHealthData
+                                                    .bloodGroup ?? ""
+                                            }
+                                            onChange={handleChange}
+                                            className={inputLikeClassName}
+                                        >
+                                            <option value="">
+                                                Not specified
+                                            </option>
+                                            {Object.values(BloodGroup).map(
+                                                (bg) => (
+                                                    <option key={bg} value={bg}>
+                                                        {bg}
+                                                    </option>
+                                                ),
+                                            )}
+                                        </select>
+                                    ) : (
+                                        <p className="text-sm p-2 bg-muted/50 rounded-md">
+                                            {patient?.patientHealthData
+                                                ?.bloodGroup || "Not specified"}
+                                        </p>
+                                    )}
                                 </div>
                                 <div className="space-y-2">
                                     <Label>Marital Status</Label>
-                                    <p className="text-sm p-2 bg-muted/50 rounded-md">
-                                        {patient?.patientHealthData
-                                            ?.maritalStatus || "Not specified"}
-                                    </p>
+                                    {isEditing ? (
+                                        <select
+                                            name="patientHealthData.maritalStatus"
+                                            value={
+                                                formData.patientHealthData
+                                                    .maritalStatus ?? ""
+                                            }
+                                            onChange={handleChange}
+                                            className={inputLikeClassName}
+                                        >
+                                            <option value="">
+                                                Not specified
+                                            </option>
+                                            {Object.values(MaritalStatus).map(
+                                                (ms) => (
+                                                    <option key={ms} value={ms}>
+                                                        {ms}
+                                                    </option>
+                                                ),
+                                            )}
+                                        </select>
+                                    ) : (
+                                        <p className="text-sm p-2 bg-muted/50 rounded-md">
+                                            {patient?.patientHealthData
+                                                ?.maritalStatus ||
+                                                "Not specified"}
+                                        </p>
+                                    )}
                                 </div>
                                 <div className="space-y-2">
                                     <Label>Date of Birth</Label>
-                                    <p className="text-sm p-2 bg-muted/50 rounded-md">
-                                        {formatDate(
-                                            patient?.patientHealthData
-                                                ?.dateOfBirth || "",
-                                        )}
-                                    </p>
+                                    {isEditing ? (
+                                        <Input
+                                            type="date"
+                                            name="patientHealthData.dateOfBirth"
+                                            value={
+                                                formData.patientHealthData
+                                                    .dateOfBirth
+                                            }
+                                            onChange={handleChange}
+                                        />
+                                    ) : (
+                                        <p className="text-sm p-2 bg-muted/50 rounded-md">
+                                            {formatDate(
+                                                patient?.patientHealthData
+                                                    ?.dateOfBirth || "",
+                                            )}
+                                        </p>
+                                    )}
                                 </div>
                                 <div className="space-y-2">
                                     <Label>Height</Label>
-                                    <p className="text-sm p-2 bg-muted/50 rounded-md">
-                                        {patient?.patientHealthData?.height ||
-                                            "N/A"}{" "}
-                                        cm
-                                    </p>
+                                    {isEditing ? (
+                                        <Input
+                                            name="patientHealthData.height"
+                                            value={
+                                                formData.patientHealthData
+                                                    .height
+                                            }
+                                            onChange={handleChange}
+                                            placeholder="cm"
+                                        />
+                                    ) : (
+                                        <p className="text-sm p-2 bg-muted/50 rounded-md">
+                                            {patient?.patientHealthData
+                                                ?.height || "N/A"}{" "}
+                                            cm
+                                        </p>
+                                    )}
                                 </div>
                                 <div className="space-y-2">
                                     <Label>Weight</Label>
-                                    <p className="text-sm p-2 bg-muted/50 rounded-md">
-                                        {patient?.patientHealthData?.weight ||
-                                            "N/A"}{" "}
-                                        kg
-                                    </p>
+                                    {isEditing ? (
+                                        <Input
+                                            name="patientHealthData.weight"
+                                            value={
+                                                formData.patientHealthData
+                                                    .weight
+                                            }
+                                            onChange={handleChange}
+                                            placeholder="kg"
+                                        />
+                                    ) : (
+                                        <p className="text-sm p-2 bg-muted/50 rounded-md">
+                                            {patient?.patientHealthData
+                                                ?.weight || "N/A"}{" "}
+                                            kg
+                                        </p>
+                                    )}
                                 </div>
                                 <div className="space-y-2">
                                     <Label>Smoker</Label>
-                                    <p className="text-sm p-2 bg-muted/50 rounded-md">
-                                        {patient?.patientHealthData
-                                            ?.smokingStatus
-                                            ? "Yes"
-                                            : "No"}
-                                    </p>
+                                    {isEditing ? (
+                                        <label className="flex items-center gap-2 h-9 px-3 rounded-md border border-input bg-transparent">
+                                            <input
+                                                type="checkbox"
+                                                name="patientHealthData.smokingStatus"
+                                                checked={Boolean(
+                                                    formData.patientHealthData
+                                                        .smokingStatus,
+                                                )}
+                                                onChange={handleChange}
+                                            />
+                                            <span className="text-sm">
+                                                Smoker
+                                            </span>
+                                        </label>
+                                    ) : (
+                                        <p className="text-sm p-2 bg-muted/50 rounded-md">
+                                            {patient?.patientHealthData
+                                                ?.smokingStatus
+                                                ? "Yes"
+                                                : "No"}
+                                        </p>
+                                    )}
                                 </div>
                                 <div className="space-y-2">
                                     <Label>Allergies</Label>
-                                    <p className="text-sm p-2 bg-muted/50 rounded-md">
-                                        {patient?.patientHealthData
-                                            ?.hasAllergies
-                                            ? "Yes"
-                                            : "No"}
-                                    </p>
+                                    {isEditing ? (
+                                        <label className="flex items-center gap-2 h-9 px-3 rounded-md border border-input bg-transparent">
+                                            <input
+                                                type="checkbox"
+                                                name="patientHealthData.hasAllergies"
+                                                checked={Boolean(
+                                                    formData.patientHealthData
+                                                        .hasAllergies,
+                                                )}
+                                                onChange={handleChange}
+                                            />
+                                            <span className="text-sm">
+                                                Has allergies
+                                            </span>
+                                        </label>
+                                    ) : (
+                                        <p className="text-sm p-2 bg-muted/50 rounded-md">
+                                            {patient?.patientHealthData
+                                                ?.hasAllergies
+                                                ? "Yes"
+                                                : "No"}
+                                        </p>
+                                    )}
                                 </div>
                                 <div className="space-y-2">
                                     <Label>Diabetes</Label>
-                                    <p className="text-sm p-2 bg-muted/50 rounded-md">
-                                        {patient?.patientHealthData?.hasDiabetes
-                                            ? "Yes"
-                                            : "No"}
-                                    </p>
+                                    {isEditing ? (
+                                        <label className="flex items-center gap-2 h-9 px-3 rounded-md border border-input bg-transparent">
+                                            <input
+                                                type="checkbox"
+                                                name="patientHealthData.hasDiabetes"
+                                                checked={Boolean(
+                                                    formData.patientHealthData
+                                                        .hasDiabetes,
+                                                )}
+                                                onChange={handleChange}
+                                            />
+                                            <span className="text-sm">
+                                                Has diabetes
+                                            </span>
+                                        </label>
+                                    ) : (
+                                        <p className="text-sm p-2 bg-muted/50 rounded-md">
+                                            {patient?.patientHealthData
+                                                ?.hasDiabetes
+                                                ? "Yes"
+                                                : "No"}
+                                        </p>
+                                    )}
                                 </div>
                                 <div className="space-y-2">
                                     <Label>Past Surgeries</Label>
-                                    <p className="text-sm p-2 bg-muted/50 rounded-md">
-                                        {patient?.patientHealthData
-                                            ?.hasPastSurgeries
-                                            ? "Yes"
-                                            : "No"}
-                                    </p>
+                                    {isEditing ? (
+                                        <label className="flex items-center gap-2 h-9 px-3 rounded-md border border-input bg-transparent">
+                                            <input
+                                                type="checkbox"
+                                                name="patientHealthData.hasPastSurgeries"
+                                                checked={Boolean(
+                                                    formData.patientHealthData
+                                                        .hasPastSurgeries,
+                                                )}
+                                                onChange={handleChange}
+                                            />
+                                            <span className="text-sm">
+                                                Past surgeries
+                                            </span>
+                                        </label>
+                                    ) : (
+                                        <p className="text-sm p-2 bg-muted/50 rounded-md">
+                                            {patient?.patientHealthData
+                                                ?.hasPastSurgeries
+                                                ? "Yes"
+                                                : "No"}
+                                        </p>
+                                    )}
                                 </div>
                             </div>
-                            {patient?.patientHealthData?.dietaryPreferences && (
+                            {isEditing ||
+                            patient?.patientHealthData?.dietaryPreferences ? (
                                 <div className="space-y-2">
                                     <Label>Dietary Preferences</Label>
-                                    <p className="text-sm p-2 bg-muted/50 rounded-md">
-                                        {
-                                            patient.patientHealthData
-                                                .dietaryPreferences
-                                        }
-                                    </p>
+                                    {isEditing ? (
+                                        <Input
+                                            name="patientHealthData.dietaryPreferences"
+                                            value={
+                                                formData.patientHealthData
+                                                    .dietaryPreferences
+                                            }
+                                            onChange={handleChange}
+                                            placeholder="Optional"
+                                        />
+                                    ) : (
+                                        <p className="text-sm p-2 bg-muted/50 rounded-md">
+                                            {
+                                                patient?.patientHealthData
+                                                    ?.dietaryPreferences
+                                            }
+                                        </p>
+                                    )}
                                 </div>
-                            )}
+                            ) : null}
                         </CardContent>
                     </Card>
 

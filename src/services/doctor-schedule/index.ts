@@ -23,13 +23,31 @@ export async function getAllDoctorSchedules(
         params as Record<string, unknown>,
         {
             tags: [DOCTOR_SCHEDULES_TAG],
-            revalidate: 30,
+            revalidate: 0,
         },
     );
 }
 
-// Alias for backwards compatibility
-export const getDoctorSchedules = getAllDoctorSchedules;
+/**
+ * Get public doctor schedules with filtering (no authentication required)
+ * Used by public/common pages like Consultation.
+ */
+export async function getPublicDoctorSchedules(
+    params?: IDoctorScheduleQueryParams,
+): Promise<IApiResponse<IDoctorSchedule[]> & { meta?: IMeta }> {
+    return get<IDoctorSchedule[]>(
+        "/doctor-schedule/public",
+        params as Record<string, unknown>,
+        {
+            requireAuth: false,
+            tags: [DOCTOR_SCHEDULES_TAG],
+            revalidate: 0,
+        },
+    );
+}
+
+// Alias used by Consultation
+export const getDoctorSchedules = getPublicDoctorSchedules;
 
 /**
  * Get logged-in doctor's schedules (Doctor only)
@@ -41,7 +59,7 @@ export async function getMyDoctorSchedule(
         IDoctorSchedule[] | { data: IDoctorSchedule[]; meta?: IMeta }
     >("/doctor-schedule/my-schedule", params as Record<string, unknown>, {
         tags: [DOCTOR_SCHEDULES_TAG, "my-schedule"],
-        revalidate: 30,
+        revalidate: 0,
     });
 
     const normalizedData = Array.isArray(response.data)
@@ -66,8 +84,8 @@ export async function createDoctorSchedule(
     data: ICreateDoctorScheduleRequest,
 ): Promise<IApiResponse<IDoctorSchedule[]>> {
     const response = await post<IDoctorSchedule[]>("/doctor-schedule", data);
-    revalidateTag(DOCTOR_SCHEDULES_TAG, "max");
-    revalidateTag("my-schedule", "max");
+    revalidateTag(DOCTOR_SCHEDULES_TAG);
+    revalidateTag("my-schedule");
     return response;
 }
 
@@ -80,7 +98,7 @@ export async function deleteDoctorSchedule(
     const response = await del<IDoctorSchedule>(
         `/doctor-schedule/${scheduleId}`,
     );
-    revalidateTag(DOCTOR_SCHEDULES_TAG, "max");
-    revalidateTag("my-schedule", "max");
+    revalidateTag(DOCTOR_SCHEDULES_TAG);
+    revalidateTag("my-schedule");
     return response;
 }

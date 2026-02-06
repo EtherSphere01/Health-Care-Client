@@ -32,7 +32,7 @@ export default function FAQs() {
                         Frequently Asked Questions
                     </h2>
                     <p className="text-slate-600">
-                        Everything you need to know about NexusHealth
+                        Everything you need to know about Nexus Health
                     </p>
                 </div>
 

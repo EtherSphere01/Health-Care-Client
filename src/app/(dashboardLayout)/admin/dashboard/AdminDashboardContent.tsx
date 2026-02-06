@@ -34,7 +34,7 @@ export function AdminDashboardContent({ meta }: AdminDashboardContentProps) {
     const adminMeta = isAdminMeta(meta) ? meta : null;
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-6">
             <DashboardHeader
                 title="Admin Dashboard"
                 description="Overview of the healthcare system"
@@ -171,28 +171,28 @@ export function AdminDashboardContent({ meta }: AdminDashboardContentProps) {
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         <Link
                             href="/admin/dashboard/doctors-management"
-                            className="p-4 rounded-lg border hover:bg-muted transition-colors text-center"
+                            className="rounded-xl border border-slate-200/70 bg-white/70 p-4 text-center shadow-sm transition-colors hover:bg-slate-50"
                         >
                             <Stethoscope className="h-8 w-8 mx-auto mb-2 text-primary" />
                             <p className="font-medium">Manage Doctors</p>
                         </Link>
                         <Link
                             href="/admin/dashboard/patients-management"
-                            className="p-4 rounded-lg border hover:bg-muted transition-colors text-center"
+                            className="rounded-xl border border-slate-200/70 bg-white/70 p-4 text-center shadow-sm transition-colors hover:bg-slate-50"
                         >
                             <Users className="h-8 w-8 mx-auto mb-2 text-primary" />
                             <p className="font-medium">Manage Patients</p>
                         </Link>
                         <Link
                             href="/admin/dashboard/appointments-management"
-                            className="p-4 rounded-lg border hover:bg-muted transition-colors text-center"
+                            className="rounded-xl border border-slate-200/70 bg-white/70 p-4 text-center shadow-sm transition-colors hover:bg-slate-50"
                         >
                             <Calendar className="h-8 w-8 mx-auto mb-2 text-primary" />
                             <p className="font-medium">View Appointments</p>
                         </Link>
                         <Link
                             href="/admin/dashboard/schedules-management"
-                            className="p-4 rounded-lg border hover:bg-muted transition-colors text-center"
+                            className="rounded-xl border border-slate-200/70 bg-white/70 p-4 text-center shadow-sm transition-colors hover:bg-slate-50"
                         >
                             <Clock className="h-8 w-8 mx-auto mb-2 text-primary" />
                             <p className="font-medium">Manage Schedules</p>

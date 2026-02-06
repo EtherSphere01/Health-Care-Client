@@ -6,7 +6,7 @@ const API_BASE_URL =
 export async function POST(request: Request) {
     try {
         const body = await request.json();
-        const response = await fetch(`${API_BASE_URL}/doctor/suggestion`, {
+        const response = await fetch(`${API_BASE_URL}/doctor/ai-suggestion`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

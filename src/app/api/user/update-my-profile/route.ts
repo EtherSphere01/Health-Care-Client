@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import { revalidateTag } from "next/cache";
 import { NextResponse } from "next/server";
 
 const API_BASE_URL =
@@ -21,6 +22,12 @@ export async function PATCH(request: Request) {
         });
 
         const data = await response.json();
+
+        if (response.ok) {
+            revalidateTag("user");
+            revalidateTag("profile");
+        }
+
         return NextResponse.json(data, { status: response.status });
     } catch (error) {
         return NextResponse.json(

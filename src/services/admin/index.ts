@@ -14,7 +14,7 @@ export async function getAllAdmins(
 ): Promise<IApiResponse<IAdmin[]> & { meta?: IMeta }> {
     return get<IAdmin[]>("/admin", params as Record<string, unknown>, {
         tags: [ADMINS_TAG],
-        revalidate: 60,
+        revalidate: 0,
     });
 }
 
@@ -35,8 +35,8 @@ export async function updateAdmin(
     data: Partial<Pick<IAdmin, "name" | "contactNumber">>,
 ): Promise<IApiResponse<IAdmin>> {
     const response = await patch<IAdmin>(`/admin/${id}`, data);
-    revalidateTag(ADMINS_TAG, "max");
-    revalidateTag(`admin-${id}`, "max");
+    revalidateTag(ADMINS_TAG);
+    revalidateTag(`admin-${id}`);
     return response;
 }
 
@@ -45,7 +45,7 @@ export async function updateAdmin(
  */
 export async function deleteAdmin(id: string): Promise<IApiResponse<IAdmin>> {
     const response = await del<IAdmin>(`/admin/${id}`);
-    revalidateTag(ADMINS_TAG, "max");
+    revalidateTag(ADMINS_TAG);
     return response;
 }
 
@@ -56,6 +56,6 @@ export async function softDeleteAdmin(
     id: string,
 ): Promise<IApiResponse<IAdmin>> {
     const response = await del<IAdmin>(`/admin/soft/${id}`);
-    revalidateTag(ADMINS_TAG, "max");
+    revalidateTag(ADMINS_TAG);
     return response;
 }

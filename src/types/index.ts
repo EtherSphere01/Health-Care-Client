@@ -344,12 +344,38 @@ export interface IUpdateProfileRequest {
     contactNumber?: string;
     address?: string;
     // Doctor specific
+    registrationNumber?: string;
+    experience?: number;
+    gender?: Gender;
     appointmentFee?: number;
     qualification?: string;
     currentWorkingPlace?: string;
     designation?: string;
     specialties?: string[];
     removeSpecialties?: string[];
+
+    // Patient specific
+    patientHealthData?: Partial<
+        Pick<
+            IPatientHealthData,
+            | "gender"
+            | "dateOfBirth"
+            | "bloodGroup"
+            | "hasAllergies"
+            | "hasDiabetes"
+            | "height"
+            | "weight"
+            | "smokingStatus"
+            | "dietaryPreferences"
+            | "pregnancyStatus"
+            | "mentalHealthHistory"
+            | "immunizationStatus"
+            | "hasPastSurgeries"
+            | "recentAnxiety"
+            | "recentDepression"
+            | "maritalStatus"
+        >
+    >;
 }
 
 // ============================================
@@ -514,6 +540,13 @@ export interface IPatientDashboardMeta {
         completed: number;
         canceled: number;
     };
+}
+
+export interface IPatientDashboardSummary {
+    nextAppointment: IAppointment | null;
+    latestPrescription: IPrescription | null;
+    outstandingPayments: number;
+    profileCompletion: number;
 }
 
 export type IDashboardMeta =

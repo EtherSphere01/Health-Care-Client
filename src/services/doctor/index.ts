@@ -12,17 +12,82 @@ import { revalidateTag } from "next/cache";
 
 const DOCTORS_TAG = "doctors";
 
+type BackendDoctorSpecialty = {
+    specialtyId?: string;
+    specialitiesId?: string;
+    specialityId?: string;
+    doctorId?: string;
+    specialty?: Partial<{ id: string; title: string }>;
+    specialities?: Partial<{ id: string; title: string }>;
+} & Record<string, unknown>;
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+    return typeof value === "object" && value !== null;
+}
+
+function normalizeDoctor<T extends IDoctor>(doctor: unknown): T {
+    const raw = isRecord(doctor) ? doctor : ({} as Record<string, unknown>);
+    const rawDoctorSpecialties = raw.doctorSpecialties;
+
+    const doctorSpecialties = Array.isArray(rawDoctorSpecialties)
+        ? rawDoctorSpecialties.map((dsUnknown) => {
+              const ds: BackendDoctorSpecialty = isRecord(dsUnknown)
+                  ? (dsUnknown as BackendDoctorSpecialty)
+                  : ({} as BackendDoctorSpecialty);
+
+              const specialtyId =
+                  ds.specialtyId ?? ds.specialitiesId ?? ds.specialityId;
+              const specialities = ds.specialities;
+              const specialty =
+                  ds.specialty ??
+                  (specialities
+                      ? {
+                            ...specialities,
+                            id:
+                                (specialities as { id?: string }).id ??
+                                specialtyId,
+                        }
+                      : specialtyId
+                        ? { id: specialtyId, title: "" }
+                        : undefined);
+
+              return {
+                  ...ds,
+                  specialtyId,
+                  specialitiesId: ds.specialitiesId ?? specialtyId,
+                  specialty,
+                  specialities,
+              };
+          })
+        : undefined;
+
+    return {
+        ...(raw as Record<string, unknown>),
+        ...(doctorSpecialties ? { doctorSpecialties } : null),
+    } as T;
+}
+
 /**
  * Get all doctors with pagination and filtering (Public)
  */
 export async function getAllDoctors(
     params?: IDoctorQueryParams,
 ): Promise<IApiResponse<IDoctor[]> & { meta?: IMeta }> {
-    return get<IDoctor[]>("/doctor", params as Record<string, unknown>, {
-        tags: [DOCTORS_TAG],
-        revalidate: 60,
-        requireAuth: false,
-    });
+    const response = await get<IDoctor[]>(
+        "/doctor",
+        params as Record<string, unknown>,
+        {
+            tags: [DOCTORS_TAG],
+            revalidate: 0,
+            requireAuth: false,
+        },
+    );
+
+    if (response.success && Array.isArray(response.data)) {
+        response.data = response.data.map((d) => normalizeDoctor(d));
+    }
+
+    return response;
 }
 
 /**
@@ -31,10 +96,16 @@ export async function getAllDoctors(
 export async function getDoctorById(
     id: string,
 ): Promise<IApiResponse<IDoctor>> {
-    return get<IDoctor>(`/doctor/${id}`, undefined, {
+    const response = await get<IDoctor>(`/doctor/${id}`, undefined, {
         tags: [DOCTORS_TAG, `doctor-${id}`],
         requireAuth: false,
     });
+
+    if (response.success && response.data) {
+        response.data = normalizeDoctor(response.data);
+    }
+
+    return response;
 }
 
 /**
@@ -70,8 +141,8 @@ export async function updateDoctor(
     },
 ): Promise<IApiResponse<IDoctor>> {
     const response = await patch<IDoctor>(`/doctor/${id}`, data);
-    revalidateTag(DOCTORS_TAG, "max");
-    revalidateTag(`doctor-${id}`, "max");
+    revalidateTag(DOCTORS_TAG);
+    revalidateTag(`doctor-${id}`);
     return response;
 }
 
@@ -80,7 +151,7 @@ export async function updateDoctor(
  */
 export async function deleteDoctor(id: string): Promise<IApiResponse<IDoctor>> {
     const response = await del<IDoctor>(`/doctor/${id}`);
-    revalidateTag(DOCTORS_TAG, "max");
+    revalidateTag(DOCTORS_TAG);
     return response;
 }
 
@@ -91,6 +162,6 @@ export async function softDeleteDoctor(
     id: string,
 ): Promise<IApiResponse<IDoctor>> {
     const response = await del<IDoctor>(`/doctor/soft/${id}`);
-    revalidateTag(DOCTORS_TAG, "max");
+    revalidateTag(DOCTORS_TAG);
     return response;
 }

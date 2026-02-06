@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-    title: "Health Care Client ",
-    description: "Health Care Client Application",
+    title: "Nexus Health Client",
+    description: "Nexus Health client application",
 };
 
 export default function RootLayout({
@@ -29,7 +29,7 @@ export default function RootLayout({
                 className={`${geistSans.variable} ${geistMono.variable} antialiased`}
             >
                 {children}
-                <Toaster position="top-right"  />
+                <Toaster position="top-right" />
             </body>
         </html>
     );

@@ -13,12 +13,15 @@ import Image from "next/image";
 import React, { useState } from "react";
 import Link from "next/link";
 import { IDoctor } from "@/types";
+import { useRouter } from "next/navigation";
 
 interface DoctorsListProps {
     doctors: IDoctor[];
+    error?: string | null;
 }
 
-export default function DoctorsList({ doctors }: DoctorsListProps) {
+export default function DoctorsList({ doctors, error }: DoctorsListProps) {
+    const router = useRouter();
     const [showAllDoctors, setShowAllDoctors] = useState(false);
 
     const enhancedDoctors = doctors.map((doctor) => {
@@ -49,6 +52,54 @@ export default function DoctorsList({ doctors }: DoctorsListProps) {
     const displayedDoctors = showAllDoctors
         ? enhancedDoctors
         : enhancedDoctors.slice(0, 3);
+
+    // Error state
+    if (error) {
+        return (
+            <section
+                id="doctors"
+                className="py-24 bg-slate-50 relative overflow-hidden"
+            >
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="text-center py-16">
+                        <h2 className="text-2xl font-bold text-destructive mb-4">
+                            Failed to Load Doctors
+                        </h2>
+                        <p className="text-muted-foreground">{error}</p>
+                        <Button
+                            onClick={() => router.refresh()}
+                            variant="outline"
+                            className="mt-6"
+                        >
+                            Retry
+                        </Button>
+                    </div>
+                </div>
+            </section>
+        );
+    }
+
+    // Empty state
+    if (doctors.length === 0) {
+        return (
+            <section
+                id="doctors"
+                className="py-24 bg-slate-50 relative overflow-hidden"
+            >
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="text-center py-16">
+                        <h2 className="text-2xl font-bold text-slate-900 mb-4">
+                            No Doctors Available
+                        </h2>
+                        <p className="text-slate-600">
+                            Check back soon for our medical team updates.
+                        </p>
+                    </div>
+                </div>
+            </section>
+        );
+    }
+
     return (
         <section
             id="doctors"

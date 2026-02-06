@@ -8,6 +8,7 @@ import {
     IAdminDashboardMeta,
     IDoctorDashboardMeta,
     IPatientDashboardMeta,
+    IPatientDashboardSummary,
 } from "@/types";
 
 type RawMetaResponse = Record<string, unknown> & {
@@ -121,11 +122,20 @@ export async function getDashboardMeta(): Promise<
 > {
     const response = await get<RawMetaResponse>("/meta", undefined, {
         tags: ["meta", "dashboard"],
-        revalidate: 30,
+        revalidate: 0,
     });
 
     return {
         ...response,
         data: normalizeDashboardMeta(response.data ?? {}),
     } as IApiResponse<IDashboardMeta>;
+}
+
+export async function getPatientDashboardSummary(): Promise<
+    IApiResponse<IPatientDashboardSummary>
+> {
+    return get<IPatientDashboardSummary>("/meta/patient-summary", undefined, {
+        tags: ["meta", "patient-summary"],
+        revalidate: 0,
+    });
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
     MoreHorizontal,
@@ -25,6 +25,7 @@ import { ConfirmDialog } from "@/components/ui/dialog";
 import { EmptyState } from "@/components/ui/empty-state";
 import { softDeletePatient } from "@/services/patient";
 import { toast } from "sonner";
+import { useDebounce } from "@/hooks/usePagination";
 
 interface PatientsManagementContentProps {
     patients: IPatient[];
@@ -46,6 +47,7 @@ export function PatientsManagementContent({
     const [isPending, startTransition] = useTransition();
 
     const [searchTerm, setSearchTerm] = useState(currentFilters.searchTerm);
+    const debouncedSearchTerm = useDebounce(searchTerm, 300);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [patientToDelete, setPatientToDelete] = useState<IPatient | null>(
         null,
@@ -72,6 +74,16 @@ export function PatientsManagementContent({
     const handleSearch = () => {
         updateFilters({ searchTerm });
     };
+
+    useEffect(() => {
+        setSearchTerm(currentFilters.searchTerm);
+    }, [currentFilters.searchTerm]);
+
+    useEffect(() => {
+        if (debouncedSearchTerm === currentFilters.searchTerm) return;
+        updateFilters({ searchTerm: debouncedSearchTerm });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [debouncedSearchTerm, currentFilters.searchTerm]);
 
     const handleDelete = async () => {
         if (!patientToDelete) return;
@@ -126,7 +138,7 @@ export function PatientsManagementContent({
                 <div className="space-y-1">
                     <div className="flex items-center gap-1 text-sm">
                         <Mail className="h-3 w-3 text-muted-foreground" />
-                        <span className="truncate max-w-[150px]">
+                        <span className="truncate max-w-37.5">
                             {patient.email}
                         </span>
                     </div>
@@ -141,7 +153,7 @@ export function PatientsManagementContent({
             id: "address",
             header: "Address",
             cell: (patient: IPatient) => (
-                <div className="max-w-[200px] truncate text-sm text-muted-foreground">
+                <div className="max-w-50 truncate text-sm text-muted-foreground">
                     {patient.address || "Not provided"}
                 </div>
             ),
@@ -205,7 +217,7 @@ export function PatientsManagementContent({
 
             {/* Filters */}
             <FilterBar>
-                <div className="flex-1 min-w-[200px]">
+                <div className="flex-1 min-w-50">
                     <SearchInput
                         placeholder="Search patients..."
                         value={searchTerm}

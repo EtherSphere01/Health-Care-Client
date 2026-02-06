@@ -6,15 +6,16 @@ import {
     FileText,
     Clock,
     CheckCircle,
-    XCircle,
     AlertCircle,
     Stethoscope,
+    User,
 } from "lucide-react";
 import {
     IAppointment,
     IPrescription,
     AppointmentStatus,
-    PaymentStatus,
+    IPatientDashboardMeta,
+    IPatientDashboardSummary,
 } from "@/types";
 import { DashboardHeader } from "@/components/shared/DashboardLayout";
 import { StatsGrid, StatCard } from "@/components/ui/stat-card";
@@ -26,31 +27,40 @@ import {
     CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import {
-    AppointmentStatusBadge,
-    PaymentStatusBadge,
-} from "@/components/ui/badge";
+import { AppointmentStatusBadge } from "@/components/ui/badge";
 
 interface PatientDashboardContentProps {
     appointments: IAppointment[];
     prescriptions: IPrescription[];
+    meta: IPatientDashboardMeta | null;
+    summary: IPatientDashboardSummary | null;
 }
 
 export function PatientDashboardContent({
     appointments,
     prescriptions,
+    meta,
+    summary,
 }: PatientDashboardContentProps) {
-    // Calculate stats
-    const totalAppointments = appointments.length;
-    const upcomingAppointments = appointments.filter(
-        (a) => a.status === AppointmentStatus.SCHEDULED,
-    ).length;
-    const completedAppointments = appointments.filter(
-        (a) => a.status === AppointmentStatus.COMPLETED,
-    ).length;
-    const totalPrescriptions = prescriptions.length;
+    const patientMeta = meta && "prescriptionCount" in meta ? meta : null;
+    const appointmentSummary = summary?.nextAppointment;
+    const latestPrescription = summary?.latestPrescription;
 
-    const formatDate = (date: string) => {
+    const totalAppointments =
+        patientMeta?.appointmentCount ?? appointments.length;
+    const upcomingAppointments =
+        patientMeta?.appointmentStatusDistribution.scheduled ??
+        appointments.filter((a) => a.status === AppointmentStatus.SCHEDULED)
+            .length;
+    const completedAppointments =
+        patientMeta?.appointmentStatusDistribution.completed ??
+        appointments.filter((a) => a.status === AppointmentStatus.COMPLETED)
+            .length;
+    const totalPrescriptions =
+        patientMeta?.prescriptionCount ?? prescriptions.length;
+
+    const formatDate = (date?: string) => {
+        if (!date) return "N/A";
         return new Date(date).toLocaleDateString("en-US", {
             month: "short",
             day: "numeric",
@@ -58,16 +68,16 @@ export function PatientDashboardContent({
         });
     };
 
-    const formatTime = (time: string) => {
-        const [hours, minutes] = time.split(":");
-        const hour = parseInt(hours);
-        const ampm = hour >= 12 ? "PM" : "AM";
-        const formattedHour = hour % 12 || 12;
-        return `${formattedHour}:${minutes} ${ampm}`;
+    const formatTime = (dateTime?: string) => {
+        if (!dateTime) return "N/A";
+        return new Date(dateTime).toLocaleTimeString("en-US", {
+            hour: "numeric",
+            minute: "2-digit",
+        });
     };
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-5">
             <DashboardHeader
                 title="Patient Dashboard"
                 description="Welcome back! Here's an overview of your health journey."
@@ -146,7 +156,7 @@ export function PatientDashboardContent({
                                 {appointments.slice(0, 5).map((appointment) => (
                                     <div
                                         key={appointment.id}
-                                        className="flex items-center justify-between p-3 rounded-lg bg-muted/50"
+                                        className="flex items-center justify-between rounded-xl border border-slate-200/70 bg-white/70 p-3 shadow-sm"
                                     >
                                         <div className="flex items-center gap-3">
                                             <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden">
@@ -176,14 +186,12 @@ export function PatientDashboardContent({
                                                 <p className="text-xs text-muted-foreground">
                                                     {formatDate(
                                                         appointment.schedule
-                                                            ?.startDateTime ||
-                                                            "",
+                                                            ?.startDateTime,
                                                     )}{" "}
                                                     •{" "}
                                                     {formatTime(
                                                         appointment.schedule
-                                                            ?.startDateTime ||
-                                                            "",
+                                                            ?.startDateTime,
                                                     )}
                                                 </p>
                                             </div>
@@ -228,7 +236,7 @@ export function PatientDashboardContent({
                                     .map((prescription) => (
                                         <div
                                             key={prescription.id}
-                                            className="flex items-center justify-between p-3 rounded-lg bg-muted/50"
+                                            className="flex items-center justify-between rounded-xl border border-slate-200/70 bg-white/70 p-3 shadow-sm"
                                         >
                                             <div>
                                                 <p className="font-medium text-sm">
@@ -265,48 +273,132 @@ export function PatientDashboardContent({
                 </Card>
             </div>
 
-            {/* Quick Actions */}
+            {/* Care Summary */}
             <Card>
                 <CardHeader>
-                    <CardTitle className="text-lg">Quick Actions</CardTitle>
+                    <CardTitle className="text-lg">Care Summary</CardTitle>
                     <CardDescription>
-                        Common tasks you might want to do
+                        Key updates based on your latest activity
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <Link href="/consultation">
-                            <div className="p-4 rounded-lg bg-primary/5 hover:bg-primary/10 transition-colors text-center cursor-pointer">
-                                <Stethoscope className="h-8 w-8 mx-auto mb-2 text-primary" />
-                                <p className="text-sm font-medium">
-                                    Book Appointment
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+                        <div className="rounded-xl border border-slate-200/70 bg-white/70 p-4 shadow-sm">
+                            <div className="flex items-center justify-between">
+                                <p className="text-sm font-medium text-slate-700">
+                                    Next Appointment
                                 </p>
+                                <Calendar className="h-4 w-4 text-slate-400" />
                             </div>
-                        </Link>
-                        <Link href="/dashboard/my-appointments">
-                            <div className="p-4 rounded-lg bg-blue-500/5 hover:bg-blue-500/10 transition-colors text-center cursor-pointer">
-                                <Calendar className="h-8 w-8 mx-auto mb-2 text-blue-500" />
-                                <p className="text-sm font-medium">
-                                    View Appointments
+                            {appointmentSummary ? (
+                                <div className="mt-3 space-y-1">
+                                    <p className="text-sm font-semibold text-slate-900">
+                                        Dr. {appointmentSummary.doctor?.name}
+                                    </p>
+                                    <p className="text-xs text-slate-500">
+                                        {formatDate(
+                                            appointmentSummary.schedule
+                                                ?.startDateTime,
+                                        )}{" "}
+                                        at{" "}
+                                        {formatTime(
+                                            appointmentSummary.schedule
+                                                ?.startDateTime,
+                                        )}
+                                    </p>
+                                </div>
+                            ) : (
+                                <p className="mt-3 text-sm text-slate-500">
+                                    No upcoming appointment
                                 </p>
-                            </div>
-                        </Link>
-                        <Link href="/dashboard/my-prescriptions">
-                            <div className="p-4 rounded-lg bg-green-500/5 hover:bg-green-500/10 transition-colors text-center cursor-pointer">
-                                <FileText className="h-8 w-8 mx-auto mb-2 text-green-500" />
-                                <p className="text-sm font-medium">
-                                    View Prescriptions
+                            )}
+                            <Link
+                                href="/dashboard/my-appointments"
+                                className="mt-3 inline-flex text-xs font-medium text-indigo-600 hover:text-indigo-700"
+                            >
+                                View appointments
+                            </Link>
+                        </div>
+
+                        <div className="rounded-xl border border-slate-200/70 bg-white/70 p-4 shadow-sm">
+                            <div className="flex items-center justify-between">
+                                <p className="text-sm font-medium text-slate-700">
+                                    Latest Prescription
                                 </p>
+                                <FileText className="h-4 w-4 text-slate-400" />
                             </div>
-                        </Link>
-                        <Link href="/dashboard/my-profile">
-                            <div className="p-4 rounded-lg bg-amber-500/5 hover:bg-amber-500/10 transition-colors text-center cursor-pointer">
-                                <AlertCircle className="h-8 w-8 mx-auto mb-2 text-amber-500" />
-                                <p className="text-sm font-medium">
-                                    Update Profile
+                            {latestPrescription ? (
+                                <div className="mt-3 space-y-1">
+                                    <p className="text-sm font-semibold text-slate-900">
+                                        Dr. {latestPrescription.doctor?.name}
+                                    </p>
+                                    <p className="text-xs text-slate-500">
+                                        {formatDate(
+                                            latestPrescription.createdAt,
+                                        )}
+                                    </p>
+                                </div>
+                            ) : (
+                                <p className="mt-3 text-sm text-slate-500">
+                                    No prescriptions yet
                                 </p>
+                            )}
+                            <Link
+                                href="/dashboard/my-prescriptions"
+                                className="mt-3 inline-flex text-xs font-medium text-indigo-600 hover:text-indigo-700"
+                            >
+                                View prescriptions
+                            </Link>
+                        </div>
+
+                        <div className="rounded-xl border border-slate-200/70 bg-white/70 p-4 shadow-sm">
+                            <div className="flex items-center justify-between">
+                                <p className="text-sm font-medium text-slate-700">
+                                    Outstanding Payments
+                                </p>
+                                <AlertCircle className="h-4 w-4 text-slate-400" />
                             </div>
-                        </Link>
+                            <p className="mt-3 text-2xl font-semibold text-slate-900">
+                                {summary?.outstandingPayments ?? 0}
+                            </p>
+                            <p className="text-xs text-slate-500">
+                                {summary?.outstandingPayments
+                                    ? "Payments pending"
+                                    : "All payments settled"}
+                            </p>
+                            <Link
+                                href="/dashboard/my-appointments"
+                                className="mt-3 inline-flex text-xs font-medium text-indigo-600 hover:text-indigo-700"
+                            >
+                                Review billing
+                            </Link>
+                        </div>
+
+                        <div className="rounded-xl border border-slate-200/70 bg-white/70 p-4 shadow-sm">
+                            <div className="flex items-center justify-between">
+                                <p className="text-sm font-medium text-slate-700">
+                                    Profile Completion
+                                </p>
+                                <User className="h-4 w-4 text-slate-400" />
+                            </div>
+                            <p className="mt-3 text-2xl font-semibold text-slate-900">
+                                {summary?.profileCompletion ?? 0}%
+                            </p>
+                            <div className="mt-2 h-2 w-full rounded-full bg-slate-100">
+                                <div
+                                    className="h-2 rounded-full bg-indigo-500"
+                                    style={{
+                                        width: `${summary?.profileCompletion ?? 0}%`,
+                                    }}
+                                />
+                            </div>
+                            <Link
+                                href="/dashboard/my-profile"
+                                className="mt-3 inline-flex text-xs font-medium text-indigo-600 hover:text-indigo-700"
+                            >
+                                Update profile
+                            </Link>
+                        </div>
                     </div>
                 </CardContent>
             </Card>

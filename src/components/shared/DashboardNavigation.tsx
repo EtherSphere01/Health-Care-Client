@@ -502,13 +502,13 @@ export function DashboardTopbar({ onMenuClick, title }: DashboardTopbarProps) {
                         </button>
 
                         {notificationOpen && (
-                            <div className="absolute right-0 mt-2 w-80 rounded-lg border bg-white shadow-lg overflow-hidden z-50">
-                                <div className="px-4 py-3 border-b flex items-center justify-between gap-3">
+                            <div className="absolute right-0 mt-2 w-80 rounded-lg border border-indigo-100 bg-white shadow-lg overflow-hidden z-50">
+                                <div className="px-4 py-3 border-b border-indigo-100 flex items-center justify-between gap-3 bg-indigo-50/60">
                                     <div>
-                                        <p className="text-sm font-medium text-slate-900">
+                                        <p className="text-sm font-medium text-indigo-950">
                                             Notifications
                                         </p>
-                                        <p className="text-xs text-slate-500">
+                                        <p className="text-xs text-indigo-700">
                                             {unreadCount > 0
                                                 ? `${unreadCount} unread`
                                                 : "All caught up"}
@@ -518,7 +518,7 @@ export function DashboardTopbar({ onMenuClick, title }: DashboardTopbarProps) {
                                         type="button"
                                         variant="ghost"
                                         size="sm"
-                                        className="text-xs"
+                                        className="text-xs text-indigo-700 hover:text-indigo-900"
                                         disabled={unreadCount === 0}
                                         onClick={async () => {
                                             await markAllRead();
@@ -529,11 +529,11 @@ export function DashboardTopbar({ onMenuClick, title }: DashboardTopbarProps) {
                                 </div>
                                 <div className="max-h-96 overflow-auto">
                                     {notificationsLoading ? (
-                                        <div className="px-4 py-6 text-sm text-slate-500">
+                                        <div className="px-4 py-6 text-sm text-indigo-700">
                                             Loading...
                                         </div>
                                     ) : notifications.length === 0 ? (
-                                        <div className="px-4 py-6 text-sm text-slate-500">
+                                        <div className="px-4 py-6 text-sm text-indigo-700">
                                             No notifications
                                         </div>
                                     ) : (
@@ -541,8 +541,9 @@ export function DashboardTopbar({ onMenuClick, title }: DashboardTopbarProps) {
                                             <button
                                                 key={n.id}
                                                 className={cn(
-                                                    "w-full text-left px-4 py-3 border-b last:border-b-0 hover:bg-slate-50",
-                                                    !n.isRead && "bg-slate-50",
+                                                    "w-full text-left px-4 py-3 border-b border-indigo-100/70 last:border-b-0 hover:bg-indigo-50/60",
+                                                    !n.isRead &&
+                                                        "bg-indigo-50/60",
                                                 )}
                                                 onClick={async () => {
                                                     setNotificationOpen(false);
@@ -584,10 +585,10 @@ export function DashboardTopbar({ onMenuClick, title }: DashboardTopbarProps) {
                                                     }
                                                 }}
                                             >
-                                                <p className="text-sm font-medium text-slate-900">
+                                                <p className="text-sm font-medium text-indigo-950">
                                                     {n.title}
                                                 </p>
-                                                <p className="text-xs text-slate-600 mt-1">
+                                                <p className="text-xs text-indigo-800/80 mt-1">
                                                     {n.message}
                                                 </p>
                                             </button>

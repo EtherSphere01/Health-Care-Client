@@ -22,7 +22,7 @@ export default function PublicNavbar() {
     const navItems = [
         { name: "Home", href: "/" },
         { name: "Consultation", href: "/consultation" },
-        { name: "Health Plans", href: "/health-plans" },
+        { name: "Doctors", href: "/doctors" },
         { name: "Diagnostics", href: "/diagnostics" },
         { name: "NGOs", href: "/ngos" },
     ];

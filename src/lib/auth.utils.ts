@@ -31,7 +31,7 @@ export const commonProtectedRoutes: RouteConfig = {
 };
 
 export const doctorProtectedRoutes: RouteConfig = {
-    pattern: [/^\/doctor/, /^\/appointments/],
+    pattern: [/^\/doctor(\/|$)/, /^\/appointments(\/|$)/],
     exact: [], // /assistant
 };
 export const adminProtectedRoutes: RouteConfig = {

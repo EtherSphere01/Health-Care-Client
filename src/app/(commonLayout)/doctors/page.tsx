@@ -87,7 +87,7 @@ export default async function DoctorsPage({
     );
 
     return (
-        <div className="bg-slate-50">
+        <div className="bg-slate-50 pt-28 lg:pt-32">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
                 <div className="mb-6">
                     <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
@@ -145,7 +145,7 @@ export default async function DoctorsPage({
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3  gap-6">
                                     {deptDoctors.map((doctor) => (
                                         <DoctorCard
                                             key={doctor.id}

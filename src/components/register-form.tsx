@@ -17,7 +17,8 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
-import { useActionState, useEffect, useRef } from "react";
+import { Eye, EyeOff } from "lucide-react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { registerPatient } from "@/services/auth/registerPatient";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
@@ -28,6 +29,7 @@ export function RegisterForm({
 }: React.ComponentProps<"div">) {
     const router = useRouter();
     const hasRedirected = useRef(false);
+    const [showPasswords, setShowPasswords] = useState(false);
     const [state, formAction, isPending] = useActionState(
         registerPatient,
         null,
@@ -63,9 +65,9 @@ export function RegisterForm({
 
     return (
         <div className={cn("flex flex-col gap-6", className)} {...props}>
-            <Card>
+            <Card className="border-primary/10 shadow-lg rounded-2xl bg-linear-to-br from-white to-indigo-50/40">
                 <CardHeader className="text-center">
-                    <CardTitle className="text-xl">
+                    <CardTitle className="text-2xl tracking-tight">
                         Create your account
                     </CardTitle>
                     <CardDescription>
@@ -115,15 +117,40 @@ export function RegisterForm({
                                         <FieldLabel htmlFor="password">
                                             Password
                                         </FieldLabel>
-                                        <Input
-                                            id="password"
-                                            name="password"
-                                            type="password"
-                                            defaultValue={
-                                                state?.values?.password
-                                            }
-                                            required
-                                        />
+                                        <div className="relative">
+                                            <Input
+                                                id="password"
+                                                name="password"
+                                                type={
+                                                    showPasswords
+                                                        ? "text"
+                                                        : "password"
+                                                }
+                                                defaultValue={
+                                                    state?.values?.password
+                                                }
+                                                required
+                                                className="pr-10"
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() =>
+                                                    setShowPasswords((v) => !v)
+                                                }
+                                                className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                                                aria-label={
+                                                    showPasswords
+                                                        ? "Hide passwords"
+                                                        : "Show passwords"
+                                                }
+                                            >
+                                                {showPasswords ? (
+                                                    <EyeOff className="h-4 w-4" />
+                                                ) : (
+                                                    <Eye className="h-4 w-4" />
+                                                )}
+                                            </button>
+                                        </div>
                                         {getFieldError("password") && (
                                             <FieldDescription className="text-red-600">
                                                 {getFieldError("password")}
@@ -134,15 +161,41 @@ export function RegisterForm({
                                         <FieldLabel htmlFor="confirmPassword">
                                             Confirm Password
                                         </FieldLabel>
-                                        <Input
-                                            id="confirmPassword"
-                                            name="confirmPassword"
-                                            type="password"
-                                            defaultValue={
-                                                state?.values?.confirmPassword
-                                            }
-                                            required
-                                        />
+                                        <div className="relative">
+                                            <Input
+                                                id="confirmPassword"
+                                                name="confirmPassword"
+                                                type={
+                                                    showPasswords
+                                                        ? "text"
+                                                        : "password"
+                                                }
+                                                defaultValue={
+                                                    state?.values
+                                                        ?.confirmPassword
+                                                }
+                                                required
+                                                className="pr-10"
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() =>
+                                                    setShowPasswords((v) => !v)
+                                                }
+                                                className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                                                aria-label={
+                                                    showPasswords
+                                                        ? "Hide passwords"
+                                                        : "Show passwords"
+                                                }
+                                            >
+                                                {showPasswords ? (
+                                                    <EyeOff className="h-4 w-4" />
+                                                ) : (
+                                                    <Eye className="h-4 w-4" />
+                                                )}
+                                            </button>
+                                        </div>
                                         {getFieldError("confirmPassword") && (
                                             <FieldDescription className="text-red-600">
                                                 {getFieldError(

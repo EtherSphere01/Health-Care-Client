@@ -14,8 +14,11 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-    title: "Nexus Health Client",
-    description: "Nexus Health client application",
+    title: "Nexus Health",
+    description: "Nexus Health application",
+    icons: {
+        icon: "/favicon.svg",
+    },
 };
 
 export default function RootLayout({

@@ -35,6 +35,7 @@ export function VerifyOtpForm({
     const router = useRouter();
     const hasRedirected = useRef(false);
     const hasShownSentToast = useRef(false);
+    const otpInputsRef = useRef<Array<HTMLInputElement | null>>([]);
     const [state, formAction, isPending] = useActionState(
         verifyPatientOtp,
         null,
@@ -80,9 +81,11 @@ export function VerifyOtpForm({
             )}
             {...props}
         >
-            <Card className="w-full max-w-md">
+            <Card className="w-full max-w-md border-primary/10 shadow-lg rounded-2xl bg-linear-to-br from-white to-indigo-50/40">
                 <CardHeader className="text-center">
-                    <CardTitle className="text-xl">Verify your email</CardTitle>
+                    <CardTitle className="text-2xl tracking-tight">
+                        Verify your email
+                    </CardTitle>
                     <CardDescription>
                         Enter the 6-digit code sent to your email
                     </CardDescription>
@@ -111,23 +114,75 @@ export function VerifyOtpForm({
                             </Field>
                             <Field>
                                 <FieldLabel htmlFor="otp">OTP Code</FieldLabel>
-                                <Input
+                                <input
+                                    type="hidden"
                                     id="otp"
                                     name="otp"
-                                    type="text"
-                                    inputMode="numeric"
-                                    autoComplete="one-time-code"
-                                    maxLength={6}
-                                    placeholder="6-digit code"
                                     defaultValue={state?.values?.otp}
-                                    onInput={(e) => {
-                                        const input = e.currentTarget;
-                                        input.value = input.value
-                                            .replace(/\D/g, "")
-                                            .slice(0, 6);
-                                    }}
-                                    required
                                 />
+                                <div
+                                    className="mt-2 grid grid-cols-6 gap-2"
+                                    role="group"
+                                    aria-label="OTP code"
+                                >
+                                    {Array.from({ length: 6 }).map((_, idx) => (
+                                        <Input
+                                            key={idx}
+                                            type="text"
+                                            inputMode="numeric"
+                                            autoComplete={
+                                                idx === 0
+                                                    ? "one-time-code"
+                                                    : "off"
+                                            }
+                                            maxLength={1}
+                                            className="h-12 text-center text-lg font-semibold rounded-xl"
+                                            defaultValue={
+                                                (state?.values?.otp ?? "")[
+                                                    idx
+                                                ] ?? ""
+                                            }
+                                            ref={(el) => {
+                                                otpInputsRef.current[idx] = el;
+                                            }}
+                                            onChange={(e) => {
+                                                const digit = e.target.value
+                                                    .replace(/\D/g, "")
+                                                    .slice(0, 1);
+                                                e.target.value = digit;
+
+                                                const otp = otpInputsRef.current
+                                                    .map((x) => x?.value ?? "")
+                                                    .join("");
+                                                const hidden =
+                                                    document.getElementById(
+                                                        "otp",
+                                                    ) as HTMLInputElement | null;
+                                                if (hidden) hidden.value = otp;
+
+                                                if (digit && idx < 5) {
+                                                    otpInputsRef.current[
+                                                        idx + 1
+                                                    ]?.focus();
+                                                }
+                                            }}
+                                            onKeyDown={(e) => {
+                                                if (
+                                                    e.key === "Backspace" &&
+                                                    !(
+                                                        e.currentTarget.value ??
+                                                        ""
+                                                    ) &&
+                                                    idx > 0
+                                                ) {
+                                                    otpInputsRef.current[
+                                                        idx - 1
+                                                    ]?.focus();
+                                                }
+                                            }}
+                                        />
+                                    ))}
+                                </div>
                                 {getFieldError("otp") && (
                                     <FieldDescription className="text-red-600">
                                         {getFieldError("otp")}

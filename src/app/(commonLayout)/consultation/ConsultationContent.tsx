@@ -34,11 +34,40 @@ import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Spinner } from "@/components/ui/loading";
+import DoctorCard from "@/components/modules/Doctors/DoctorCard";
 import { getDoctorSchedules } from "@/services/doctor-schedule";
 import { createAppointment } from "@/services/appointment";
 import { getAiDoctorSuggestionClient } from "@/services/doctor/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+
+function normalizeDoctorName(value: string): string {
+    return value
+        .toLowerCase()
+        .replace(/\bdr\.?/g, "")
+        .replace(/\s+/g, " ")
+        .trim();
+}
+
+function formatSuggestedDoctorName(value: string): string {
+    return value
+        .replace(/\bdr\.?\s*dr\.?/gi, "Dr.")
+        .replace(/\s+/g, " ")
+        .trim();
+}
+
+function isSuggestedDoctorObject(
+    value: unknown,
+): value is { id: string; name: string } {
+    return (
+        value !== null &&
+        typeof value === "object" &&
+        "id" in value &&
+        "name" in value &&
+        typeof (value as { id?: unknown }).id === "string" &&
+        typeof (value as { name?: unknown }).name === "string"
+    );
+}
 
 interface ConsultationContentProps {
     doctors: IDoctor[];
@@ -78,6 +107,85 @@ export function ConsultationContent({
     );
     const [aiError, setAiError] = useState<string | null>(null);
     const [isAiLoading, setIsAiLoading] = useState(false);
+
+    const suggestedDoctorProfiles =
+        Array.isArray(aiSuggestion?.suggestedDoctors) &&
+        aiSuggestion.suggestedDoctors.length > 0
+            ? aiSuggestion.suggestedDoctors
+                  .map((suggested) => {
+                      if (typeof suggested === "string") {
+                          const normalized = normalizeDoctorName(suggested);
+                          const match = doctors.find(
+                              (d) => normalizeDoctorName(d.name) === normalized,
+                          );
+
+                          if (match) {
+                              return {
+                                  type: "doctor" as const,
+                                  doctor: match,
+                              };
+                          }
+
+                          return {
+                              type: "text" as const,
+                              name: suggested,
+                          };
+                      }
+
+                      if (isSuggestedDoctorObject(suggested)) {
+                          const matchById = doctors.find(
+                              (d) => d.id === suggested.id,
+                          );
+
+                          if (matchById) {
+                              return {
+                                  type: "doctor" as const,
+                                  doctor: matchById,
+                              };
+                          }
+
+                          // If the doctor list is stale or filtered, fall back to name matching.
+                          const normalized = normalizeDoctorName(
+                              suggested.name,
+                          );
+                          const matchByName = doctors.find(
+                              (d) => normalizeDoctorName(d.name) === normalized,
+                          );
+
+                          if (matchByName) {
+                              return {
+                                  type: "doctor" as const,
+                                  doctor: matchByName,
+                              };
+                          }
+
+                          return {
+                              type: "text" as const,
+                              name: suggested.name,
+                          };
+                      }
+
+                      return { type: "text" as const, name: "" };
+                  })
+                  .filter((x) => x.type === "doctor" || x.name.trim() !== "")
+                  // remove duplicates by doctor id (or text)
+                  .filter((item, index, arr) => {
+                      if (item.type === "doctor") {
+                          return (
+                              arr.findIndex(
+                                  (x) =>
+                                      x.type === "doctor" &&
+                                      x.doctor.id === item.doctor.id,
+                              ) === index
+                          );
+                      }
+                      return (
+                          arr.findIndex(
+                              (x) => x.type === "text" && x.name === item.name,
+                          ) === index
+                      );
+                  })
+            : [];
 
     // Filter doctors by specialty
     const filteredDoctors = selectedSpecialty
@@ -251,116 +359,146 @@ export function ConsultationContent({
     );
 
     return (
-        <div className="min-h-screen bg-background py-8">
-            <div className="container mx-auto px-4">
+        <div className="min-h-screen bg-background py-8 pt-28 lg:pt-32">
+            <div className="container mx-auto px-4 sm:px-6">
                 {/* AI Doctor Suggestion */}
-                <Card
-                    id="ai-suggestion"
-                    className="mb-8 border-primary/10 bg-linear-to-br from-white to-indigo-50/40"
-                >
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                            <Sparkles className="h-5 w-5 text-primary" />
-                            AI Doctor Suggestion
-                        </CardTitle>
-                        <CardDescription>
-                            Describe your symptoms to get specialty guidance
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="symptoms">Symptoms</Label>
-                            <textarea
-                                id="symptoms"
-                                value={symptoms}
-                                onChange={(e) => setSymptoms(e.target.value)}
-                                placeholder="E.g., persistent headache, blurred vision, fatigue"
-                                className="min-h-24 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                            />
-                            {aiError && (
-                                <p className="text-sm text-destructive flex items-center gap-2">
-                                    <AlertTriangle className="h-4 w-4" />
-                                    {aiError}
-                                </p>
-                            )}
+                <div className="max-w-3xl mx-auto">
+                    <Card
+                        id="ai-suggestion"
+                        className="relative mb-8 border-primary/10 bg-linear-to-br from-white to-indigo-50/40 overflow-hidden"
+                    >
+                        <div
+                            className="pointer-events-none absolute inset-0 opacity-60 motion-safe:animate-pulse"
+                            aria-hidden="true"
+                        >
+                            <div className="absolute -top-24 -right-24 h-56 w-56 rounded-full bg-primary/10 blur-3xl" />
+                            <div className="absolute -bottom-24 -left-24 h-56 w-56 rounded-full bg-indigo-500/10 blur-3xl" />
                         </div>
-                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                            <Button
-                                onClick={handleAiSuggestion}
-                                disabled={isAiLoading}
-                            >
-                                {isAiLoading
-                                    ? "Analyzing..."
-                                    : "Get AI Suggestion"}
-                            </Button>
-                            {aiSuggestion?.urgencyLevel && (
-                                <Badge
-                                    variant={
-                                        aiSuggestion.urgencyLevel === "high"
-                                            ? "destructive"
-                                            : aiSuggestion.urgencyLevel ===
-                                                "medium"
-                                              ? "warning"
-                                              : "success"
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                                <Sparkles className="h-5 w-5 text-primary" />
+                                AI Doctor Suggestion
+                            </CardTitle>
+                            <CardDescription>
+                                Describe your symptoms to get specialty guidance
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="symptoms">Symptoms</Label>
+                                <textarea
+                                    id="symptoms"
+                                    value={symptoms}
+                                    onChange={(e) =>
+                                        setSymptoms(e.target.value)
                                     }
-                                >
-                                    Urgency: {aiSuggestion.urgencyLevel}
-                                </Badge>
-                            )}
-                        </div>
-
-                        {aiSuggestion && (
-                            <div className="rounded-lg border border-border bg-white p-4 space-y-3">
-                                <div>
-                                    <p className="text-sm font-semibold text-muted-foreground">
-                                        Suggested Specialties
+                                    placeholder="E.g., persistent headache, blurred vision, fatigue"
+                                    className="min-h-24 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                                />
+                                {aiError && (
+                                    <p className="text-sm text-destructive flex items-center gap-2">
+                                        <AlertTriangle className="h-4 w-4" />
+                                        {aiError}
                                     </p>
-                                    <div className="mt-2 flex flex-wrap gap-2">
-                                        {aiSuggestion.suggestedSpecialties?.map(
-                                            (specialty) => (
-                                                <Badge
-                                                    key={specialty}
-                                                    variant="secondary"
-                                                >
-                                                    {specialty}
-                                                </Badge>
-                                            ),
+                                )}
+                            </div>
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                                <Button
+                                    onClick={handleAiSuggestion}
+                                    disabled={isAiLoading}
+                                >
+                                    {isAiLoading
+                                        ? "Analyzing..."
+                                        : "Get AI Suggestion"}
+                                </Button>
+                                {aiSuggestion?.urgencyLevel && (
+                                    <Badge
+                                        variant={
+                                            aiSuggestion.urgencyLevel === "high"
+                                                ? "destructive"
+                                                : aiSuggestion.urgencyLevel ===
+                                                    "medium"
+                                                  ? "warning"
+                                                  : "success"
+                                        }
+                                    >
+                                        Urgency: {aiSuggestion.urgencyLevel}
+                                    </Badge>
+                                )}
+                            </div>
+
+                            {aiSuggestion && (
+                                <div className="rounded-lg border border-border bg-white p-4 space-y-3">
+                                    <div>
+                                        <p className="text-sm font-semibold text-muted-foreground">
+                                            Suggested Specialties
+                                        </p>
+                                        <div className="mt-2 flex flex-wrap gap-2">
+                                            {aiSuggestion.suggestedSpecialties?.map(
+                                                (specialty) => (
+                                                    <Badge
+                                                        key={specialty}
+                                                        variant="secondary"
+                                                    >
+                                                        {specialty}
+                                                    </Badge>
+                                                ),
+                                            )}
+                                        </div>
+                                    </div>
+                                    {Array.isArray(
+                                        aiSuggestion.suggestedDoctors,
+                                    ) &&
+                                        aiSuggestion.suggestedDoctors.length >
+                                            0 && (
+                                            <div>
+                                                <p className="text-sm font-semibold text-muted-foreground">
+                                                    Suggested Doctors
+                                                </p>
+                                                <div className="mt-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
+                                                    {suggestedDoctorProfiles.map(
+                                                        (item) =>
+                                                            item.type ===
+                                                            "doctor" ? (
+                                                                <DoctorCard
+                                                                    key={
+                                                                        item
+                                                                            .doctor
+                                                                            .id
+                                                                    }
+                                                                    doctor={
+                                                                        item.doctor
+                                                                    }
+                                                                />
+                                                            ) : (
+                                                                <Badge
+                                                                    key={
+                                                                        item.name
+                                                                    }
+                                                                    variant="outline"
+                                                                >
+                                                                    {formatSuggestedDoctorName(
+                                                                        item.name,
+                                                                    )}
+                                                                </Badge>
+                                                            ),
+                                                    )}
+                                                </div>
+                                            </div>
                                         )}
+                                    <div>
+                                        <p className="text-sm font-semibold text-muted-foreground">
+                                            Recommendations
+                                        </p>
+                                        <p className="text-sm text-foreground mt-1">
+                                            {aiSuggestion.recommendations}
+                                        </p>
                                     </div>
                                 </div>
-                                {Array.isArray(aiSuggestion.suggestedDoctors) &&
-                                    aiSuggestion.suggestedDoctors.length >
-                                        0 && (
-                                        <div>
-                                            <p className="text-sm font-semibold text-muted-foreground">
-                                                Suggested Doctors
-                                            </p>
-                                            <div className="mt-2 flex flex-wrap gap-2">
-                                                {aiSuggestion.suggestedDoctors.map(
-                                                    (doctor) => (
-                                                        <Badge
-                                                            key={doctor}
-                                                            variant="outline"
-                                                        >
-                                                            {doctor}
-                                                        </Badge>
-                                                    ),
-                                                )}
-                                            </div>
-                                        </div>
-                                    )}
-                                <div>
-                                    <p className="text-sm font-semibold text-muted-foreground">
-                                        Recommendations
-                                    </p>
-                                    <p className="text-sm text-foreground mt-1">
-                                        {aiSuggestion.recommendations}
-                                    </p>
-                                </div>
-                            </div>
-                        )}
-                    </CardContent>
-                </Card>
+                            )}
+                        </CardContent>
+                    </Card>
+                </div>
 
                 {/* Progress Steps */}
                 <div className="max-w-3xl mx-auto mb-8">

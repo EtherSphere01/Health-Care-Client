@@ -3,7 +3,7 @@
 import { Suspense, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Bot, CheckCircle, Loader2 } from "lucide-react";
+import { CheckCircle, Eye, EyeOff, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
     Card,
@@ -16,12 +16,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { resetPassword } from "@/services/auth";
 import { toast } from "sonner";
+import { NexusHealthBrand } from "@/components/shared/nexus-health-brand";
 
 function ResetPasswordContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
+
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
+    const [showPasswords, setShowPasswords] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
 
@@ -75,13 +78,10 @@ function ResetPasswordContent() {
                         href="/"
                         className="flex items-center gap-2 self-center font-medium"
                     >
-                        <div className="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md">
-                            <Bot className="size-4" />
-                        </div>
-                        Nexus Health
+                        <NexusHealthBrand />
                     </Link>
 
-                    <Card>
+                    <Card className="border-primary/10 shadow-lg rounded-2xl bg-linear-to-br from-white to-indigo-50/40">
                         <CardHeader className="text-center">
                             <CardTitle className="text-xl">
                                 Invalid Reset Link
@@ -111,13 +111,10 @@ function ResetPasswordContent() {
                     href="/"
                     className="flex items-center gap-2 self-center font-medium"
                 >
-                    <div className="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md">
-                        <Bot className="size-4" />
-                    </div>
-                    Nexus Health
+                    <NexusHealthBrand />
                 </Link>
 
-                <Card>
+                <Card className="border-primary/10 shadow-lg rounded-2xl bg-linear-to-br from-white to-indigo-50/40">
                     <CardHeader className="text-center">
                         <CardTitle className="text-xl">
                             {isSuccess
@@ -140,11 +137,12 @@ function ResetPasswordContent() {
                                     Your password has been reset successfully.
                                     You can now log in with your new password.
                                 </p>
-                                <Link href="/login">
-                                    <Button className="w-full">
-                                        Go to Login
-                                    </Button>
-                                </Link>
+                                <Button
+                                    className="w-full"
+                                    onClick={() => router.push("/login")}
+                                >
+                                    Go to Login
+                                </Button>
                             </div>
                         ) : (
                             <form onSubmit={handleSubmit} className="space-y-4">
@@ -152,33 +150,85 @@ function ResetPasswordContent() {
                                     <Label htmlFor="password">
                                         New Password
                                     </Label>
-                                    <Input
-                                        id="password"
-                                        type="password"
-                                        placeholder="Enter new password"
-                                        value={password}
-                                        onChange={(e) =>
-                                            setPassword(e.target.value)
-                                        }
-                                        required
-                                        minLength={6}
-                                    />
+                                    <div className="relative">
+                                        <Input
+                                            id="password"
+                                            type={
+                                                showPasswords
+                                                    ? "text"
+                                                    : "password"
+                                            }
+                                            placeholder="Enter new password"
+                                            value={password}
+                                            onChange={(e) =>
+                                                setPassword(e.target.value)
+                                            }
+                                            required
+                                            minLength={6}
+                                            className="pr-10"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() =>
+                                                setShowPasswords((v) => !v)
+                                            }
+                                            className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                                            aria-label={
+                                                showPasswords
+                                                    ? "Hide passwords"
+                                                    : "Show passwords"
+                                            }
+                                        >
+                                            {showPasswords ? (
+                                                <EyeOff className="h-4 w-4" />
+                                            ) : (
+                                                <Eye className="h-4 w-4" />
+                                            )}
+                                        </button>
+                                    </div>
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="confirmPassword">
                                         Confirm Password
                                     </Label>
-                                    <Input
-                                        id="confirmPassword"
-                                        type="password"
-                                        placeholder="Confirm new password"
-                                        value={confirmPassword}
-                                        onChange={(e) =>
-                                            setConfirmPassword(e.target.value)
-                                        }
-                                        required
-                                        minLength={6}
-                                    />
+                                    <div className="relative">
+                                        <Input
+                                            id="confirmPassword"
+                                            type={
+                                                showPasswords
+                                                    ? "text"
+                                                    : "password"
+                                            }
+                                            placeholder="Confirm new password"
+                                            value={confirmPassword}
+                                            onChange={(e) =>
+                                                setConfirmPassword(
+                                                    e.target.value,
+                                                )
+                                            }
+                                            required
+                                            minLength={6}
+                                            className="pr-10"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() =>
+                                                setShowPasswords((v) => !v)
+                                            }
+                                            className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                                            aria-label={
+                                                showPasswords
+                                                    ? "Hide passwords"
+                                                    : "Show passwords"
+                                            }
+                                        >
+                                            {showPasswords ? (
+                                                <EyeOff className="h-4 w-4" />
+                                            ) : (
+                                                <Eye className="h-4 w-4" />
+                                            )}
+                                        </button>
+                                    </div>
                                 </div>
                                 <Button
                                     type="submit"
@@ -203,12 +253,9 @@ function LoadingFallback() {
         <div className="bg-muted flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10">
             <div className="flex w-full max-w-sm flex-col gap-6">
                 <div className="flex items-center gap-2 self-center font-medium">
-                    <div className="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md">
-                        <Bot className="size-4" />
-                    </div>
-                    Nexus Health
+                    <NexusHealthBrand />
                 </div>
-                <Card>
+                <Card className="border-primary/10 shadow-lg rounded-2xl bg-linear-to-br from-white to-indigo-50/40">
                     <CardContent className="flex items-center justify-center py-12">
                         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
                     </CardContent>

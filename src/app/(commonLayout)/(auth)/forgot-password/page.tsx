@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Bot, ArrowLeft, Mail } from "lucide-react";
+import { ArrowLeft, Mail } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { forgotPassword } from "@/services/auth";
 import { toast } from "sonner";
+import { NexusHealthBrand } from "@/components/shared/nexus-health-brand";
 
 export default function ForgotPasswordPage() {
     const [email, setEmail] = useState("");
@@ -56,10 +57,7 @@ export default function ForgotPasswordPage() {
                     href="/"
                     className="flex items-center gap-2 self-center font-medium"
                 >
-                    <div className="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md">
-                        <Bot className="size-4" />
-                    </div>
-                    Nexus Health
+                    <NexusHealthBrand />
                 </Link>
 
                 <Card>

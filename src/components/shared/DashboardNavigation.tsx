@@ -19,10 +19,10 @@ import {
     Bell,
     User,
     Heart,
-    Bot,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { INotification } from "@/types";
+import { NexusHealthIcon } from "@/components/shared/nexus-health-brand";
 
 interface NavItem {
     title: string;
@@ -144,7 +144,7 @@ export function DashboardSidebar({
                 <div className="flex h-16 items-center justify-between px-6 border-b border-slate-200/60">
                     <Link href="/" className="flex items-center gap-3">
                         <span className="h-8 w-8 rounded-xl bg-linear-to-br from-indigo-600 to-violet-600 text-white flex items-center justify-center shadow-sm">
-                            <Bot className="h-4 w-4" />
+                            <NexusHealthIcon className="h-4 w-4" />
                         </span>
                         <span className="font-semibold text-lg tracking-tight text-slate-900">
                             Nexus Health

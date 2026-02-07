@@ -571,7 +571,13 @@ export type IDashboardMeta =
 // ============================================
 export interface IAiSuggestion {
     suggestedSpecialties: string[];
-    suggestedDoctors?: string[];
+    suggestedDoctors?: Array<
+        | string
+        | {
+              id: string;
+              name: string;
+          }
+    >;
     recommendations: string;
     urgencyLevel: "low" | "medium" | "high";
 }

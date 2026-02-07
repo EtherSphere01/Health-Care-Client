@@ -1,6 +1,7 @@
 "use server";
 
 import { get, post, patch } from "@/lib/api";
+import { headers } from "next/headers";
 import {
     IAppointment,
     IAppointmentQueryParams,
@@ -51,7 +52,22 @@ export async function getMyAppointments(
 export async function createAppointment(
     data: ICreateAppointmentRequest,
 ): Promise<IApiResponse<{ paymentUrl: string }>> {
-    const response = await post<{ paymentUrl: string }>("/appointment", data);
+    const requestHeaders = headers();
+    const directOrigin = requestHeaders.get("origin")?.trim();
+    const host =
+        requestHeaders.get("x-forwarded-host")?.trim() ||
+        requestHeaders.get("host")?.trim();
+    const proto =
+        requestHeaders.get("x-forwarded-proto")?.trim() ||
+        (process.env.NODE_ENV === "development" ? "http" : "https");
+    const derivedOrigin = host ? `${proto}://${host}` : undefined;
+    const frontendOrigin = directOrigin || derivedOrigin;
+
+    const response = await post<{ paymentUrl: string }>("/appointment", data, {
+        headers: frontendOrigin
+            ? { "x-frontend-origin": frontendOrigin }
+            : undefined,
+    });
     revalidateTag(APPOINTMENTS_TAG, "default");
     revalidateTag("my-appointments", "default");
     revalidateTag("doctor-schedules", "default");

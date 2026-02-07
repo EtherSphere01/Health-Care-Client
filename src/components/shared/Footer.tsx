@@ -1,5 +1,6 @@
-import { Bot, Facebook, Globe, Instagram, Twitter } from "lucide-react";
+import { Facebook, Globe, Instagram, Twitter } from "lucide-react";
 import React from "react";
+import { NexusHealthIcon } from "@/components/shared/nexus-health-brand";
 
 export default function Footer() {
     return (
@@ -9,7 +10,7 @@ export default function Footer() {
                     <div className="col-span-2">
                         <div className="flex items-center gap-2 mb-6">
                             <div className="h-8 w-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white">
-                                <Bot className="h-5 w-5" />
+                                <NexusHealthIcon className="h-5 w-5" />
                             </div>
                             <span className="text-xl font-bold text-slate-900">
                                 Nexus Health
@@ -75,8 +76,8 @@ export default function Footer() {
 
                 <div className="pt-8 border-t border-slate-100 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-slate-500">
                     <p>
-                        © {new Date().getFullYear()} Nexus Health AI Inc. All
-                        rights reserved.
+                        © {new Date().getFullYear()} Nexus Health. All rights
+                        reserved.
                     </p>
                     <div className="flex gap-8">
                         <span className="hover:text-slate-900 cursor-pointer">

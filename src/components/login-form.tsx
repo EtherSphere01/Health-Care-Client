@@ -18,7 +18,8 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
-import { useActionState, useEffect } from "react";
+import { Eye, EyeOff, ShieldCheck, Stethoscope, User } from "lucide-react";
+import { useActionState, useEffect, useMemo, useState } from "react";
 import { loginUser } from "@/services/auth/loginUser";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
@@ -26,6 +27,33 @@ import { useRouter } from "next/navigation";
 export function LoginForm({ redirect }: { redirect?: string }) {
     const router = useRouter();
     const [state, formAction, isPending] = useActionState(loginUser, null);
+    const [showPassword, setShowPassword] = useState(false);
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+
+    const demoUsers = useMemo(
+        () => [
+            {
+                label: "Admin",
+                icon: ShieldCheck,
+                email: "admin@gmail.com",
+                password: "123456",
+            },
+            {
+                label: "Doctor",
+                icon: Stethoscope,
+                email: "doctor01@example.com",
+                password: "123456",
+            },
+            {
+                label: "Patient",
+                icon: User,
+                email: "patient01@example.com",
+                password: "123456",
+            },
+        ],
+        [],
+    );
     const getFieldError = (fieldName: string) => {
         const errors = state?.errors;
         if (!errors) return null;
@@ -60,12 +88,36 @@ export function LoginForm({ redirect }: { redirect?: string }) {
 
     return (
         <div className={cn("flex flex-col gap-6")}>
-            <Card>
+            <Card className="border-primary/10 shadow-lg rounded-2xl bg-linear-to-br from-white to-indigo-50/40">
                 <CardHeader className="text-center">
-                    <CardTitle className="text-xl">Welcome back</CardTitle>
+                    <CardTitle className="text-2xl tracking-tight">
+                        Welcome back
+                    </CardTitle>
                     <CardDescription>
-                        Login with your Apple or Google account
+                        Sign in to continue to your dashboard
                     </CardDescription>
+                    <div className="mt-4">
+                        <p className="text-xs text-muted-foreground mb-2">
+                            Demo access
+                        </p>
+                        <div className="grid grid-cols-3 gap-2">
+                            {demoUsers.map((u) => (
+                                <Button
+                                    key={u.label}
+                                    type="button"
+                                    variant="outline"
+                                    className="h-9 rounded-xl"
+                                    onClick={() => {
+                                        setEmail(u.email);
+                                        setPassword(u.password);
+                                    }}
+                                >
+                                    <u.icon className="h-4 w-4 mr-2" />
+                                    {u.label}
+                                </Button>
+                            ))}
+                        </div>
+                    </div>
                 </CardHeader>
                 <CardContent>
                     <form action={formAction}>
@@ -111,7 +163,8 @@ export function LoginForm({ redirect }: { redirect?: string }) {
                                     type="email"
                                     name="email"
                                     placeholder="user@example.com"
-                                    defaultValue={state?.values?.email}
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
                                 />
                                 <FieldDescription className="text-red-600">
                                     {getFieldError("email")}
@@ -129,12 +182,38 @@ export function LoginForm({ redirect }: { redirect?: string }) {
                                         Forgot your password?
                                     </Link>
                                 </div>
-                                <Input
-                                    id="password"
-                                    name="password"
-                                    type="password"
-                                    defaultValue={state?.values?.password}
-                                />
+                                <div className="relative">
+                                    <Input
+                                        id="password"
+                                        name="password"
+                                        type={
+                                            showPassword ? "text" : "password"
+                                        }
+                                        value={password}
+                                        onChange={(e) =>
+                                            setPassword(e.target.value)
+                                        }
+                                        className="pr-10"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() =>
+                                            setShowPassword((v) => !v)
+                                        }
+                                        className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                                        aria-label={
+                                            showPassword
+                                                ? "Hide password"
+                                                : "Show password"
+                                        }
+                                    >
+                                        {showPassword ? (
+                                            <EyeOff className="h-4 w-4" />
+                                        ) : (
+                                            <Eye className="h-4 w-4" />
+                                        )}
+                                    </button>
+                                </div>
                                 <FieldDescription className="text-red-600">
                                     {getFieldError("password")}
                                 </FieldDescription>

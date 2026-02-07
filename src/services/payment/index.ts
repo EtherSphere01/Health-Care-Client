@@ -1,6 +1,7 @@
 "use server";
 
 import { get, post } from "@/lib/api";
+import { headers } from "next/headers";
 import {
     IInitPaymentRequest,
     IInitPaymentResponse,
@@ -15,9 +16,26 @@ import { revalidateTag } from "next/cache";
 export async function initializePayment(
     appointmentId: string,
 ): Promise<IApiResponse<IInitPaymentResponse>> {
+    const requestHeaders = headers();
+    const directOrigin = requestHeaders.get("origin")?.trim();
+    const host =
+        requestHeaders.get("x-forwarded-host")?.trim() ||
+        requestHeaders.get("host")?.trim();
+    const proto =
+        requestHeaders.get("x-forwarded-proto")?.trim() ||
+        (process.env.NODE_ENV === "development" ? "http" : "https");
+    const derivedOrigin = host ? `${proto}://${host}` : undefined;
+    const frontendOrigin = directOrigin || derivedOrigin;
+
     // Backend initiates Stripe checkout via Appointment module
     const response = await post<IInitPaymentResponse>(
         `/appointment/${appointmentId}/initiate-payment`,
+        undefined,
+        {
+            headers: frontendOrigin
+                ? { "x-frontend-origin": frontendOrigin }
+                : undefined,
+        },
     );
     revalidateTag("appointments", "default");
     revalidateTag("my-appointments", "default");
@@ -30,9 +48,26 @@ export async function initializePayment(
 export async function initPayment(
     data: IInitPaymentRequest,
 ): Promise<IApiResponse<IInitPaymentResponse>> {
+    const requestHeaders = headers();
+    const directOrigin = requestHeaders.get("origin")?.trim();
+    const host =
+        requestHeaders.get("x-forwarded-host")?.trim() ||
+        requestHeaders.get("host")?.trim();
+    const proto =
+        requestHeaders.get("x-forwarded-proto")?.trim() ||
+        (process.env.NODE_ENV === "development" ? "http" : "https");
+    const derivedOrigin = host ? `${proto}://${host}` : undefined;
+    const frontendOrigin = directOrigin || derivedOrigin;
+
     // Amount is derived server-side from appointment/payment records.
     const response = await post<IInitPaymentResponse>(
         `/appointment/${data.appointmentId}/initiate-payment`,
+        undefined,
+        {
+            headers: frontendOrigin
+                ? { "x-frontend-origin": frontendOrigin }
+                : undefined,
+        },
     );
     revalidateTag("appointments", "default");
     revalidateTag("my-appointments", "default");

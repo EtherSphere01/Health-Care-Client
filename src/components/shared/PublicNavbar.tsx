@@ -14,6 +14,7 @@ import { Menu } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { UserRole } from "@/types";
+import { NexusHealthIcon } from "@/components/shared/nexus-health-brand";
 
 export default function PublicNavbar() {
     const pathname = usePathname();
@@ -49,10 +50,18 @@ export default function PublicNavbar() {
             {/* Desktop */}
             <header className="hidden container mx-auto lg:flex items-center justify-between py-4 px-6">
                 <Link href="/">
-                    <span className="text-2xl font-bold text-transparent bg-clip-text bg-linear-to-r from-indigo-600 via-violet-600 to-indigo-900 animate-gradient-x">
-                        Nexus
-                        <span className="font-semibold text-indigo-950">
-                            Health
+                    <span className="inline-flex items-center gap-2">
+                        <span
+                            className="h-8 w-8 rounded-xl bg-linear-to-br from-indigo-600 to-violet-600 text-white flex items-center justify-center shadow-sm"
+                            aria-hidden="true"
+                        >
+                            <NexusHealthIcon className="h-4 w-4" />
+                        </span>
+                        <span className="text-2xl font-bold text-transparent bg-clip-text bg-linear-to-r from-indigo-600 via-violet-600 to-indigo-900 animate-gradient-x">
+                            Nexus
+                            <span className="font-semibold text-indigo-950">
+                                Health
+                            </span>
                         </span>
                     </span>
                 </Link>
@@ -111,10 +120,18 @@ export default function PublicNavbar() {
             <div className="mx-[10px]">
                 <header className="lg:hidden p-2 cursor-pointer flex items-center justify-between ">
                     <Link href="/">
-                        <span className="text-2xl font-bold text-transparent bg-clip-text bg-linear-to-r from-indigo-600 via-violet-600 to-indigo-900 animate-gradient-x">
-                            Nexus
-                            <span className="font-semibold text-indigo-950">
-                                Health
+                        <span className="inline-flex items-center gap-2">
+                            <span
+                                className="h-8 w-8 rounded-xl bg-linear-to-br from-indigo-600 to-violet-600 text-white flex items-center justify-center shadow-sm"
+                                aria-hidden="true"
+                            >
+                                <NexusHealthIcon className="h-4 w-4" />
+                            </span>
+                            <span className="text-2xl font-bold text-transparent bg-clip-text bg-linear-to-r from-indigo-600 via-violet-600 to-indigo-900 animate-gradient-x">
+                                Nexus
+                                <span className="font-semibold text-indigo-950">
+                                    Health
+                                </span>
                             </span>
                         </span>
                     </Link>

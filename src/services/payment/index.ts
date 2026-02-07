@@ -16,7 +16,7 @@ import { revalidateTag } from "next/cache";
 export async function initializePayment(
     appointmentId: string,
 ): Promise<IApiResponse<IInitPaymentResponse>> {
-    const requestHeaders = headers();
+    const requestHeaders = await headers();
     const directOrigin = requestHeaders.get("origin")?.trim();
     const host =
         requestHeaders.get("x-forwarded-host")?.trim() ||
@@ -48,7 +48,7 @@ export async function initializePayment(
 export async function initPayment(
     data: IInitPaymentRequest,
 ): Promise<IApiResponse<IInitPaymentResponse>> {
-    const requestHeaders = headers();
+    const requestHeaders = await headers();
     const directOrigin = requestHeaders.get("origin")?.trim();
     const host =
         requestHeaders.get("x-forwarded-host")?.trim() ||

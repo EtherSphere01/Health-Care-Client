@@ -52,7 +52,7 @@ export async function getMyAppointments(
 export async function createAppointment(
     data: ICreateAppointmentRequest,
 ): Promise<IApiResponse<{ paymentUrl: string }>> {
-    const requestHeaders = headers();
+    const requestHeaders = await headers();
     const directOrigin = requestHeaders.get("origin")?.trim();
     const host =
         requestHeaders.get("x-forwarded-host")?.trim() ||

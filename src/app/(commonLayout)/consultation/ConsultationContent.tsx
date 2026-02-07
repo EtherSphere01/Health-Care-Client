@@ -835,7 +835,7 @@ export function ConsultationContent({
                                                         className="h-16 w-16 object-cover"
                                                     />
                                                 </div>
-                                                <div>
+                                                <div className="min-w-0 flex-1">
                                                     <h3 className="font-semibold text-lg">
                                                         {selectedDoctor.name}
                                                     </h3>
@@ -845,7 +845,7 @@ export function ConsultationContent({
                                                         }
                                                     </p>
                                                     {selectedDoctor.doctorSpecialties && (
-                                                        <div className="flex gap-1 mt-1">
+                                                        <div className="mt-1 flex flex-wrap gap-1 max-w-full">
                                                             {selectedDoctor.doctorSpecialties.map(
                                                                 (ds) => (
                                                                     <Badge
@@ -853,7 +853,7 @@ export function ConsultationContent({
                                                                             ds.specialtyId
                                                                         }
                                                                         variant="secondary"
-                                                                        className="text-xs"
+                                                                        className="text-xs whitespace-normal"
                                                                     >
                                                                         {
                                                                             ds

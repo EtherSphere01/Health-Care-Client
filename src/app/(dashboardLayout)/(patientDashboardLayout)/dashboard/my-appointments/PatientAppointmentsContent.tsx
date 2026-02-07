@@ -75,6 +75,25 @@ export function PatientAppointmentsContent({
     >(null);
 
     useEffect(() => {
+        let cancelled = false;
+        const refreshIfVisible = () => {
+            if (cancelled) return;
+            if (typeof document === "undefined") return;
+            if (document.visibilityState !== "visible") return;
+            router.refresh();
+        };
+
+        const id = window.setInterval(refreshIfVisible, 15000);
+        document.addEventListener("visibilitychange", refreshIfVisible);
+
+        return () => {
+            cancelled = true;
+            window.clearInterval(id);
+            document.removeEventListener("visibilitychange", refreshIfVisible);
+        };
+    }, [router]);
+
+    useEffect(() => {
         const sessionId = searchParams.get("session_id");
         if (!sessionId) return;
 

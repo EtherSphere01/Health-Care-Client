@@ -4,6 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { playNotificationSound } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import {
     LayoutDashboard,
@@ -21,6 +22,7 @@ import {
     Heart,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import { INotification } from "@/types";
 import { NexusHealthIcon } from "@/components/shared/nexus-health-brand";
 
@@ -299,6 +301,9 @@ export function DashboardTopbar({ onMenuClick, title }: DashboardTopbarProps) {
         React.useState(false);
     const notificationRef = React.useRef<HTMLDivElement>(null);
 
+    const initialNotificationsLoadedRef = React.useRef(false);
+    const knownNotificationIdsRef = React.useRef<Set<string>>(new Set());
+
     const fetchNotifications = React.useCallback(async () => {
         try {
             setNotificationsLoading(true);
@@ -317,8 +322,41 @@ export function DashboardTopbar({ onMenuClick, title }: DashboardTopbarProps) {
                 return;
             }
 
-            setNotifications(Array.isArray(json?.data) ? json.data : []);
-            setUnreadCount(Number(json?.meta?.unreadCount ?? 0));
+            const nextNotifications = Array.isArray(json?.data)
+                ? (json.data as INotification[])
+                : [];
+            const nextUnread = Number(json?.meta?.unreadCount ?? 0);
+
+            if (!initialNotificationsLoadedRef.current) {
+                initialNotificationsLoadedRef.current = true;
+                knownNotificationIdsRef.current = new Set(
+                    nextNotifications.map((n) => n.id),
+                );
+            } else {
+                const known = knownNotificationIdsRef.current;
+                const newOnes = nextNotifications.filter(
+                    (n) => !known.has(n.id),
+                );
+                if (newOnes.length > 0) {
+                    playNotificationSound();
+                    const headline =
+                        newOnes.length === 1
+                            ? newOnes[0].title
+                            : `${newOnes.length} new notifications`;
+                    toast(headline, {
+                        description:
+                            newOnes.length === 1
+                                ? newOnes[0].message
+                                : undefined,
+                    });
+                }
+                knownNotificationIdsRef.current = new Set(
+                    nextNotifications.map((n) => n.id),
+                );
+            }
+
+            setNotifications(nextNotifications);
+            setUnreadCount(nextUnread);
         } catch {
             setNotifications([]);
             setUnreadCount(0);
@@ -348,6 +386,21 @@ export function DashboardTopbar({ onMenuClick, title }: DashboardTopbarProps) {
     React.useEffect(() => {
         fetchNotifications();
     }, [fetchNotifications, pathname]);
+
+    React.useEffect(() => {
+        const poll = () => {
+            if (typeof document === "undefined") return;
+            if (document.visibilityState !== "visible") return;
+            fetchNotifications();
+        };
+
+        const id = window.setInterval(poll, 15000);
+        document.addEventListener("visibilitychange", poll);
+        return () => {
+            window.clearInterval(id);
+            document.removeEventListener("visibilitychange", poll);
+        };
+    }, [fetchNotifications]);
 
     React.useEffect(() => {
         const onMouseDown = (e: MouseEvent) => {

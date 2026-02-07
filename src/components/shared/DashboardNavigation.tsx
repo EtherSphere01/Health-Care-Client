@@ -303,6 +303,8 @@ export function DashboardTopbar({ onMenuClick, title }: DashboardTopbarProps) {
 
     const initialNotificationsLoadedRef = React.useRef(false);
     const knownNotificationIdsRef = React.useRef<Set<string>>(new Set());
+    const pendingSseNotificationRef = React.useRef(false);
+    const fallbackPollingCleanupRef = React.useRef<null | (() => void)>(null);
 
     const fetchNotifications = React.useCallback(async () => {
         try {
@@ -338,17 +340,22 @@ export function DashboardTopbar({ onMenuClick, title }: DashboardTopbarProps) {
                     (n) => !known.has(n.id),
                 );
                 if (newOnes.length > 0) {
-                    playNotificationSound();
-                    const headline =
-                        newOnes.length === 1
-                            ? newOnes[0].title
-                            : `${newOnes.length} new notifications`;
-                    toast(headline, {
-                        description:
+                    if (
+                        typeof document === "undefined" ||
+                        document.visibilityState === "visible"
+                    ) {
+                        playNotificationSound();
+                        const headline =
                             newOnes.length === 1
-                                ? newOnes[0].message
-                                : undefined,
-                    });
+                                ? newOnes[0].title
+                                : `${newOnes.length} new notifications`;
+                        toast(headline, {
+                            description:
+                                newOnes.length === 1
+                                    ? newOnes[0].message
+                                    : undefined,
+                        });
+                    }
                 }
                 knownNotificationIdsRef.current = new Set(
                     nextNotifications.map((n) => n.id),
@@ -388,17 +395,65 @@ export function DashboardTopbar({ onMenuClick, title }: DashboardTopbarProps) {
     }, [fetchNotifications, pathname]);
 
     React.useEffect(() => {
-        const poll = () => {
+        const stopFallbackPolling = () => {
+            fallbackPollingCleanupRef.current?.();
+            fallbackPollingCleanupRef.current = null;
+        };
+
+        const startFallbackPolling = () => {
+            if (fallbackPollingCleanupRef.current) return;
+
+            const poll = () => {
+                if (typeof document === "undefined") return;
+                if (document.visibilityState !== "visible") return;
+                fetchNotifications();
+            };
+
+            const id = window.setInterval(poll, 15000);
+            document.addEventListener("visibilitychange", poll);
+            fallbackPollingCleanupRef.current = () => {
+                window.clearInterval(id);
+                document.removeEventListener("visibilitychange", poll);
+            };
+        };
+
+        // SSE: push-driven refresh (EventSource auto-reconnects).
+        const es = new EventSource("/api/notification/stream");
+
+        const onOpen = () => {
+            stopFallbackPolling();
+        };
+
+        const onNew = () => {
             if (typeof document === "undefined") return;
-            if (document.visibilityState !== "visible") return;
+            if (document.visibilityState !== "visible") {
+                pendingSseNotificationRef.current = true;
+                return;
+            }
             fetchNotifications();
         };
 
-        const id = window.setInterval(poll, 15000);
-        document.addEventListener("visibilitychange", poll);
+        const onError = () => {
+            // If SSE can't stay connected, keep UX working via polling.
+            startFallbackPolling();
+        };
+
+        const onVisibility = () => {
+            if (document.visibilityState !== "visible") return;
+            if (!pendingSseNotificationRef.current) return;
+            pendingSseNotificationRef.current = false;
+            fetchNotifications();
+        };
+
+        es.addEventListener("open", onOpen as EventListener);
+        es.addEventListener("new", onNew as EventListener);
+        es.addEventListener("error", onError as EventListener);
+        document.addEventListener("visibilitychange", onVisibility);
+
         return () => {
-            window.clearInterval(id);
-            document.removeEventListener("visibilitychange", poll);
+            es.close();
+            document.removeEventListener("visibilitychange", onVisibility);
+            stopFallbackPolling();
         };
     }, [fetchNotifications]);
 

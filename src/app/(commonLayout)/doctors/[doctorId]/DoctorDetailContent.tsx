@@ -59,7 +59,9 @@ function buildAboutText(doctor: IDoctor) {
             `${doctor.name} is a ${doctor.designation} in ${department} at ${doctor.currentWorkingPlace}.`,
         );
     } else if (doctor.designation) {
-        parts.push(`${doctor.name} is a ${doctor.designation} in ${department}.`);
+        parts.push(
+            `${doctor.name} is a ${doctor.designation} in ${department}.`,
+        );
     } else {
         parts.push(`${doctor.name} practices in ${department}.`);
     }
@@ -77,6 +79,7 @@ export function DoctorDetailContent({ doctor }: { doctor: IDoctor }) {
     const department = getDepartmentTitle(doctor);
     const nextSchedules = getNextAvailableSchedules(doctor);
     const about = buildAboutText(doctor);
+    const profilePhotoSrc = doctor.profilePhoto || "/images/default-doctor.svg";
 
     return (
         <div className="bg-slate-50">
@@ -97,14 +100,12 @@ export function DoctorDetailContent({ doctor }: { doctor: IDoctor }) {
                             <CardContent className="p-6">
                                 <div className="flex items-start gap-4">
                                     <div className="relative h-20 w-20 rounded-2xl overflow-hidden bg-slate-100 shrink-0">
-                                        {doctor.profilePhoto ? (
-                                            <Image
-                                                src={doctor.profilePhoto}
-                                                alt={doctor.name}
-                                                fill
-                                                className="object-cover"
-                                            />
-                                        ) : null}
+                                        <Image
+                                            src={profilePhotoSrc}
+                                            alt={doctor.name}
+                                            fill
+                                            className="object-cover"
+                                        />
                                     </div>
 
                                     <div className="min-w-0">
@@ -115,7 +116,9 @@ export function DoctorDetailContent({ doctor }: { doctor: IDoctor }) {
                                             </div>
                                             <div className="inline-flex items-center gap-1 text-sm font-semibold text-slate-900">
                                                 <Star className="h-4 w-4 text-amber-400 fill-current" />
-                                                {(doctor.averageRating || 0).toFixed(1)}
+                                                {(
+                                                    doctor.averageRating || 0
+                                                ).toFixed(1)}
                                             </div>
                                         </div>
 
@@ -197,9 +200,7 @@ export function DoctorDetailContent({ doctor }: { doctor: IDoctor }) {
                     <div className="lg:col-span-2 space-y-6">
                         <Card>
                             <CardHeader>
-                                <CardTitle className="text-lg">
-                                    About
-                                </CardTitle>
+                                <CardTitle className="text-lg">About</CardTitle>
                             </CardHeader>
                             <CardContent>
                                 <p className="text-slate-700 leading-relaxed">
@@ -252,7 +253,10 @@ function AvailabilitySlot({ schedule }: { schedule: IDoctorSchedule }) {
                 <p className="text-xs text-slate-500">Not booked</p>
             </div>
             <div className="shrink-0">
-                <Badge className="bg-emerald-50 text-emerald-700 border-emerald-100" variant="outline">
+                <Badge
+                    className="bg-emerald-50 text-emerald-700 border-emerald-100"
+                    variant="outline"
+                >
                     Available
                 </Badge>
             </div>

@@ -87,7 +87,11 @@ export function SpecialtiesManagementContent({
                                 className="h-12 w-12 object-cover"
                             />
                         ) : (
-                            <Image className="h-6 w-6 text-muted-foreground" />
+                            <img
+                                src="/images/default-specialty.svg"
+                                alt={specialty.title}
+                                className="h-12 w-12 object-cover"
+                            />
                         )}
                     </div>
                     <div>

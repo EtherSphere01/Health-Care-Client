@@ -455,7 +455,13 @@ export function ConsultationContent({
                                                         className="h-6 w-6"
                                                     />
                                                 ) : (
-                                                    <Stethoscope className="h-6 w-6 text-primary" />
+                                                    <Image
+                                                        src="/images/default-specialty.svg"
+                                                        alt={specialty.title}
+                                                        width={24}
+                                                        height={24}
+                                                        className="h-6 w-6"
+                                                    />
                                                 )}
                                             </div>
                                             <h3 className="font-medium">
@@ -511,26 +517,25 @@ export function ConsultationContent({
                                             >
                                                 <div className="flex items-center gap-4">
                                                     <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden">
-                                                        {doctor.profilePhoto ? (
-                                                            <Image
-                                                                src={
-                                                                    doctor.profilePhoto
-                                                                }
-                                                                alt={
-                                                                    doctor.name
-                                                                }
-                                                                width={64}
-                                                                height={64}
-                                                                unoptimized
-                                                                className="h-16 w-16 object-cover"
-                                                            />
-                                                        ) : (
-                                                            <Stethoscope className="h-8 w-8 text-primary" />
-                                                        )}
+                                                        <Image
+                                                            src={
+                                                                doctor.profilePhoto ||
+                                                                "/images/default-doctor.svg"
+                                                            }
+                                                            alt={doctor.name}
+                                                            width={64}
+                                                            height={64}
+                                                            unoptimized
+                                                            className="h-16 w-16 object-cover"
+                                                        />
                                                     </div>
                                                     <div className="flex-1">
                                                         <h3 className="font-semibold">
-                                                            Dr. {doctor.name}
+                                                            {doctor.name.startsWith(
+                                                                "Dr.",
+                                                            )
+                                                                ? doctor.name
+                                                                : `Dr. ${doctor.name}`}
                                                         </h3>
                                                         <p className="text-sm text-muted-foreground">
                                                             {doctor.designation}
@@ -682,27 +687,27 @@ export function ConsultationContent({
                                         <div className="p-4 bg-muted/50 rounded-lg">
                                             <div className="flex items-center gap-4">
                                                 <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden">
-                                                    {selectedDoctor.profilePhoto ? (
-                                                        <Image
-                                                            src={
-                                                                selectedDoctor.profilePhoto
-                                                            }
-                                                            alt={
-                                                                selectedDoctor.name
-                                                            }
-                                                            width={64}
-                                                            height={64}
-                                                            unoptimized
-                                                            className="h-16 w-16 object-cover"
-                                                        />
-                                                    ) : (
-                                                        <Stethoscope className="h-8 w-8 text-primary" />
-                                                    )}
+                                                    <Image
+                                                        src={
+                                                            selectedDoctor.profilePhoto ||
+                                                            "/images/default-doctor.svg"
+                                                        }
+                                                        alt={
+                                                            selectedDoctor.name
+                                                        }
+                                                        width={64}
+                                                        height={64}
+                                                        unoptimized
+                                                        className="h-16 w-16 object-cover"
+                                                    />
                                                 </div>
                                                 <div>
                                                     <h3 className="font-semibold text-lg">
-                                                        Dr.{" "}
-                                                        {selectedDoctor.name}
+                                                        {selectedDoctor.name.startsWith(
+                                                            "Dr.",
+                                                        )
+                                                            ? selectedDoctor.name
+                                                            : `Dr. ${selectedDoctor.name}`}
                                                     </h3>
                                                     <p className="text-muted-foreground">
                                                         {

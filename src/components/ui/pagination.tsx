@@ -17,6 +17,7 @@ interface PaginationProps {
     className?: string;
     showFirstLast?: boolean;
     siblingCount?: number;
+    alwaysShow?: boolean;
 }
 
 export function Pagination({
@@ -26,6 +27,7 @@ export function Pagination({
     className,
     showFirstLast = true,
     siblingCount = 1,
+    alwaysShow = false,
 }: PaginationProps) {
     const generatePages = () => {
         const pages: (number | "...")[] = [];
@@ -65,7 +67,7 @@ export function Pagination({
         return pages;
     };
 
-    if (totalPages <= 1) return null;
+    if (totalPages <= 1 && !alwaysShow) return null;
 
     const pages = generatePages();
 

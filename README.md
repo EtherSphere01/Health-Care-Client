@@ -17,11 +17,11 @@ https://health-care-server-gamma.vercel.app/
 
 ## Live Swagger (API Docs)
 
+- Backend Repo: https://github.com/EtherSphere01/Health-Care-Server.git
 - Swagger UI: https://health-care-server-gamma.vercel.app/docs
 - OpenAPI JSON: https://health-care-server-gamma.vercel.app/docs-json
 
 This frontend integrates with the backend REST API (Express + Prisma) and provides:
-Backend Repo: https://github.com/EtherSphere01/Health-Care-Server.git
 
 - Doctors discovery with department filtering and pagination
 - Appointment booking flow (Consultation) + AI symptom triage

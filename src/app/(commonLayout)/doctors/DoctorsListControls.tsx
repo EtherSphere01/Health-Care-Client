@@ -102,6 +102,7 @@ export default function DoctorsListControls({
                     currentPage={currentPage}
                     totalPages={totalPages}
                     onPageChange={onPageChange}
+                    alwaysShow
                 />
             </div>
         </div>

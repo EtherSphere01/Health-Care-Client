@@ -44,6 +44,7 @@ export default function DoctorCard({ doctor, className }: DoctorCardProps) {
     const experience = `${doctor.experience || 0}+ Years`;
     const nextAvailable = formatNextAvailableSlot(doctor);
     const location = doctor.currentWorkingPlace || "Not specified";
+    const profilePhotoSrc = doctor.profilePhoto || "/images/default-doctor.svg";
 
     return (
         <div
@@ -78,15 +79,13 @@ export default function DoctorCard({ doctor, className }: DoctorCardProps) {
                     Available Today
                 </div>
 
-                {doctor.profilePhoto ? (
-                    <Image
-                        src={doctor.profilePhoto}
-                        width={100}
-                        height={100}
-                        alt={doctor.name}
-                        className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700"
-                    />
-                ) : null}
+                <Image
+                    src={profilePhotoSrc}
+                    width={100}
+                    height={100}
+                    alt={doctor.name}
+                    className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700"
+                />
 
                 <div className="absolute bottom-0 left-0 p-6 z-20 text-white">
                     <h3 className="text-2xl font-bold mb-1">{doctor.name}</h3>

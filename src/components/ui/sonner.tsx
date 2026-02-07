@@ -20,7 +20,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
             toastOptions={{
                 classNames: {
                     title: "text-primary",
-                    description: "text-primary/80",
+                    description: "text-indigo-500",
                 },
             }}
             icons={{

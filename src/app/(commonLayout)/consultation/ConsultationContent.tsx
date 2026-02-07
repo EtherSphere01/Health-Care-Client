@@ -531,11 +531,7 @@ export function ConsultationContent({
                                                     </div>
                                                     <div className="flex-1">
                                                         <h3 className="font-semibold">
-                                                            {doctor.name.startsWith(
-                                                                "Dr.",
-                                                            )
-                                                                ? doctor.name
-                                                                : `Dr. ${doctor.name}`}
+                                                            {doctor.name}
                                                         </h3>
                                                         <p className="text-sm text-muted-foreground">
                                                             {doctor.designation}
@@ -575,7 +571,7 @@ export function ConsultationContent({
                                 <div>
                                     <CardTitle>Select Date & Time</CardTitle>
                                     <CardDescription>
-                                        Choose an available slot with Dr.{" "}
+                                        Choose an available slot with{" "}
                                         {selectedDoctor.name}
                                     </CardDescription>
                                 </div>
@@ -604,7 +600,7 @@ export function ConsultationContent({
                                             <Calendar className="h-12 w-12" />
                                         }
                                         title="No available slots"
-                                        description={`Dr. ${selectedDoctor.name} has no available appointment slots.`}
+                                        description={`${selectedDoctor.name} has no available appointment slots.`}
                                         action={{
                                             label: "Choose Another Doctor",
                                             onClick: () => setStep("doctor"),
@@ -703,11 +699,7 @@ export function ConsultationContent({
                                                 </div>
                                                 <div>
                                                     <h3 className="font-semibold text-lg">
-                                                        {selectedDoctor.name.startsWith(
-                                                            "Dr.",
-                                                        )
-                                                            ? selectedDoctor.name
-                                                            : `Dr. ${selectedDoctor.name}`}
+                                                        {selectedDoctor.name}
                                                     </h3>
                                                     <p className="text-muted-foreground">
                                                         {

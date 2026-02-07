@@ -33,11 +33,12 @@ function getDoctorPrimarySpecialty(doctor: IDoctor): string {
 export default async function DoctorsPage({
     searchParams,
 }: {
-    searchParams?: SearchParams;
+    searchParams: Promise<SearchParams>;
 }) {
-    const page = parsePage(searchParams?.page);
+    const params = await searchParams;
+    const page = parsePage(params?.page);
     const limit = 9;
-    const selectedSpecialtyTitle = parseString(searchParams?.specialties);
+    const selectedSpecialtyTitle = parseString(params?.specialties);
 
     const [doctorsResponse, specialtiesResponse] = await Promise.all([
         getAllDoctors({

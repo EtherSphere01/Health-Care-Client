@@ -227,7 +227,7 @@ export function CreateDoctorModal({
                                     value={formData.name}
                                     onChange={handleChange}
                                     required
-                                    placeholder="Dr. John Doe"
+                                    placeholder="John Doe"
                                 />
                             </div>
                             <div className="space-y-2">

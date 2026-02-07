@@ -179,7 +179,6 @@ export function PatientDashboardContent({
                                             </div>
                                             <div>
                                                 <p className="font-medium text-sm">
-                                                    Dr.{" "}
                                                     {appointment.doctor?.name ||
                                                         "Unknown"}
                                                 </p>
@@ -240,7 +239,6 @@ export function PatientDashboardContent({
                                         >
                                             <div>
                                                 <p className="font-medium text-sm">
-                                                    Dr.{" "}
                                                     {prescription.doctor
                                                         ?.name || "Unknown"}
                                                 </p>
@@ -293,7 +291,7 @@ export function PatientDashboardContent({
                             {appointmentSummary ? (
                                 <div className="mt-3 space-y-1">
                                     <p className="text-sm font-semibold text-slate-900">
-                                        Dr. {appointmentSummary.doctor?.name}
+                                        {appointmentSummary.doctor?.name}
                                     </p>
                                     <p className="text-xs text-slate-500">
                                         {formatDate(
@@ -330,7 +328,7 @@ export function PatientDashboardContent({
                             {latestPrescription ? (
                                 <div className="mt-3 space-y-1">
                                     <p className="text-sm font-semibold text-slate-900">
-                                        Dr. {latestPrescription.doctor?.name}
+                                        {latestPrescription.doctor?.name}
                                     </p>
                                     <p className="text-xs text-slate-500">
                                         {formatDate(

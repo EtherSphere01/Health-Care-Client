@@ -84,7 +84,6 @@ export function PatientPrescriptionsContent({
                                         </div>
                                         <div>
                                             <h3 className="font-semibold">
-                                                Dr.{" "}
                                                 {prescription.doctor?.name ||
                                                     "Unknown"}
                                             </h3>
@@ -209,7 +208,7 @@ function ViewPrescriptionModal({
                         </div>
                         <div>
                             <h3 className="font-semibold">
-                                Dr. {prescription.doctor?.name}
+                                {prescription.doctor?.name}
                             </h3>
                             <p className="text-sm text-muted-foreground">
                                 {prescription.doctor?.designation}

@@ -218,7 +218,6 @@ export function PatientAppointmentsContent({
                                         </div>
                                         <div>
                                             <h3 className="font-semibold text-lg">
-                                                Dr.{" "}
                                                 {appointment.doctor?.name ||
                                                     "Unknown"}
                                             </h3>
@@ -457,7 +456,7 @@ function ViewAppointmentModal({
                         </div>
                         <div>
                             <h3 className="font-semibold">
-                                Dr. {appointment.doctor?.name}
+                                {appointment.doctor?.name}
                             </h3>
                             <p className="text-sm text-muted-foreground">
                                 {appointment.doctor?.designation}
@@ -656,7 +655,7 @@ function WriteReviewModal({
                         </div>
                         <div>
                             <p className="font-medium">
-                                Dr. {appointment.doctor?.name}
+                                {appointment.doctor?.name}
                             </p>
                             <p className="text-sm text-muted-foreground">
                                 {appointment.doctor?.designation}

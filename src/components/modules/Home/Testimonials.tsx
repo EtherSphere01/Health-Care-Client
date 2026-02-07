@@ -19,7 +19,7 @@ export default function Testimonials() {
             rating: 5,
         },
         {
-            name: "Dr. Emily Weiss",
+            name: "Emily Weiss",
             role: "Neurologist",
             image: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&q=80&w=100",
             text: "As a doctor, the AI scribe feature allows me to focus 100% on my patients instead of typing notes. It's a game changer.",
@@ -42,7 +42,7 @@ export default function Testimonials() {
                     {testimonials.map((t, i) => (
                         <div
                             key={i}
-                            className="bg-[#F8FAFC] p-8 rounded-[16px] border border-slate-100 hover:shadow-xl transition-shadow relative"
+                            className="bg-[#F8FAFC] p-8 rounded-3xl border border-slate-100 hover:shadow-xl transition-shadow relative"
                         >
                             <Quote className="absolute top-8 right-8 h-8 w-8 text-indigo-200 fill-current" />
                             <div className="flex items-center gap-4 mb-6">

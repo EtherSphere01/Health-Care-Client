@@ -9,7 +9,16 @@ Short description: A modern Next.js (App Router) web client for the HealthCare M
 
 ## Live Frontend:
 
+https://health-care-client-rust.vercel.app/
+
 ## Live Backend:
+
+https://health-care-server-gamma.vercel.app/
+
+## Live Swagger (API Docs)
+
+- Swagger UI: https://health-care-server-gamma.vercel.app/docs
+- OpenAPI JSON: https://health-care-server-gamma.vercel.app/docs-json
 
 This frontend integrates with the backend REST API (Express + Prisma) and provides:
 Backend Repo: https://github.com/EtherSphere01/Health-Care-Server.git
@@ -111,7 +120,11 @@ Create a `.env` file in the project root.
 NODE_ENV=development
 
 # Backend API base URL
+# Local dev:
 NEXT_PUBLIC_API_URL=http://localhost:5000/api/v1
+
+# Deployed backend (use this when deploying the frontend):
+# NEXT_PUBLIC_API_URL=https://health-care-server-gamma.vercel.app/api/v1
 
 # Used by server-side route guarding / token verification in this codebase.
 # Must match the backend JWT secret.
